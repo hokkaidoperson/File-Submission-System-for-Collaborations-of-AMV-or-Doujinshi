@@ -41,6 +41,9 @@ $general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), 
 if (outofterm('submit') != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if (!in_term() and $_SESSION["state"] == 'p') $outofterm = TRUE;
+
+if (isset($general["size"]) and $general["size"] != "") $maxsize = $general["size"];
+else $maxsize = FILE_MAX_SIZE;
 ?>
 
 <h1>ファイル提出</h1>
@@ -70,7 +73,7 @@ else {
 ファイルをサーバーに直接アップロードする
 </div>
 <div class="card-body">
-<span class="text-decoration-none text-body">ポータルサイトのサーバーに直接アップロード出来るファイルの最大サイズは <b>' . $general["size"]  . 'MB</b> です。</span>
+<span class="text-decoration-none text-body">ポータルサイトのサーバーに直接アップロード出来るファイルの最大サイズは <b>' . $maxsize  . 'MB</b> です。</span>
 </div>
 </div>
 </a>
@@ -80,7 +83,7 @@ else {
 外部のファイルアップロードサービスを利用して送信する
 </div>
 <div class="card-body">
-<span class="text-decoration-none text-body">アップロードしたいファイルのサイズが' . $general["size"]  . 'MBを上回っている場合はこちらを選択して下さい。</span>
+<span class="text-decoration-none text-body">アップロードしたいファイルのサイズが' . $maxsize  . 'MBを上回っている場合はこちらを選択して下さい。</span>
 </div>
 </div>
 </a>
