@@ -279,7 +279,17 @@ function check(){
           problem = 1;
           probcus.push("【" + val.title + "】\nいずれかを選択して下さい。");
       	}
-    } else if (val.type == "radio" || val.type == "dropdown") {
+    } else if (val.type == "radio") {
+        if(typeof document.form["custom-" + val.id].innerHTML === 'string') {
+          if(document.form["custom-" + val.id].checked) item = document.form["custom-" + val.id].value;
+          else item = "";
+        } else item = document.form["custom-" + val.id].value;
+        result = check_required(val.required, item, val.title);
+        if (result != 0) {
+            problem = 1;
+            probcus.push("【" + val.title + "】\nいずれかを選択して下さい。");
+        }
+    } else if (val.type == "dropdown") {
         item = document.form["custom-" + val.id].value;
         result = check_required(val.required, item, val.title);
         if (result != 0) {

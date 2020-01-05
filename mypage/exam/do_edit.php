@@ -122,7 +122,7 @@ else {
 if ($filedata["_state"] == 0) {
 
 foreach ($formsetting as $key => $array) {
-    if ($key == "general") continue;
+    if ($key === "general") continue;
     echo "<tr>\n";
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";
@@ -166,7 +166,7 @@ if ($filedata["_state"] == 0) {
 <th>タイトル</th><td>' . htmlspecialchars($changeddata["title"]) . '</td>
 </tr>';
     foreach ($formsetting as $key => $array) {
-        if ($key == "general") continue;
+        if ($key === "general") continue;
         if (isset($changeddata[$array["id"]])) {
             echo "<tr>\n";
             echo "<th>" . htmlspecialchars($array["title"]) . "</th>";

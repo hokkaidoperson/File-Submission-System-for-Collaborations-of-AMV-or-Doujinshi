@@ -39,20 +39,20 @@ if (blackuser($_SESSION['userid'])) {
 </body>
 </html>');
 }
-if (blackip($_SESSION['admin'], $_SESSION['state'])) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'' . $siteurl . 'mypage/logout.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
-}
+//if (blackip($_SESSION['admin'], $_SESSION['state'])) {
+//    die('<!DOCTYPE html>
+//<html>
+//<head>
+//<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+//<meta name="viewport" content="width=device-width,initial-scale=1">
+//<meta http-equiv="refresh" content="0; URL=\'' . $siteurl . 'mypage/logout.php\'" />
+//<title>リダイレクト中…</title>
+//</head>
+//<body>
+//しばらくお待ち下さい…
+//</body>
+//</html>');
+//}
 
 
 //セッション切れ起こしてない？
@@ -167,8 +167,8 @@ aria-haspopup="true"
 aria-expanded="false">
 ログイン中
 </button>
-<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="z-index:9999">
-<h6 class="dropdown-header">
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="z-index:9999;">
+<h6 class="dropdown-header text-wrap">
 <?php echo $_SESSION["nickname"]; ?>
 </h6>
 <p class="text-right" style="margin-bottom: 0rem; margin-right: 0.7rem;">
@@ -200,8 +200,8 @@ if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0r
 ?>
 </p>
 <div class="dropdown-divider"></div>
-<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/account/index.php">アカウント情報編集</a>
-<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/logout.php">ログアウト</a>
+<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/account/index.php"><img src="<?php echo $siteurl; ?>images/account.svg" style="width: 1em; height: 1em;"> アカウント情報編集</a>
+<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/logout.php"><img src="<?php echo $siteurl; ?>images/logout.svg" style="width: 1em; height: 1em;"> ログアウト</a>
 </div>
 </div>
 </nav>

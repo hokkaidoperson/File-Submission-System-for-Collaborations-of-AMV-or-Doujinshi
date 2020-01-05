@@ -87,9 +87,17 @@ function check(){
   probmsg = 0;
 
 
-  if(document.form.subject.value === ""){
-    problem = 1;
-    probsel = 1;
+  //ラジオボタンの処理　参考：http://allcreator.net/joomz20ps-294/
+  if(typeof document.form.subject.innerHTML === 'string') {
+    if(!document.form.subject.checked){
+      problem = 1;
+      probsel = 1;
+    }
+  } else {
+    if(document.form.subject.value === ""){
+      problem = 1;
+      probsel = 1;
+    }
   }
 
 //文字数

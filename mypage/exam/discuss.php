@@ -137,7 +137,7 @@ else {
 if ($filedata["_state"] == 1) {
 
 foreach ($formsetting as $key => $array) {
-    if ($key == "general") continue;
+    if ($key === "general") continue;
     echo "<tr>\n";
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";

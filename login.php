@@ -115,25 +115,25 @@ if (blackuser($userid)) {
 </html>');
 }
 
-if (blackip($userdata["admin"], $state)) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>アクセスが制限されています</title>
-</head>
-<body>
-<p>現在ご利用のアクセス元（IPアドレス）からのログイン等が制限されているため、ログイン出来ませんでした。<br>
-あなた、もしくは同じアクセス元を利用する他の誰かが、イベントの運営を妨害するなどしたために主催者により制限されています。<br>
-もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
-<p>【ブロック情報】<br>
-IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
-リモートホスト：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
-<p><a href="index.php">こちらをクリックするとログインページに戻ります。</a></p>
-</body>
-</html>');
-}
+//if (blackip($userdata["admin"], $state)) {
+//    die('<!DOCTYPE html>
+//<html>
+//<head>
+//<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+//<meta name="viewport" content="width=device-width,initial-scale=1">
+//<title>アクセスが制限されています</title>
+//</head>
+//<body>
+//<p>現在ご利用のアクセス元（IPアドレス）からのログイン等が制限されているため、ログイン出来ませんでした。<br>
+//あなた、もしくは同じアクセス元を利用する他の誰かが、イベントの運営を妨害するなどしたために主催者により制限されています。<br>
+//もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
+//<p>【ブロック情報】<br>
+//IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
+//リモートホスト：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
+//<p><a href="index.php">こちらをクリックするとログインページに戻ります。</a></p>
+//</body>
+//</html>');
+//}
 
 
 //認証成功　ログイン情報の格納

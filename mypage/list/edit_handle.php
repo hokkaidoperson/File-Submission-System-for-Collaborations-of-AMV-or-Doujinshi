@@ -70,12 +70,10 @@ for ($i = 0; $i <= 9; $i++) {
 }
 $submitformdata["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
 
-if (outofterm('submit') != FALSE) $outofterm = TRUE;
+if (outofterm($id) != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
-
-if ($submitformdata["general"]["from"] > time() and !$outofterm) die_mypage('提出期間外です。');
-else if ($submitformdata["general"]["until"] <= time() and !$outofterm) die_mypage('提出期間外です。');
+if (!in_term() and !$outofterm) die_mypage('現在、ファイル提出期間外のため、ファイル操作は行えません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;

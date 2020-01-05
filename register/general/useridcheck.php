@@ -22,7 +22,7 @@ if (blackip(0, "g")) {
 <title>アクセスが制限されています</title>
 </head>
 <body>
-<p>現在ご利用のアクセス元（IPアドレス）からのログイン等が制限されているため、ユーザー登録出来ません。<br>
+<p>現在ご利用のアクセス元（IPアドレス）からのユーザー登録が制限されているため、ユーザー登録出来ません。<br>
 あなた、もしくは同じアクセス元を利用する他の誰かが、イベントの運営を妨害するなどしたために主催者により制限されています。<br>
 もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
 <p>【ブロック情報】<br>
@@ -347,7 +347,17 @@ function check(){
           problem = 1;
           probcus.push("【" + val.title + "】\nいずれかを選択して下さい。");
       	}
-    } else if (val.type == "radio" || val.type == "dropdown") {
+    } else if (val.type == "radio") {
+        if(typeof document.form["custom-" + val.id].innerHTML === 'string') {
+          if(document.form["custom-" + val.id].checked) item = document.form["custom-" + val.id].value;
+          else item = "";
+        } else item = document.form["custom-" + val.id].value;
+        result = check_required(val.required, item, val.title);
+        if (result != 0) {
+            problem = 1;
+            probcus.push("【" + val.title + "】\nいずれかを選択して下さい。");
+        }
+    } else if (val.type == "dropdown") {
         item = document.form["custom-" + val.id].value;
         result = check_required(val.required, item, val.title);
         if (result != 0) {
