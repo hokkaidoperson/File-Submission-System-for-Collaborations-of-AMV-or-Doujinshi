@@ -5,9 +5,9 @@ $titlepart = 'ユーザー登録画面の編集';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'userform_saved') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -64,9 +64,9 @@ if (!isset($_SESSION["userformdata"])) {
             if (!file_exists(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt')) break;
             $_SESSION["userformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt'), true);
         }
-        echo '<p><div class="border border-primary" style="padding:10px;">
+        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 一時ファイルを読み込みました。作業が完了したら、その内容を反映させるために「変更内容を保存し適用する」ボタンを必ず押して下さい。
-</div></p>';
+</div>';
     } else {
         for ($i = 0; $i <= 9; $i++) {
             if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
@@ -95,12 +95,12 @@ for ($i = 0; $i <= 9; $i++) {
 <font size="2">※1 ユーザーへの連絡には、本ポータルサイトのメッセージ機能をご利用下さい。</font></p>
 <p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
 <?php
-if (file_exists(DATAROOT . 'form/userinfo/done.txt')) echo '<p><div class="border border-warning" style="padding:10px;">
+if (file_exists(DATAROOT . 'form/userinfo/done.txt')) echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ユーザー登録時の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。
-</div></p>';
-else echo '<p><div class="border border-warning" style="padding:10px;">
+</div>';
+else echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ユーザー登録時の入力項目は後から変更出来ますが、変更は最小限にとどめる事をお勧め致します。
-</div></p>';
+</div>';
 ?>
 <p><a class="btn btn-primary" data-toggle="collapse" href="#detail" role="button" aria-expanded="false" aria-controls="detail">
 詳細を開く
@@ -208,7 +208,7 @@ for ($i = 0; $i <= 10; $i++) {
 ?>
 </table>
 </div>
-<p><a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm('設定内容を、実際のユーザー登録画面に適用します。よろしいですか？')">変更内容を保存し適用する</a>
+<p><a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm('設定内容を、実際のユーザー登録画面に適用します。よろしいですか？')">変更内容を保存し適用する</a> 
 <a href="dispose.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を、保存せず削除します。実際のユーザー登録画面は変更されません。よろしいですか？')">変更内容を保存せず破棄する</a></p>
 <script type="text/javascript">
 <!--
@@ -237,4 +237,3 @@ if ( problem == 1 ) {
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
-?>

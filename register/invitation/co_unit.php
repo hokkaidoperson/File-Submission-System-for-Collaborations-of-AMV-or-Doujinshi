@@ -10,7 +10,7 @@ if (file_exists(DATAROOT . 'mail/invitation/' . $_GET["towhom"] . '.txt')) {
         unlink(DATAROOT . 'mail/invitation/' . $_GET["towhom"] . '.txt');
         $deny = TRUE;
     }
-    if ($filedata["sectok"] != $_GET["sectok"]) $deny = TRUE;
+    if ($filedata["sectok"] !== $_GET["sectok"]) $deny = TRUE;
 } else $deny = TRUE;
 
 if ($deny) die('<!DOCTYPE html>
@@ -110,12 +110,12 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>共同運営者アカウント登録</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 共同運営者アカウントの登録をします。アカウントの登録後、合作の運営に合流します。<br><br>
 当サイトではJavascript及びCookieを使用します。現在は有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
-</div></p>
+</div>
 <br>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="co_useridcheck.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="towhom" value="<?php echo $_GET["towhom"]; ?>">

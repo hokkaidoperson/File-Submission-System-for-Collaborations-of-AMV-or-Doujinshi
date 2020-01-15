@@ -243,7 +243,7 @@ $userid = $_SESSION["userid"];
 //変更内容だけ入れる
 $changeditem = array();
 
-//承認について　0:自動　1:主催だけ　2:主催・共催
+//承認について　0:自動　1:編集の承認メンツ　2:新規提出の承認メンツ
 $recheck = 0;
 
 if ($_POST["method"] == 'direct') {
@@ -257,12 +257,12 @@ if ($_POST["method"] == 'direct') {
         $savename = $id;
         if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
         $changeditem["submit"] = $ext;
-        $recheck = 2;
+        $recheck = max($recheck, 2);
     }
 } else {
     if ($entereddata["url"] != $_POST["url"]) {
         $changeditem["url"] = $_POST["url"];
-        $recheck = 2;
+        $recheck = max($recheck, 2);
     }
     if ($entereddata["dldpw"] != $_POST["dldpw"]) {
         $changeditem["dldpw"] = $_POST["dldpw"];
@@ -277,7 +277,7 @@ if ($_POST["method"] == 'direct') {
 
 if ($entereddata["title"] != $_POST["title"]) {
     $changeditem["title"] = $_POST["title"];
-    $recheck = 1;
+    $recheck = max($recheck, 1);
 }
 
 //カスタムデータ格納　添付ファイルは専用フォルダに保存 別場所に拡張子
@@ -293,11 +293,11 @@ foreach ($submitformdata as $array) {
             $savename = $id . '_' . $array["id"];
             if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
             $changeditem[$array["id"]] = $ext;
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         if ($_POST["custom-" . $array["id"] . "-delete"] == "1") {
             $changeditem[$array["id"]] = "";
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
@@ -305,7 +305,7 @@ foreach ($submitformdata as $array) {
         $decode = htmlspecialchars_decode($_POST["custom-" . $array["id"]]);
         if ($entereddata[$array["id"]] != $decode) {
             $changeditem[$array["id"]] = $decode;
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
@@ -318,24 +318,24 @@ foreach ($submitformdata as $array) {
             foreach ((array)$_POST["custom-" . $array["id"]] as $key => $value) {
                 $changeditem[$array["id"]][$key] = htmlspecialchars_decode($value);
             }
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
     if ($array["type"] == "textbox2") {
         if ($entereddata[$array["id"] . "-1"] != $_POST["custom-" . $array["id"] . "-1"]) {
             $changeditem[$array["id"] . "-1"] = $_POST["custom-" . $array["id"] . "-1"];
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         if ($entereddata[$array["id"] . "-2"] != $_POST["custom-" . $array["id"] . "-2"]) {
             $changeditem[$array["id"] . "-2"] = $_POST["custom-" . $array["id"] . "-2"];
-            if ($array["recheck"] != 'auto') $recheck = 1;
+            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
     if ($entereddata[$array["id"]] != $_POST["custom-" . $array["id"]]) {
         $changeditem[$array["id"]] = $_POST["custom-" . $array["id"]];
-        if ($array["recheck"] != 'auto') $recheck = 1;
+        if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
     }
 }
 
@@ -403,20 +403,23 @@ $editid = time();
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array();
-$exammember["_state"] = 0;
+$exammember = array("_state" => 0);
 $autoaccept = TRUE;
 
 if ($recheck == 2) {
-    foreach (users_array() as $key => $data) {
+    $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $exammember["_membermode"] = "submit";
+    foreach ($submitmem as $key) {
+        if ($key == "_promoter") $key = id_promoter();
+        if (!user_exists($key)) continue;
+        $data = id_array($key);
         if ($data["state"] == 'g') continue;
         if ($data["state"] == 'o') continue;
-        $exammember[$key] = array(
-            "opinion" => 0,
-            "reason" => ""
-        );
         if ($_SESSION["userid"] == $key) {
-            $exammember[$key]["opinion"] = 1;
+            $exammember[$key] = array(
+                "opinion" => 1,
+                "reason" => ""
+            );
             continue;
         }
         $autoaccept = FALSE;
@@ -427,7 +430,7 @@ if ($recheck == 2) {
         $content = "$nickname 様
 
 $author 様が、$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報を編集しました。
-メインとなる提出ファイルに変更があったため、主催者・共同運営者による再確認が必要となります。
+その際、メインとなる提出ファイルに変更がありました。
 下記のURLからファイルをダウンロードし、作品内容を確認して下さい。
 
 　ファイル内容確認ページ：$pageurl
@@ -441,16 +444,19 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
         sendmail($data["email"], 'ファイル確認のお願い（内容変更・' . $_POST["title"] . '）', $content);
     }
 } else {
-    foreach (users_array() as $key => $data) {
-        if ($data["state"] == 'c') continue;
+    $submitmem = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $exammember["_membermode"] = "edit";
+    foreach ($submitmem as $key) {
+        if ($key == "_promoter") $key = id_promoter();
+        if (!user_exists($key)) continue;
+        $data = id_array($key);
         if ($data["state"] == 'g') continue;
         if ($data["state"] == 'o') continue;
-        $exammember[$key] = array(
-            "opinion" => 0,
-            "reason" => ""
-        );
         if ($_SESSION["userid"] == $key) {
-            $exammember[$key]["opinion"] = 1;
+            $exammember[$key] = array(
+                "opinion" => 1,
+                "reason" => ""
+            );
             continue;
         }
         $autoaccept = FALSE;
@@ -461,8 +467,7 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
         $content = "$nickname 様
 
 $author 様が、$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報を編集しました。
-変更の完了には、主催者の承認が必要です。
-下記のURLから、変更内容を確認して下さい。
+下記のURLから、変更内容を確認し、承認するか決めて下さい。
 
 　ファイル内容確認ページ：$pageurl
 　提出元IPアドレス　　　：$IP

@@ -81,6 +81,9 @@ foreach ((array)$_POST["to"] as $userid) {
 $authornick 様が、あなた宛てにメッセージを送信しました。
 
 
+【件名】
+$subject
+
 【メッセージ内容】
 $message
 

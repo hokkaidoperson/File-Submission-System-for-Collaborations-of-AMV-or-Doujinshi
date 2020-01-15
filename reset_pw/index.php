@@ -85,11 +85,11 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。<br><br>
 確認の為、お使いのアカウントの情報を以下に入力して下さい。
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="auth.php" method="post"<?php if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">

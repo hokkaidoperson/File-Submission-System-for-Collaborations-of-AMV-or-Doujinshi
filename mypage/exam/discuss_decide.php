@@ -17,20 +17,19 @@ if (!isset($_SESSION['userid'])) {
 </html>');
 }
 
-$accessok = 'none';
-
-//主催だけ（条件付きで共催も）
-if ($_SESSION["state"] == 'p') $accessok = 'ok';
-
-
-$prom = id_state('p');
-//議論ログ
 if (!file_exists(DATAROOT . 'exam_discuss/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
 $discussdata = json_decode(file_get_contents(DATAROOT . 'exam_discuss/' . $_POST["subject"] . '.txt'), true);
-if (!isset($discussdata["read"][$prom[0]])) $accessok = 'ok';
 
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+    $noprom = FALSE;
+} else $noprom = TRUE;
 
-if ($accessok == 'none') die('<!DOCTYPE html>
+if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
+
+if ($_SESSION["state"] != 'p' and $noprom == FALSE) die('<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -43,6 +42,21 @@ if ($accessok == 'none') die('<!DOCTYPE html>
 </body>
 </html>
 ');
+
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
+<title>リダイレクト中…</title>
+</head>
+<body>
+しばらくお待ち下さい…
+</body>
+</html>
+');
+
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
 if (!file_exists(DATAROOT . 'exam/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
@@ -70,11 +84,11 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 $answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $_POST["subject"] . '.txt'), true);
 if ($answerdata["_state"] != 1) die();
 
-if (!isset($answerdata[$_SESSION["userid"]])) die();
-else if ($answerdata[$_SESSION["userid"]]["opinion"] == -1) die();
+if (array_search($_SESSION["userid"], $submitmem) === FALSE) die();
+else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) die();
 
-//フォームgeneralデータ（理由通知の設定呼び出し）
-$formsetting = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+//理由通知の設定呼び出し
+$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 
 
 //結果を保存
@@ -118,13 +132,12 @@ switch ($_POST["ans"]){
 }
 
 //内部関数で送信
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
     if ($author == $key) continue;
     $nickname = nickname($key);
     $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」について、主催者が最終的な結論を入力し、議論を終了しました。
+$authornick 様の作品「" . $formdata["title"] . "」について、最終的な結論が入力されたため、議論を終了しました。
 $contentpart
 
 ファイル確認および議論へのご協力、ありがとうございます。
@@ -133,11 +146,11 @@ $contentpart
 }
 
 //提出者向け
-if ($formsetting["reason"] == "notice") {
+if ($examsetting["reason"] == "notice") {
     $reasons = "◇" . $_POST["reason"] . "\n\n";
 }
-else if ($formsetting["reason"] == "dont-a") $reasons = "大変お手数ですが、今回の判断の理由につきましては主催者に直接お尋ね願います。\n\n";
-else if ($formsetting["reason"] == "dont-b") $reasons = "大変恐れ入りますが、今回の判断の理由につきましてはお答え致しかねます。\n\n";
+else if ($examsetting["reason"] == "dont-a") $reasons = "大変お手数ですが、今回の判断の理由につきましては主催者に直接お尋ね願います。\n\n";
+else if ($examsetting["reason"] == "dont-b") $reasons = "大変恐れ入りますが、今回の判断の理由につきましてはお答え致しかねます。\n\n";
 switch ($_POST["ans"]){
     case 1:
         $content = "$authornick 様

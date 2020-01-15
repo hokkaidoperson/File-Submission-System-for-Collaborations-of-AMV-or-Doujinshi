@@ -259,13 +259,13 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>初期設定</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 管理者のアカウント、およびシステムの最低限必要な事項を設定します。「【必須】」と記載されている項目は必ず入力して下さい。<br><br>
 <b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b><br><br>
 当サイトではJavascript及びCookieを使用します。現在は有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。<br><br>
 <a href="https://www.hkdyukkuri.space/filesystem/doc/security" target="_blank">ポータルサイト設置にあたって、セキュリティ上注意すべき点をこちらからご確認願います。</a>
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <h2>管理者アカウントの情報</h2>

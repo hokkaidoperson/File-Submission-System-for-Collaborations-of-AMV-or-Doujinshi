@@ -176,10 +176,10 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行 - メール送信完了</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 お使いのアカウントの連絡メールアドレス宛に、パスワード再発行用URLが記載されたメールを送信しました。<br><br>
 メールを確認し、指示に従って下さい。
-</div></p>
+</div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>

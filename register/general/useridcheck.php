@@ -479,11 +479,11 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>アカウント登録</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ご指定頂いたユーザーIDはご利用になれます。続いて、アカウントの詳細を設定します。「【必須】」と付記された項目については、必ずご入力願います。<br><br>
 <b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b>
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
 if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>

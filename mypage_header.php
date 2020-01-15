@@ -175,26 +175,26 @@ aria-expanded="false">
 <?php
 switch ($_SESSION["state"]) {
     case 'p':
-        echo '<span class="dropdown-item-text badge badge-success text-wrap" style="width: 3rem;">
+        echo '<span class="dropdown-item-text badge badge-success text-wrap">
 主催者
 </span>';
         break;
     case 'c':
-    echo '<span class="dropdown-item-text badge badge-warning text-wrap" style="width: 5rem;">
+    echo '<span class="dropdown-item-text badge badge-warning text-wrap">
 共同運営者
 </span>';
         break;
     case 'g':
-    echo '<span class="dropdown-item-text badge badge-info text-wrap" style="width: 5rem;">
+    echo '<span class="dropdown-item-text badge badge-info text-wrap">
 一般参加者
 </span>';
         break;
     default:
-    echo '<span class="dropdown-item-text badge badge-secondary text-wrap" style="width: 4rem;">
+    echo '<span class="dropdown-item-text badge badge-secondary text-wrap">
 非参加者
 </span>';
 }
-if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0rem; margin-right: 0.7rem;"><span class="dropdown-item-text badge badge-danger text-wrap" style="width: 7rem;">
+if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0rem; margin-right: 0.7rem;"><span class="dropdown-item-text badge badge-danger text-wrap">
 システム管理者
 </span>';
 ?>
@@ -208,11 +208,11 @@ if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0r
 <div class="container">
 <?php
 if ($_SESSION["situation"] == 'loggedin') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ログインしました。
-</div></p>';
-    echo '<p><div class="border border-warning" style="padding:10px;">
+</div>';
+    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 当サイトに30分以上アクセスが無い場合は、セキュリティの観点から自動的にログアウトします。<br>
-特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。</div></p>';
+特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。</div>';
     $_SESSION["situation"] = '';
 }

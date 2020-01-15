@@ -5,9 +5,9 @@ $titlepart = 'システム設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'system_setting') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 システム設定を変更しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -27,7 +27,7 @@ $entereddata["recaptcha"] = json_decode(file_get_contents(DATAROOT . 'rec.txt'),
 
 <h1>システム設定</h1>
 <p>現在登録されている情報が入力欄に入力されています。変更したい項目のみ、入力欄の中身を変更して下さい。</p>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">

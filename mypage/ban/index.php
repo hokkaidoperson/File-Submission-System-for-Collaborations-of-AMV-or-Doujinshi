@@ -5,21 +5,21 @@ $titlepart = 'ブラックリスト・アクセス制限';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'ban_user_rem') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 選択したユーザーのアカウントの凍結を解除しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'ban_user_add') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 選択したユーザーのアカウントを凍結しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'ban_ip') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 アクセス制限の設定を変更しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 

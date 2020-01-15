@@ -11,7 +11,7 @@ if (file_exists($fileplace)) {
         unlink($fileplace);
         $deny = TRUE;
     }
-    if ($filedata["sectok"] != $_GET["sectok"]) $deny = TRUE;
+    if ($filedata["sectok"] !== $_GET["sectok"]) $deny = TRUE;
 } else $deny = TRUE;
 
 if ($deny) die('<!DOCTYPE html>
@@ -121,10 +121,10 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 新しいパスワードを入力して下さい。
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="special_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">

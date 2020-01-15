@@ -5,38 +5,38 @@ $titlepart = 'アカウント情報編集';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'pw_changed') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 パスワードの変更が完了しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'others_changed') {
-    echo '<p><div class="border border-success" style="padding:10px;">
-次の通り、登録情報を変更しました。<br>' . $_SESSION["situation2"] . '</div></p>';
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+次の通り、登録情報を変更しました。<br>' . $_SESSION["situation2"] . '</div>';
     $_SESSION["situation"] = '';
     $_SESSION["situation2"] = '';
 }
 if ($_SESSION["situation"] == 'others_nochange') {
-    echo '<p><div class="border border-success" style="padding:10px;">
-登録情報の変更はありませんでした。</div></p>';
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+登録情報の変更はありませんでした。</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'state_switcher_mail') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 メールを送信しました。手続き完了までしばらくお待ち下さい。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'state_switcher_admin_to_g') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 一般参加者に切り替えました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'state_switcher_admin_to_o') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 非参加者に切り替えました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 ?>

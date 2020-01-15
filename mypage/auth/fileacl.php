@@ -22,7 +22,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <?php
 $choices = id_state('c');
 
-if ($choices == array()) die_mypage('<p><div class="border border-danger" style="padding:10px;">共同運営者がいません。</div></p>');
+if ($choices == array()) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">共同運営者がいません。</div>');
 
 echo '<ul>';
 foreach ($choices as $choice) {

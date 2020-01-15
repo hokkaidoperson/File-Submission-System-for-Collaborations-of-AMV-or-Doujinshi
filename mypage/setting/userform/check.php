@@ -23,7 +23,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) 
 
 <h1>項目設定 - チェックボックス</h1>
 
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -85,9 +85,9 @@ if (isset($_SESSION["userformdata"][$number]["arrangement"]) and $_SESSION["user
 <font size="2">※チェックが無い場合は、選択肢を縦に並べます。</font>
 </div>
 <br>
-<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button>
+<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 
+<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a>
 </form>
-<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a></p>
 </div>
 
 <script type="text/javascript">

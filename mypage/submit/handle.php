@@ -25,26 +25,13 @@ if ($_SESSION["state"] != 'o') $accessok = 'ok';
 if ($accessok == 'none') die('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>
-</div>
-</div>
-<script>document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../../js/bootstrap.bundle.js"></script>
-</body>
-</html>
 ');
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt')) die('<h1>準備中です</h1>
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、ファイル提出を受け付け出来ません。<br>
 しばらくしてから、再度アクセス願います。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>
-</div>
-</div>
-<script>document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../../js/bootstrap.bundle.js"></script>
-</body>
-</html>');
+');
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
@@ -310,18 +297,20 @@ foreach ($submitformdata as $array) {
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array();
-$exammember["_state"] = 0;
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$exammember = array("_state" => 0);
 $autoaccept = TRUE;
-foreach (users_array() as $key => $data) {
+foreach ($submitmem as $key) {
+    if ($key == "_promoter") $key = id_promoter();
+    if (!user_exists($key)) continue;
+    $data = id_array($key);
     if ($data["state"] == 'g') continue;
     if ($data["state"] == 'o') continue;
-    $exammember[$key] = array(
-        "opinion" => 0,
-        "reason" => ""
-    );
     if ($_SESSION["userid"] == $key) {
-        $exammember[$key]["opinion"] = 1;
+        $exammember[$key] = array(
+            "opinion" => 1,
+            "reason" => ""
+        );
         continue;
     }
 

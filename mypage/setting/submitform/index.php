@@ -5,9 +5,9 @@ $titlepart = 'ファイル提出に関する設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'submitform_saved') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -65,9 +65,9 @@ if (!isset($_SESSION["submitformdata"])) {
             $_SESSION["submitformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/draft/' . "$i" . '.txt'), true);
         }
         if (file_exists(DATAROOT . 'form/submit/draft/general.txt')) $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/draft/general.txt'), true);
-        echo '<p><div class="border border-primary" style="padding:10px;">
+        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 一時ファイルを読み込みました。作業が完了したら、その内容を反映させるために「変更内容を保存し適用する」ボタンを必ず押して下さい。
-</div></p>';
+</div>';
     } else {
         for ($i = 0; $i <= 9; $i++) {
             if (!file_exists(DATAROOT . 'form/submit/draft/')) {
@@ -103,12 +103,12 @@ if (isset($_SESSION["submitformdata"]["general"])) {
 <p>「提出ファイル」「タイトル」の2項目は、システム上必要になるため、ファイル提出時に必ず入力を求めます。</p>
 <p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
 <?php
-if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<p><div class="border border-warning" style="padding:10px;">
+if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ファイル提出時の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。
-</div></p>';
-else echo '<p><div class="border border-warning" style="padding:10px;">
+</div>';
+else echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ファイル提出時の入力項目は後から変更出来ますが、変更は最小限にとどめる事をお勧め致します。
-</div></p>';
+</div>';
 ?>
 <p><a class="btn btn-primary" data-toggle="collapse" href="#detail" role="button" aria-expanded="false" aria-controls="detail">
 詳細を開く
@@ -215,8 +215,8 @@ for ($i = 0; $i <= 10; $i++) {
 </div>
 <p>
 <?php
-if (isset($_SESSION["submitformdata"]["general"])) echo '<a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm(\'設定内容を、実際のファイル提出画面に適用します。よろしいですか？\')">変更内容を保存し適用する</a>';
-else echo '<a href="#" class="btn btn-primary disabled" tabindex="-1" role="button" aria-disabled="true">変更内容を保存し適用する</a>';
+if (isset($_SESSION["submitformdata"]["general"])) echo '<a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm(\'設定内容を、実際のファイル提出画面に適用します。よろしいですか？\')">変更内容を保存し適用する</a> ';
+else echo '<a href="#" class="btn btn-primary disabled" tabindex="-1" role="button" aria-disabled="true">変更内容を保存し適用する</a> ';
 ?>
 <a href="dispose.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を、保存せず削除します。実際のファイル提出画面は変更されません。よろしいですか？')">変更内容を保存せず破棄する</a></p>
 <script type="text/javascript">
@@ -246,4 +246,3 @@ if ( problem == 1 ) {
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
-?>

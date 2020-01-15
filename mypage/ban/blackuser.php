@@ -24,7 +24,7 @@ unset($canshow[id_admin()]);
 <p>凍結されたユーザーは、作品提出などの操作を一切行えなくなります。また、提出情報の一括ダウンロード時は、凍結されたユーザーは除外されます。<br>
 ただし、凍結されたユーザーのファイルは抹消されず、作品一覧のページから閲覧出来ます（凍結されたユーザーである旨が表示されます）。また、凍結解除の操作を行えば、これまで通りファイル提出などを行えるようになります。</p>
 
-<form name="form" action="blackuser_handle.php" method="post" onSubmit="return check()">
+<form name="form" action="blackuser_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">

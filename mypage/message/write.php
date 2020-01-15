@@ -64,7 +64,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="3">現在、表示出来�
 ?>
 </table>
 </div>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
 <input type="text" name="msg_subject" class="form-control" id="msg_subject" value="">

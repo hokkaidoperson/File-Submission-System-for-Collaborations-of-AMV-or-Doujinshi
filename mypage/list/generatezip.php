@@ -5,9 +5,9 @@ $titlepart = '一括ダウンロード';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'zip_generated') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ZIPファイルの生成が完了しました。<br>
-<a href="generatezip_dld.php" target="_blank">こちらをクリックして、生成したZIPファイルをダウンロードして下さい。</a></div></p>';
+<a href="generatezip_dld.php" target="_blank">こちらをクリックして、生成したZIPファイルをダウンロードして下さい。</a></div>';
     $_SESSION["situation"] = '';
 }
 
@@ -87,7 +87,7 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 └── 参加者データ.csv
 </code></pre>
 
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="generatezip_exec.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">

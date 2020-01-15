@@ -15,7 +15,7 @@ if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エ
 
 <form name="form" action="write_simultaneously_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
 <input type="text" name="msg_subject" class="form-control" id="msg_subject" value="">

@@ -17,12 +17,29 @@ if (!isset($_SESSION['userid'])) {
 </html>');
 }
 
-$accessok = 'none';
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+    $noprom = FALSE;
+} else $noprom = TRUE;
 
-//主催のみ
-if ($_SESSION["state"] == 'p') $accessok = 'ok';
+$author = $_GET["author"];
+$id = $_GET["id"];
 
-if ($accessok == 'none') die('<!DOCTYPE html>
+
+//回答データ
+$answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
+if ($answerdata["_state"] != 0) die();
+
+$echoforceclose = FALSE;
+if ($noprom) {
+    if (!($nopermission and !$bymyself) and isset($answerdata[$_SESSION["userid"]]["opinion"]) and $answerdata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
+} else if ($_SESSION["state"] == 'p') {
+    if (isset($answerdata[$_SESSION["userid"]]["opinion"]) and $answerdata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
+}
+
+if (!$echoforceclose) die('<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -36,20 +53,28 @@ if ($accessok == 'none') die('<!DOCTYPE html>
 </html>
 ');
 
-$author = $_GET["author"];
-$id = $_GET["id"];
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
+<title>リダイレクト中…</title>
+</head>
+<body>
+しばらくお待ち下さい…
+</body>
+</html>
+');
+
 
 if ($author == "" or $id == "") die('パラメーターエラー');
 
 if (!file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) die('ファイルが存在しません。');
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
-//回答データ
-$answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
-if ($answerdata["_state"] != 0) die();
-
-//フォームgeneralデータ（理由通知の設定呼び出し）
-$formsetting = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+//理由通知の設定呼び出し
+$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 
 //意見が一致したのか？（resultが0のままだったら対立してる）
 $result = 0;
@@ -59,8 +84,10 @@ $op1 = 0;
 $op2 = 0;
 $op3 = 0;
 $count = 0;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
+    if (!isset($answerdata[$key])) continue;
+    $data = $answerdata[$key];
+    if ($data["opinion"] == -1) continue;
     if ($data["opinion"] == 0) continue;
     switch ($data["opinion"]){
         case 1:
@@ -100,8 +127,9 @@ $authornick = nickname($author);
 if ($result == 0) {
     $pageurl = $siteurl . 'mypage/exam/discuss.php?author=' . $author . '&id=' . $id;
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
+        if ($data["opinion"] == -1) continue;
         $nickname = nickname($key);
         $content = "$nickname 様
 
@@ -136,8 +164,9 @@ $authornick 様の作品「" . $formdata["title"] . "」について、ファイ
     }
 
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
+        if ($data["opinion"] == -1) continue;
         if ($author == $key) continue;
         $nickname = nickname($key);
         $content = "$nickname 様
@@ -152,14 +181,14 @@ $contentpart
 
     //提出者向け
     $reasons = "";
-    if ($formsetting["reason"] == "notice") {
+    if ($examsetting["reason"] == "notice") {
         foreach ($answerdata as $key => $data) {
             if (strpos($key, '_') !== FALSE) continue;
             if ($data["reason"] != "") $reasons = $reasons . "◇" . $data["reason"] . "\n\n";
         }
     }
-    else if ($formsetting["reason"] == "dont-a") $reasons = "大変お手数ですが、今回の判断の理由につきましては主催者に直接お尋ね願います。\n\n";
-    else if ($formsetting["reason"] == "dont-b") $reasons = "大変恐れ入りますが、今回の判断の理由につきましてはお答え致しかねます。\n\n";
+    else if ($examsetting["reason"] == "dont-a") $reasons = "大変お手数ですが、今回の判断の理由につきましては主催者に直接お尋ね願います。\n\n";
+    else if ($examsetting["reason"] == "dont-b") $reasons = "大変恐れ入りますが、今回の判断の理由につきましてはお答え致しかねます。\n\n";
     switch ($result){
         case 1:
             $content = "$authornick 様

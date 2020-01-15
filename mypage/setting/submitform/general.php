@@ -17,7 +17,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 
 <h1>項目設定 - 全体</h1>
 
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="type" value="general">
@@ -101,32 +101,10 @@ if (isset($_SESSION["submitformdata"]["general"]["size"])) echo htmlspecialchars
 ※入力が無い場合は、<?php echo FILE_MAX_SIZE; ?>MBとして設定します。
 </font>
 </div>
-<div class="form-group">
-作品が拒否された際の送信者への通知について【必須】
-<div class="form-check">
-<input id="reason-notice" class="form-check-input" type="radio" name="reason" value="notice" <?php
-if (isset($_SESSION["submitformdata"]["general"]["reason"]) and $_SESSION["submitformdata"]["general"]["reason"] == "notice") echo 'checked="checked"';
-?>>
-<label class="form-check-label" for="reason-notice">拒否された理由を記載する（複数人でファイル確認を行っている場合は、拒否に票を入れたメンバー全員分の理由文（下記参照）が記載されます。）</label>
-</div>
-<div class="form-check">
-<input id="reason-dont-a" class="form-check-input" type="radio" name="reason" value="dont-a" <?php
-if (isset($_SESSION["submitformdata"]["general"]["reason"]) and $_SESSION["submitformdata"]["general"]["reason"] == "dont-a") echo 'checked="checked"';
-?>>
-<label class="form-check-label" for="reason-dont-a">拒否された理由は記載しないが、「承認されなかった理由についてはお問い合わせ下さい」という旨の文を付け加える</label>
-</div>
-<div class="form-check">
-<input id="reason-dont-b" class="form-check-input" type="radio" name="reason" value="dont-b" <?php
-if (isset($_SESSION["submitformdata"]["general"]["reason"]) and $_SESSION["submitformdata"]["general"]["reason"] == "dont-b") echo 'checked="checked"';
-?>>
-<label class="form-check-label" for="reason-dont-b">拒否された理由は記載せず、「承認されなかった理由についてはお答えしかねます」という旨の文を付け加える</label>
-</div>
-<font size="2">※ファイル確認の際、拒否に票を入れる場合にはその理由を入力する事になっています。ここで記入する理由を「理由文」と呼称します。</font>
-</div>
 <br>
-<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button>
+<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 
+<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a>
 </form>
-<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a></p>
 </div>
 
 <script src="../../../js/calendar_script.js" charset="utf-8"></script>
@@ -142,7 +120,6 @@ function check(){
   probdtl = 0;
   probext = 0;
   probsiz = 0;
-  probnot = 0;
 
 //日付と時刻
   if(document.form.from_date.value === "" || document.form.from_time.value === ""){
@@ -158,12 +135,6 @@ function check(){
   } else if (date_check(document.form.until_date) === false || time_check(document.form.until_time) === false){
     problem = 1;
     probuntil = 2;
-  }
-
-//必須の場合
-  if(document.form.reason.value === ""){
-    problem = 1;
-    probnot = 1;
   }
 
 //文字数 必須でない
@@ -223,10 +194,6 @@ if ( problem == 1 ) {
   if ( probsiz == 2) {
     alert( "【サーバーに直接アップロード可能な最大サイズ】\n数字が小さすぎるか、大きすぎます。1～<?php echo FILE_MAX_SIZE; ?>の間で指定して下さい。" );
   }
-  if ( probnot == 1) {
-    alert( "【作品が拒否された際の送信者への通知について】\nいずれかを選択して下さい。" );
-  }
-
   return false;
 }
 
@@ -351,4 +318,3 @@ function time_check(time){
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
-?>

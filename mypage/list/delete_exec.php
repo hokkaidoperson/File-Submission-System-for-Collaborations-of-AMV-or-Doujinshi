@@ -84,9 +84,15 @@ $noticeto = array();
 if (file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) {
     $examdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
     unlink(DATAROOT . 'exam/' . $author . '_' . $id . '.txt');
+    $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $key = array_search("_promoter", $submitmem);
+    if ($key !== FALSE) {
+        $submitmem[$key] = id_promoter();
+    }
+
     if ($examdata["_state"] == 0 or $examdata["_state"] == 1) {
-        foreach ($examdata as $key => $data) {
-            if (strpos($key, '_') !== FALSE) continue;
+        foreach ($submitmem as $key) {
+            $data = $examdata[$key];
             if ($data["opinion"] == -1) continue;
             $noticeto[$key] = 1;
         }
@@ -96,9 +102,16 @@ if (file_exists(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt')) unli
 foreach(glob(DATAROOT . 'exam_edit/' . $author . '_' . $id . '_*.txt') as $filename) {
     $examdata = json_decode(file_get_contents($filename), true);
     unlink($filename);
+    $memberfile = DATAROOT . 'exammember_' . $examdata["_membermode"] . '.txt';
+    $submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $key = array_search("_promoter", $submitmem);
+    if ($key !== FALSE) {
+        $submitmem[$key] = id_promoter();
+    }
+
     if ($examdata["_state"] == 0 or $examdata["_state"] == 1) {
-        foreach ($examdata as $key => $data) {
-            if (strpos($key, '_') !== FALSE) continue;
+        foreach ($submitmem as $key) {
+            $data = $examdata[$key];
             if ($data["opinion"] == -1) continue;
             $noticeto[$key] = 1;
         }

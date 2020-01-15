@@ -7,7 +7,7 @@ require_once(PAGEROOT . 'mypage_header.php');
 ?>
 
 <h1>パスワード変更</h1>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="pw_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">

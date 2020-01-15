@@ -80,18 +80,18 @@ switch($id) {
 
 if ($author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
-    echo '<p><div class="border border-warning" style="padding:10px;">
+    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
-</div></p>';
+</div>';
     $_SESSION["dld_caution"] = 'ok';
 }
 }
-if (blackuser($author)) echo '<p><div class="border border-danger" style="padding:10px;">
+if (blackuser($author)) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 このユーザーは凍結されています。
-</div></p>';
+</div>';
 ?>
 
 <h1><?php echo $disp; ?></h1>
@@ -196,22 +196,22 @@ if (outofterm($id) != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
 
-if (!in_term() and !$outofterm) die_mypage('<p><div class="border border-danger" style="padding:10px;">
+if (!in_term() and !$outofterm) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在、ファイル提出期間外のため、ファイル操作（編集・削除）は行えません。
-</div></p>');
+</div>');
 else {
-    if (!in_term() and $_SESSION["state"] == 'p') echo '<p><div class="border border-primary" style="padding:10px;">
+    if (!in_term() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、主催者は常時ファイル操作（編集・削除）が可能です。
-</div></p>';
-    else if (!in_term()) echo '<p><div class="border border-primary" style="padding:10px;">
+</div>';
+    else if (!in_term()) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、あなたは主催者からこのファイルの操作（編集・削除）を許可されています（' . date('Y年n月j日G時i分s秒', outofterm($id)) . 'まで）。
-</div></p>';
+</div>';
 }
 ?>
 <?php
-if ($formdata["exam"] == 0 or $formdata["editing"] == 1) echo '<p><div class="border border-primary" style="padding:10px;">
+if ($formdata["exam"] == 0 or $formdata["editing"] == 1) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在、ファイルの確認待ちです。確認が完了するまでは、ファイルの編集が出来ません（削除は出来ます）。
-</div></p><p>';
+</div><p>';
 else echo '<p><a href="edit.php?author=' . $author . '&id=' . $id . '" class="btn btn-primary" role="button">内容を編集する（運営チームによる再確認が必要になる場合があります）</a> ';
 ?>
 <a href="delete.php?author=<?php echo $author; ?>&id=<?php echo $id; ?>" class="btn btn-danger" role="button">この作品を削除する</a></p>

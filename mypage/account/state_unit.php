@@ -35,7 +35,7 @@ if ($_SESSION["state"] == 'p')  {
 <p>手続きが完了するまでは、あなたは引き続き主催者のままです。<br>
 手続きが完了次第、あなたは一般参加者に変更となります。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
-<form name="form" action="state_leave_promoter.php" method="post" onSubmit="return check()">
+<form name="form" action="state_leave_promoter.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">

@@ -23,7 +23,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]
 
 <h1>項目設定 - チェックボックス</h1>
 
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -92,12 +92,12 @@ if (isset($_SESSION["submitformdata"][$number]["recheck"]) and $_SESSION["submit
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、主催者の確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、主催者の確認が必要となります。</font>
+<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
 </div>
 <br>
-<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button>
+<button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 
+<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a>
 </form>
-<a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a></p>
 </div>
 
 <script type="text/javascript">

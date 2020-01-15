@@ -49,19 +49,19 @@ if ($_SESSION["state"] == 'o' or $disable) $tojsp = array();
 <h1>アカウント情報変更（パスワード以外）</h1>
 <p>現在登録されている情報が入力欄に入力されています。変更したい項目のみ、入力欄の中身を変更して下さい（ユーザーIDは変更出来ません）。</p>
 <?php
-if (!before_deadline() and $disable) echo '<p><div class="border border-danger" style="padding:10px;">
+if (!before_deadline() and $disable) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在、ファイル提出期間外です。入力内容の確認は出来ますが、メールアドレス・パスワード以外は変更出来ません。
-</div></p>';
+</div>';
 else {
-    if (!before_deadline() and $_SESSION["state"] == 'p') echo '<p><div class="border border-primary" style="padding:10px;">
+    if (!before_deadline() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、主催者は常時アカウント情報の編集が可能です。
-</div></p>';
-    else if (!before_deadline()) echo '<p><div class="border border-primary" style="padding:10px;">
+</div>';
+    else if (!before_deadline()) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、あなたは主催者からアカウント情報の編集を許可されています（' . date('Y年n月j日G時i分s秒', outofterm('userform')) . 'まで）。
-</div></p>';
+</div>';
 }
 ?>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="others_handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
 ?>onSubmit="return check()">

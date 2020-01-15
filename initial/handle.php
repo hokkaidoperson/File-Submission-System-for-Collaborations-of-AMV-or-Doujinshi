@@ -107,7 +107,7 @@ if (!file_exists(DATAROOT . 'users/')) {
 
 //サイトのURLを取得
 $url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
-$url = str_replace('initial/handle.php', '', $url);
+$url = preg_replace('/initial\/handle\.php$/', '', $url);
 
 //サイト名を保管しとく
 if (file_put_contents(DATAROOT . 'siteurl.txt', $url) === FALSE) die('サイトURLの書き込みに失敗しました。');

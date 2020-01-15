@@ -79,7 +79,7 @@ $userid = $_SESSION["userid"];
 
 <h1>ファイル編集</h1>
 <p>変更したい項目のみ、入力欄の内容を変更して下さい（変更する内容によっては、運営チームによる承認が必要な可能性があります）。</p>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="edit_handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
 ?>onSubmit="return check()">
@@ -107,7 +107,7 @@ if ($method == 'direct') {
 
     echo '<input type="file" class="form-control-file" id="submit" name="submit">';
     if ($submitformdata["general"]["detail"] != "") echo '<font size="2">' . $submitformdata["general"]["detail"] . '</font>';
-    echo '<div><font size="2" class="text-danger"><b>※提出ファイル自体を変更する場合、主催者・共同運営者による再確認が必要となります。</b></font></div>';
+    echo '<div><font size="2"><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></font></div>';
     echo '</div>';
 } else {
     ?>
@@ -119,7 +119,7 @@ echo htmlspecialchars($entereddata["url"]);
 <?php
 if ($submitformdata["general"]["detail"] != "") echo '<font size="2">' . $submitformdata["general"]["detail"] . '</font>';
 ?>
-<div><font size="2" class="text-danger"><b>※提出ファイル自体を変更する場合、主催者・共同運営者による再確認が必要となります。</b></font></div>
+<div><font size="2"><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></font></div>
 </div>
 <div class="form-group">
 <label for="dldpw">ファイルのダウンロードに必要なパスワード（あれば）</label>
@@ -161,7 +161,7 @@ if (isset($entereddata["due"])) echo date('H:i', $entereddata["due"]);
 <input type="text" name="title" class="form-control" id="title" value="<?php
 echo htmlspecialchars($entereddata["title"]);
 ?>">
-<font size="2"><b>※この項目の変更には主催者による承認が必要です。</b></font>
+<font size="2"><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></font>
 </div>
 <?php
 foreach ($submitformdata as $data) {
@@ -371,7 +371,7 @@ foreach ($submitformdata as $data) {
             if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
         break;
     }
-    if ($data["recheck"] != "auto") echo '<div><font size="2"><b>※この項目の変更には主催者による承認が必要です。</b></font></div>';
+    if ($data["recheck"] != "auto") echo '<div><font size="2"><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></font></div>';
     else echo '<div><font size="2">※この項目の変更は自動承認されます。</font></div>';
     echo '</div>';
 }

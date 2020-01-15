@@ -36,6 +36,21 @@ if ($accessok == 'none') die('<!DOCTYPE html>
 </html>
 ');
 
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
+<title>リダイレクト中…</title>
+</head>
+<body>
+しばらくお待ち下さい…
+</body>
+</html>
+');
+
+
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
 if (!file_exists(DATAROOT . 'exam/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
 list($author, $id) = explode('_', $_POST["subject"]);
@@ -53,8 +68,14 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 $answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $_POST["subject"] . '.txt'), true);
 if ($answerdata["_state"] != 1) die();
 
-if (!isset($answerdata[$_SESSION["userid"]])) die();
-else if ($answerdata[$_SESSION["userid"]]["opinion"] == -1) die();
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+}
+
+if (array_search($_SESSION["userid"], $submitmem) === FALSE) die();
+else if (isset($answerdata[$_SESSION["userid"]]["opinion"]) and $answerdata[$_SESSION["userid"]]["opinion"] == -1) die();
 
 //議論ログ
 if (!file_exists(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt')) die('ファイルが存在しません。');
@@ -70,11 +91,9 @@ $discussdata["comments"][$_SESSION["userid"] . "_" . time()] = $_POST["add"];
 //既読を未読にする＆通知飛ばす
 $authornick = nickname($author);
 $pageurl = $siteurl . 'mypage/exam/discuss.php?author=' . $author . '&id=' . $id;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
-    if (!isset($discussdata["read"][$key])) die();
+foreach ($submitmem as $key) {
     if ($key == $_SESSION["userid"]) continue;
-    if ($discussdata["read"][$key] == 1) {
+    if (isset($discussdata["read"][$key]) and $discussdata["read"][$key] == 1) {
         $discussdata["read"][$key] = 0;
         $nickname = nickname($key);
         $content = "$nickname 様

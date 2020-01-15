@@ -13,6 +13,12 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>、<b>共同運営者</b>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die_mypage('<h1>準備中です</h1>
+<p>必要な設定が済んでいないため、只今、ファイル確認が出来ません。<br>
+しばらくしてから、再度アクセス願います。</p>
+<p><a href="../index.php">マイページトップに戻る</a></p>');
+
+
 //ファイル提出者のユーザーID
 $author = $_GET["author"];
 
@@ -36,6 +42,7 @@ for ($i = 0; $i <= 9; $i++) {
     $formsetting[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
 $formsetting["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 
 //回答データ
 if (!file_exists(DATAROOT . 'exam_edit/' . $author . '_' . $id . '_' . $editid . '.txt')) die_mypage('ファイルが存在しません。');
@@ -47,10 +54,19 @@ if ($filedata["_state"] == 0) {
     $changeddata = json_decode(file_get_contents(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
 }
 
+$memberfile = DATAROOT . 'exammember_' . $filedata["_membermode"] . '.txt';
+
+$submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+    $noprom = FALSE;
+} else $noprom = TRUE;
+
 $nopermission = FALSE;
 $bymyself = FALSE;
-if (!isset($filedata[$_SESSION["userid"]])) $nopermission = TRUE;
-else if ($filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
+if (array_search($_SESSION["userid"], $submitmem) === FALSE) $nopermission = TRUE;
+else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
 if ($author == $_SESSION["userid"]) {
     $bymyself = TRUE;
     $nopermission = TRUE;
@@ -80,12 +96,12 @@ else echo '<h1>提出作品（項目変更）の確認・承認 - 回答履歴</
 
 if ($filedata["_state"] == 0 and $author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
-    echo '<p><div class="border border-warning" style="padding:10px;">
+    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
-</div></p>';
+</div>';
     $_SESSION["dld_caution"] = 'ok';
 }
 }
@@ -204,33 +220,41 @@ else echo '<th>回答者</th><th>回答内容</th><th>理由</th>';
 ?>
 </tr>
 <?php
-foreach ($filedata as $key => $data) {
+if ($filedata["_state"] == 0) foreach ($submitmem as $key) {
+    if (!user_exists($key)) continue;
+    $usdata = id_array($key);
+    if ($usdata["state"] == 'g') continue;
+    if ($usdata["state"] == 'o') continue;
+    if (isset($filedata[$key])) $data = $filedata[$key];
+    else $data = array("opinion" => 0, "reason" => "");
+    $nickname = nickname($key);
+    echo "<tr>\n";
+    echo "<td>" . htmlspecialchars($nickname) . "</td>";
+    if ($data["opinion"] == -1) echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
+    else if ($data["opinion"] != 0) echo '<td class="text-success">回答済み</td>';
+    else echo '<td>未回答</td>';
+    echo "</tr>\n";
+} else foreach ($filedata as $key => $data) {
     if (strpos($key, '_') !== FALSE) continue;
     $nickname = nickname($key);
     echo "<tr>\n";
     echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($filedata["_state"] == 0) {
-        if ($data["opinion"] == -1) echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
-        else if ($data["opinion"] != 0) echo '<td class="text-success">回答済み</td>';
-        else echo '<td>未回答</td>';
-    } else {
-        // opinion 0...未回答　1...承認 2...拒否 -1...主催or共催を降りた
-        switch ($data["opinion"]) {
-            case -1:
-                echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
-            break;
-            case 1:
-                echo '<td>承認する</td>';
-            break;
-            case 2:
-                echo '<td>拒否する</td>';
-            break;
-            default:
-                echo '<td>未回答</td>';
-            break;
-        }
-        echo '<td>' . htmlspecialchars($data["reason"]) . '</td>';
+    // opinion 0...未回答　1...承認 2...拒否 -1...主催or共催を降りた
+    switch ($data["opinion"]) {
+        case -1:
+            echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
+        break;
+        case 1:
+            echo '<td>承認する</td>';
+        break;
+        case 2:
+            echo '<td>拒否する</td>';
+        break;
+        default:
+            echo '<td>未回答</td>';
+        break;
     }
+    echo '<td>' . htmlspecialchars($data["reason"]) . '</td>';
     echo "</tr>\n";
 }
 if (isset($filedata["_result"]) and $filedata["_result"] != "") {
@@ -250,7 +274,7 @@ if (isset($filedata["_result"]) and $filedata["_result"] != "") {
 </div>
 <?php if ($filedata["_state"] != 0) die_mypage(); ?>
 <h2>回答する</h2>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <?php if (!$nopermission) { ?>
 <form name="form" action="do_edit_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
@@ -259,13 +283,13 @@ if (isset($filedata["_result"]) and $filedata["_result"] != "") {
 この変更を承認してもよいと思いますか？
 <div class="form-check">
 <input id="ans-1" class="form-check-input" type="radio" name="ans" value="1" <?php
-if ($filedata[$_SESSION["userid"]]["opinion"] == 1) echo 'checked="checked"';
+if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == 1) echo 'checked="checked"';
 ?>>
 <label class="form-check-label" for="ans-1">はい、問題ありません。</label>
 </div>
 <div class="form-check">
 <input id="ans-2" class="form-check-input" type="radio" name="ans" value="2" <?php
-if ($filedata[$_SESSION["userid"]]["opinion"] == 2) echo 'checked="checked"';
+if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == 2) echo 'checked="checked"';
 ?>>
 <label class="form-check-label" for="ans-2">いいえ、問題があります。</label>
 </div>
@@ -273,10 +297,10 @@ if ($filedata[$_SESSION["userid"]]["opinion"] == 2) echo 'checked="checked"';
 <div class="form-group">
 <label for="reason">「問題がある」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
 <textarea id="reason" name="reason" rows="4" cols="80" class="form-control"><?php
-echo htmlspecialchars($filedata[$_SESSION["userid"]]["reason"]);
+if (isset($filedata[$_SESSION["userid"]]["opinion"])) echo htmlspecialchars($filedata[$_SESSION["userid"]]["reason"]);
 ?></textarea>
 <font size="2"><?php
-if ($formsetting["general"]["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載される可能性があります。</b>";
+if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載される可能性があります。</b>";
 else echo "※ここで記入した理由は、ファイル提出者本人宛に送信するメールに直接的に記載されません。";
 ?></font>
 </div>
@@ -284,14 +308,14 @@ else echo "※ここで記入した理由は、ファイル提出者本人宛に
 <button type="submit" class="btn btn-primary" id="submitbtn">回答を送信する</button>
 </form>
 <?php } else if ($bymyself) echo 'あなたはこのファイルの提出者であるため、「問題無い」に自動投票されています。';
-else echo 'あなたはこのファイルに対する回答権を持っていません。<br>
-あなたが主催者あるいは共同運営者になる前に提出された変更であるため、確認権が与えられませんでした。'; ?>
+else echo 'あなたはファイル確認の権限を持っていません。'; ?>
 </div>
 <?php
 $echoforceclose = FALSE;
-if ($_SESSION["state"] == 'p') {
-    if (!isset($filedata[$_SESSION["userid"]]["opinion"])) $echoforceclose = TRUE;
-    else if ($filedata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
+if ($noprom) {
+    if (!($nopermission and !$bymyself) and isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
+} else if ($_SESSION["state"] == 'p') {
+    if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
 }
 
 if ($echoforceclose) {
@@ -299,6 +323,7 @@ if ($echoforceclose) {
 <p><b>原則としては、メンバー全員の投票が終わるのを待って下さい。</b><br>
 <u>メンバーの誰かが投票をしておらず、かつそのメンバーと連絡が取れない場合</u>は、作業を長引かせないために、以下のボタンを押して、投票を終了して下さい。</p>
 <p><b>この機能は、あくまでも最終手段としてご利用願います。</b></p>
+<p>※この機能は、原則として主催者にのみ開放されています。ファイル確認メンバーに主催者がいない場合には、共同運営者に開放されています。</p>
 <p><a href="do_edit_forceclose.php?author=' . $author . '&id=' . $id . '&edit=' . $editid . '" class="btn btn-danger" role="button" onclick="return window.confirm(\'投票を強制的に締め切ります。この操作を取り消す事は出来ませんが、よろしいですか？\')">投票を強制的に締め切る</a></p>';
 }
 ?>

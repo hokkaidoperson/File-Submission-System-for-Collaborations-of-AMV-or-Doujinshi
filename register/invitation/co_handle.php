@@ -174,7 +174,7 @@ php.ini の設定を見直して下さい。</b></p>
 //sectokをもっかいチェック
 if (file_exists(DATAROOT . 'mail/invitation/' . $_POST["towhom"] . '.txt')) {
     $filedata = json_decode(file_get_contents(DATAROOT . 'mail/invitation/' . $_POST["towhom"] . '.txt'), true);
-    if ($filedata["sectok"] != $_POST["sectok"]) $invalid = TRUE;
+    if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
 
@@ -265,6 +265,22 @@ $statedata = "$userid\n";
 $statedtp = DATAROOT . 'users/_co.txt';
 
 if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+
+//この人をファイル確認メンバーに入れる？
+if (file_exists(DATAROOT . 'examsetting.txt')) {
+    $examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+
+    if ($examsetting["submit_add"] == "1") {
+        $statedata = "$userid\n";
+        $statedtp = DATAROOT . 'exammember_submit.txt';
+        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    }
+    if ($examsetting["edit_add"] == "1") {
+        $statedata = "$userid\n";
+        $statedtp = DATAROOT . 'exammember_edit.txt';
+        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    }
+}
 
 //メール本文形成
 $onmail = implode("\n", $onmail);

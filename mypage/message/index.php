@@ -5,15 +5,15 @@ $titlepart = 'メッセージ機能';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'message_sent') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 メッセージを送信しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'message_deleted') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 メッセージを削除しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -55,7 +55,7 @@ if ($_SESSION["admin"] and $_SESSION["state"] != 'p') echo '<p><a href="write_si
 ?>
 
 <h2>受信BOX</h2>
-<p>※未読メッセージは青色で強調されています。</p>
+<p>※未読メッセージは<span class="text-danger table-primary">青背景＆赤文字の件名</span>で強調されています。</p>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
@@ -66,20 +66,21 @@ foreach ($inbox as $id => $array) {
     list($from, $time) = explode('_', $id);
     $namepart = htmlspecialchars(nickname($from));
     if (blackuser($from)) $namepart .= '<span class="text-danger">（凍結ユーザー）</span>';
-    if (state($from) == "p") $namepart .= ' <span class="badge badge-success text-wrap" style="width: 3rem;">
+    if (state($from) == "p") $namepart .= ' <span class="badge badge-success text-wrap">
 主催者
 </span>';
-    else if (state($from) == "c") $namepart .= ' <span class="badge badge-warning text-wrap" style="width: 5rem;">
+    else if (state($from) == "c") $namepart .= ' <span class="badge badge-warning text-wrap">
 共同運営者
 </span>';
-    if (id_admin() == $from) $namepart .= ' <span class="badge badge-danger text-wrap" style="width: 7rem;">
+    if (id_admin() == $from) $namepart .= ' <span class="badge badge-danger text-wrap">
 システム管理者
 </span>';
     if ($array[$_SESSION["userid"]] == "0") echo '<tr class="table-primary">';
     else echo "<tr>\n";
     echo "<td>" . $namepart . "</td>";
     echo "<td>" . date('Y年n月j日G時i分s秒', $time) . "</td>";
-    echo '<td><a href="read.php?name=' . $id .'">' . htmlspecialchars($array["_subject"]) . '</a></td>';
+    if ($array[$_SESSION["userid"]] == "0") echo '<td><a href="read.php?name=' . $id .'" class="text-danger">' . htmlspecialchars($array["_subject"]) . '</a></td>';
+    else echo '<td><a href="read.php?name=' . $id .'">' . htmlspecialchars($array["_subject"]) . '</a></td>';
     echo "</tr>\n";
 }
 if ($inbox == array()) echo '<tr><td colspan="3">現在、表示出来るメッセージはありません。</td></tr>';
@@ -107,13 +108,13 @@ foreach ($outbox as $id => $array) {
     foreach ($to as $userid) {
         $tonickname[$i] = htmlspecialchars(nickname($userid));
         if (blackuser($userid)) $tonickname[$i] .= '<span class="text-danger">（凍結ユーザー）</span>';
-        if (state($userid) == "p") $tonickname[$i] .= ' <span class="badge badge-success text-wrap" style="width: 3rem;">
+        if (state($userid) == "p") $tonickname[$i] .= ' <span class="badge badge-success text-wrap">
 主催者
 </span>';
-        else if (state($userid) == "c") $tonickname[$i] .= ' <span class="badge badge-warning text-wrap" style="width: 5rem;">
+        else if (state($userid) == "c") $tonickname[$i] .= ' <span class="badge badge-warning text-wrap">
 共同運営者
 </span>';
-        if (id_admin() == $userid) $tonickname[$i] .= ' <span class="badge badge-danger text-wrap" style="width: 7rem;">
+        if (id_admin() == $userid) $tonickname[$i] .= ' <span class="badge badge-danger text-wrap">
 システム管理者
 </span>';
         $i++;

@@ -83,4 +83,3 @@ for ($i = 0; $i <= 9; $i++) {
 
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
-?>

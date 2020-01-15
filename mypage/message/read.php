@@ -31,9 +31,9 @@ if (isset($data[$_SESSION["userid"]]) and $data[$_SESSION["userid"]] == 0) {
     if (file_put_contents(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
 }
 
-if (blackuser($from)) echo '<p><div class="border border-danger" style="padding:10px;">
+if (blackuser($from)) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 このメッセージの送信者は凍結されています。
-</div></p>';
+</div>';
 ?>
 
 <h1>メッセージ詳細</h1>
@@ -41,13 +41,13 @@ if (blackuser($from)) echo '<p><div class="border border-danger" style="padding:
 <table class="table table-hover table-bordered">
 <tr>
 <th>送信者</th><td><?php echo htmlspecialchars(nickname($from)); 
-if (state($from) == "p") echo ' <span class="badge badge-success text-wrap" style="width: 3rem;">
+if (state($from) == "p") echo ' <span class="badge badge-success text-wrap">
 主催者
 </span>';
-else if (state($from) == "c") echo ' <span class="badge badge-warning text-wrap" style="width: 5rem;">
+else if (state($from) == "c") echo ' <span class="badge badge-warning text-wrap">
 共同運営者
 </span>';
-if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap" style="width: 7rem;">
+if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
 システム管理者
 </span>';?></td>
 </tr>
@@ -60,13 +60,13 @@ foreach ($data as $userid => $read) {
     if ($userid == "_content") continue;
     echo htmlspecialchars(nickname($userid));
     if (blackuser($userid)) echo '<span class="text-danger">（凍結ユーザー）</span>';
-    if (state($userid) == "p") echo ' <span class="badge badge-success text-wrap" style="width: 3rem;">
+    if (state($userid) == "p") echo ' <span class="badge badge-success text-wrap">
 主催者
 </span>';
-    else if (state($userid) == "c") echo ' <span class="badge badge-warning text-wrap" style="width: 5rem;">
+    else if (state($userid) == "c") echo ' <span class="badge badge-warning text-wrap">
 共同運営者
 </span>';
-    if (id_admin() == $userid) echo ' <span class="badge badge-danger text-wrap" style="width: 7rem;">
+    if (id_admin() == $userid) echo ' <span class="badge badge-danger text-wrap">
 システム管理者
 </span>';
     if ($read) echo '：<span class="text-success">既読</span>';
@@ -102,7 +102,7 @@ echo str_replace("\n", "<br>", $log);
 ?>
 
 <h2>このメッセージへ返信する</h2>
-<form name="form" action="reply.php" method="post" onSubmit="return check()">
+<form name="form" action="reply.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="replyof" value="<?php echo $id; ?>">
 <div class="border border-primary" style="padding:10px;">

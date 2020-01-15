@@ -28,7 +28,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>例：<code>123.456.???.123</code>⇒123.456.789.123 など（123.456.78.123は除外されません）<br>
 例：<code>*.example.com</code>⇒123.456.789.123.example.com、1-2-3-4.rooter.example.com など</p>
 
-<form name="form" action="blackip_handle.php" method="post" onSubmit="return check()">
+<form name="form" action="blackip_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">
 <textarea id="setting" name="setting" rows="4" cols="80" class="form-control"><?php

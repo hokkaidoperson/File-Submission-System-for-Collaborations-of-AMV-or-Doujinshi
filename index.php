@@ -110,10 +110,10 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1><?php echo $eventname; ?>　ファイル提出用ポータルサイト</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 当サイトではJavascript及びCookieを使用します。現在は有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <h2>ログイン</h2>
 <form name="form" action="login.php" method="post"<?php if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>
 <?php if (isset($_GET['redirto'])) echo '<input type="hidden" name="redirto" value="' . htmlspecialchars($_GET['redirto']) . '">'; ?>
@@ -131,20 +131,20 @@ else echo '<button type="submit" class="btn btn-primary">ログイン</button>';
 ?>
 </form>
 </div>
-<p><div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <a href='reset_pw/index.php'>パスワードを忘れてしまった方はこちらから再発行して下さい。</a>
-</div></p>
-<p><div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <a href='register/general/index.php'>ポータルサイトに未登録の参加者はこちらから登録して下さい。</a>
-</div></p>
-<p><div class="border border-success" style="padding:10px;">
+</div>
+<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <?php echo $eventname; ?>では、<a href='https://www.hkdyukkuri.space/filesystem/' target="_blank">MAD合作・合同誌向けファイル提出システム</a>を利用しています。<br>
 また、本システムでは、ウェブデザインの調整に<a href="https://getbootstrap.jp/" target="_blank">Bootstrap4</a>を利用しています。<br>
 マイページのアイコンには<a href="https://icooon-mono.com/" target="_blank">icooon-mono</a>による素材を利用しています。
-</div></p>
-<p><div class="border border-success" style="padding:10px;">
+</div>
+<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 バージョン情報：<?php echo VERSION; ?>
-</div></p>
+</div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>

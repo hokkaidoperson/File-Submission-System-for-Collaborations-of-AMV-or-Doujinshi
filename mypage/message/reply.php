@@ -78,6 +78,9 @@ $content = "$nickname 様
 $authornick 様が、あなた宛てにメッセージを送信しました。
 
 
+【件名】
+$subject
+
 【メッセージ内容】
 $message
 

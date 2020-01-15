@@ -131,12 +131,12 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>アカウント登録</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 本イベントのポータルサイトで使用するアカウントを登録します。登録したアカウントを使用して、ファイルを提出して下さい。<br><br>
 当サイトではJavascript及びCookieを使用します。現在は有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。<br><br>
 ※この登録画面は、イベントに参加される一般の方向けのものです。<b>このイベントを共に運営される方（共同運営者）は、この画面から登録出来ません</b>（主催者に依頼して、登録用のURLを送付してもらって下さい）。
-</div></p>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="useridcheck.php" method="post"<?php if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">

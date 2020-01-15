@@ -13,7 +13,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt')) die_mypage('<h1>準備中です</h1>
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die_mypage('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、ファイル提出を受け付け出来ません。<br>
 しばらくしてから、再度アクセス願います。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
@@ -61,7 +61,7 @@ $userid = $_SESSION["userid"];
 
 <h1>ファイル提出（外部アップローダーサービス経由）</h1>
 <p>新規提出するファイルの情報を入力して下さい。</p>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
 ?>onSubmit="return check()">

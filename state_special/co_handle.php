@@ -8,7 +8,7 @@ $invalid = FALSE;
 //sectokをもっかいチェック
 if (file_exists(DATAROOT . 'mail/state/co_' . $_POST["id"] . '.txt')) {
     $filedata = json_decode(file_get_contents(DATAROOT . 'mail/state/co_' . $_POST["id"] . '.txt'), true);
-    if ($filedata["sectok"] != $_POST["sectok"]) $invalid = TRUE;
+    if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
     if (state($_POST["userid"]) != "p") $invalid = TRUE;
 } else $invalid = TRUE;
 
@@ -59,10 +59,32 @@ $statedata = $_POST["id"] . "\n";
 $statedtp = DATAROOT . 'users/_general.txt';
 if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
+//ファイル確認メンバーにいたら除外
+$ismember_submit = FALSE;
+$ismember_edit = FALSE;
+$array = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search($_POST["id"], $array);
+if ($key !== FALSE) {
+    $ismember_submit = TRUE;
+    unset($array[$key]);
+    if ($array == array()) $array = array("_promoter");
+    $statedata = implode("\n", $array) . "\n";
+    if (file_put_contents(DATAROOT . 'exammember_submit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+}
+$array = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search($_POST["id"], $array);
+if ($key !== FALSE) {
+    $ismember_edit = TRUE;
+    unset($array[$key]);
+    if ($array == array()) $array = array("_promoter");
+    $statedata = implode("\n", $array) . "\n";
+    if (file_put_contents(DATAROOT . 'exammember_edit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+}
+
 
 //ファイル確認関連ファイルも書き換え（ここがめんどい）
-//フォームgeneralデータ（理由通知の設定呼び出し）
-$formsetting = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+//理由通知の設定呼び出し
+$formsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 
 //新規提出系
 foreach(glob(DATAROOT . 'exam/*.txt') as $filename) {
@@ -72,17 +94,26 @@ list($author, $id) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) continue;
 //回答データ
 $answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $subject . '.txt'), true);
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+}
+
 if ($answerdata["_state"] != 0) continue;
-if (!isset($answerdata[$_POST["id"]])) continue;
+if (!$ismember_submit) continue;
 
 //データを記録する
-$answerdata[$_POST["id"]]["opinion"] = -1;
-$answerdata[$_POST["id"]]["reason"] = "";
+unset($answerdata[$_POST["id"]]);
 
 //全員の回答終わった？
 $complete = TRUE;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
+    if (!isset($answerdata[$key])) {
+        $complete = FALSE;
+        continue;
+    }
+    $data = $answerdata[$key];
     if ($data["opinion"] == 0) $complete = FALSE;
 }
 
@@ -103,8 +134,8 @@ $op1 = 0;
 $op2 = 0;
 $op3 = 0;
 $count = 0;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
+    $data = $answerdata[$key];
     if ($data["opinion"] == -1) continue;
     switch ($data["opinion"]){
         case 1:
@@ -144,8 +175,8 @@ $authornick = nickname($author);
 if ($result == 0) {
     $pageurl = $siteurl . 'mypage/exam/discuss.php?author=' . $author . '&id=' . $id;
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
         if ($data["opinion"] == -1) continue;
         $nickname = nickname($key);
         $content = "$nickname 様
@@ -181,8 +212,8 @@ $authornick 様の作品「" . $formdata["title"] . "」について、全ての
     }
 
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
         if ($author == $key) continue;
         if ($data["opinion"] == -1) continue;
         $nickname = nickname($key);
@@ -278,17 +309,31 @@ if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) continue;
 
 //回答データ
 $answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
+$memberfile = DATAROOT . 'exammember_' . $answerdata["_membermode"] . '.txt';
+$submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+}
+
 if ($answerdata["_state"] != 0) continue;
-if (!isset($answerdata[$_POST["id"]])) continue;
+if ($answerdata["_membermode"] == "submit") {
+    if (!$ismember_submit) continue;
+} else if ($answerdata["_membermode"] == "edit") {
+    if (!$ismember_edit) continue;
+}
 
 //データを記録する
-$answerdata[$_POST["id"]]["opinion"] = -1;
-$answerdata[$_POST["id"]]["reason"] = "";
+unset($answerdata[$_POST["id"]]);
 
 //全員の回答終わった？
 $complete = TRUE;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
+    if (!isset($answerdata[$key])) {
+        $complete = FALSE;
+        continue;
+    }
+    $data = $answerdata[$key];
     if ($data["opinion"] == 0) $complete = FALSE;
 }
 
@@ -308,8 +353,8 @@ $result = 0;
 $op1 = 0;
 $op2 = 0;
 $count = 0;
-foreach ($answerdata as $key => $data) {
-    if (strpos($key, '_') !== FALSE) continue;
+foreach ($submitmem as $key) {
+    $data = $answerdata[$key];
     if ($data["opinion"] == -1) continue;
     switch ($data["opinion"]){
         case 1:
@@ -360,8 +405,8 @@ $authornick = nickname($author);
 if ($result == 0) {
     $pageurl = $siteurl . 'mypage/exam/discuss_edit.php?author=' . $author . '&id=' . $id . '&edit=' . $editid;
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
         if ($data["opinion"] == -1) continue;
         $nickname = nickname($key);
         $content = "$nickname 様
@@ -391,8 +436,8 @@ $authornick 様の作品「" . $formdata["title"] . "」の項目変更につい
     }
 
     //内部関数で送信
-    foreach ($answerdata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
+    foreach ($submitmem as $key) {
+        $data = $answerdata[$key];
         if ($author == $key) continue;
         if ($data["opinion"] == -1) continue;
         $nickname = nickname($key);
@@ -522,10 +567,10 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>共同運営者辞退 承認手続完了</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 該当ユーザーは一般参加者となりました。<br><br>
 <a href="../index.php">ログインページへ</a>
-</div></p>
+</div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>

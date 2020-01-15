@@ -209,12 +209,12 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>主催者アカウント登録</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ご指定頂いたユーザーIDはご利用になれます。続いて、アカウントの詳細を設定します。全ての項目について、入力をお願いします。<br><br>
 <b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。
-</div></p>
+</div>
 <br>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="prom_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="2">
 <input type="hidden" name="sectok" value="<?php echo $_POST["sectok"]; ?>">

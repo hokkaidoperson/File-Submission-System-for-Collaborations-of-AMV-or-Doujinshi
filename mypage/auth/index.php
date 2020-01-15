@@ -5,15 +5,15 @@ $titlepart = '権限コントロール';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'auth_fileacl') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 アクセス権の変更が完了しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'auth_outofterm') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 操作権の変更が完了しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 

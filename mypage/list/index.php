@@ -5,34 +5,34 @@ $titlepart = '提出作品の一覧';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'edit_nochange') {
-    echo '<p><div class="border border-success" style="padding:10px;">
-登録情報の変更はありませんでした。</div></p>';
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+登録情報の変更はありませんでした。</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'edit_autoaccept') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 登録情報を変更しました。<br>
-自動承認される項目のみ変更されていたため、変更は完全に自動承認されました。</div></p>';
+自動承認される項目のみ変更されていたため、変更は完全に自動承認されました。</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'edit_submitted') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ファイルの編集が完了しました。<br>
 変更内容を運営チームが確認するまでしばらくお待ち願います。<br><br>
 ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'edit_submitted_auto_accept') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ファイルの編集が完了しました。<br>
 ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、変更内容は<b>自動的に承認されました</b>。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'edit_deleted') {
-    echo '<p><div class="border border-success" style="padding:10px;">
-作品を削除しました。</div></p>';
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+作品を削除しました。</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -104,13 +104,13 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出済み作品の一覧</h1>
 ';
 
 
-if (!in_term() and $_SESSION["state"] == 'p') echo '<p><div class="border border-primary" style="padding:10px;">
+if (!in_term() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、主催者は常時提出内容の編集が可能です。
 </div></p>';
-else if (!in_term()) echo '<p><div class="border border-danger" style="padding:10px;">
+else if (!in_term()) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在、ファイル提出期間外です。提出内容の確認は出来ますが、原則、編集は出来ません。<br>
 ただし、主催者が特定の作品について編集を認めている場合は、編集画面に移れます。
-</div></p>';
+</div>';
 ?>
 
 <div class="table-responsive-md">

@@ -5,9 +5,9 @@ $titlepart = '提出作品の確認・承認 - 議論画面';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'exam_discuss_added') {
-    echo '<p><div class="border border-success" style="padding:10px;">
+    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 コメントを追加しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -19,6 +19,12 @@ if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
 if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>、<b>共同運営者</b>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
+
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die_mypage('<h1>準備中です</h1>
+<p>必要な設定が済んでいないため、只今、ファイル確認が出来ません。<br>
+しばらくしてから、再度アクセス願います。</p>
+<p><a href="../index.php">マイページトップに戻る</a></p>');
+
 
 //ファイル提出者のユーザーID
 $author = $_GET["author"];
@@ -40,18 +46,27 @@ for ($i = 0; $i <= 9; $i++) {
     $formsetting[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
 $formsetting["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 
 //投票した時の回答データ
 if (!file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) die_mypage('ファイルが存在しません。');
 $filedata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
 
+$submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$key = array_search("_promoter", $submitmem);
+if ($key !== FALSE) {
+    $submitmem[$key] = id_promoter();
+    $noprom = FALSE;
+} else $noprom = TRUE;
+
 $nopermission = FALSE;
-if (!isset($filedata[$_SESSION["userid"]])) $nopermission = TRUE;
-else if ($filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
+if (array_search($_SESSION["userid"], $submitmem) === FALSE) $nopermission = TRUE;
+else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
 
 if ($filedata["_state"] == 1) echo '<h1>提出作品の確認・承認 - 議論画面</h1>
 <p>この作品への対応について、意見が分かれたため、以下の簡易チャットを用いて議論を行って下さい。</p>
-<p>意見がまとまったら、主催者が最終的な対応を入力します。</p>
+<p>意見がまとまったら、最終的な対応を入力して下さい。<br>
+最終的な対応の入力は、原則として主催者が行えます。ファイル確認メンバーに主催者がいない場合には、共同運営者が対応を入力します。</p>
 ';
 else if ($filedata["_state"] == 2) echo '<h1>提出作品の確認・承認 - 議論履歴</h1>
 <p>この作品への対応について議論し、対応を決定しました。<br>
@@ -69,9 +84,8 @@ else {
         "read" => array(),
         "comments" => array()
     );
-    foreach ($filedata as $key => $data) {
-        if (strpos($key, '_') !== FALSE) continue;
-        if ($data["opinion"] == -1) continue;
+    foreach ($submitmem as $key) {
+        if (isset($filedata[$key]["opinion"]) and $filedata[$key]["opinion"] == -1) continue;
         $discussdata["read"][$key] = 1;
     }
     $filedatajson = json_encode($discussdata);
@@ -80,25 +94,20 @@ else {
 //read...既読？（0未読　1既読）　comments...ログ
 
 //既読の処理
-if (isset($discussdata["read"][$_SESSION["userid"]]) and $discussdata["read"][$_SESSION["userid"]] == 0) {
+if (!$nopermission) {
     $discussdata["read"][$_SESSION["userid"]] = 1;
     $filedatajson = json_encode($discussdata);
     if (file_put_contents(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 }
 
-//主催者がいなかったりする？（主催者が代わった時とか）
-$prom = id_state('p');
-$noprom = FALSE;
-if (!isset($discussdata["read"][$prom[0]])) $noprom = TRUE;
-
 if ($filedata["_state"] == 1 and $author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
-    echo '<p><div class="border border-warning" style="padding:10px;">
+    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
-</div></p>';
+</div>';
     $_SESSION["dld_caution"] = 'ok';
 }
 }
@@ -216,7 +225,7 @@ if (isset($filedata["_result"]) and $filedata["_result"] != "") {
 </table>
 </div>
 <h2>簡易チャット</h2>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <?php
 if ($discussdata["comments"] != array()) {
     echo "<ul>";
@@ -236,8 +245,7 @@ if ($discussdata["comments"] != array()) {
     echo "</ul>";
 }
 if ($filedata["_state"] != '1') die_mypage('</div>');
-if ($nopermission) echo 'あなたはこのファイルに対する発言権を持っていません。<br>
-あなたが主催者あるいは共同運営者になる前に提出されたファイルであるため、確認権が与えられませんでした。';
+if ($nopermission) echo 'あなたはファイル確認の権限を持っていません。';
 else {
 ?>
 <form name="form" action="discuss_handle.php" method="post" onSubmit="return check()">
@@ -298,8 +306,7 @@ if ( problem == 1 ) {
 <h2>最終判断</h2>
 <p>結論が固まりましたら、以下にその結論を入力して、議論を終了して下さい。<br>
 トラブル防止のため、結論が固まっていない段階で入力を行うのはお控え下さい。</p>
-<?php if ($noprom) echo '<p><u>本来、この機能は主催者向けですが、主催者が交代したなどの要因により、議論参加メンバーに主催者がいないため、この機能が共同運営者にも開放されています。</u></p>'; ?>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form_decide" action="discuss_decide.php" method="post" onSubmit="return check_decide()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="subject" value="<?php echo $author . '_' . $id; ?>">
@@ -322,7 +329,7 @@ if ( problem == 1 ) {
 <label for="reason">「軽微な修正を求める」もしくは「拒否する」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
 <textarea id="reason" name="reason" rows="4" cols="80" class="form-control"></textarea>
 <font size="2"><?php
-if ($formsetting["general"]["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載される可能性があります。</b>";
+if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載される可能性があります。</b>";
 else echo "※ここで記入した理由は、ファイル提出者本人宛に送信するメールに直接的に記載されません。";
 ?></font>
 </div>

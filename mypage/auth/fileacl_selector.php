@@ -41,7 +41,7 @@ else $acldata = array();
 <p>閲覧を許可したいユーザーもしくは提出作品を選択して下さい（設定済みの場合は、その内容が反映されています）。</p>
 <p>ユーザー情報の閲覧を許可すると、該当ユーザーが登録時に入力した内容や添付ファイルを閲覧・ダウンロード出来ます。<br>
 提出作品の閲覧を許可すると、提出時に入力された内容や提出ファイル・添付ファイルを閲覧・ダウンロード出来ます。</p>
-<form name="form" action="fileacl_handle.php" method="post" onSubmit="return check()">
+<form name="form" action="fileacl_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>ユーザー情報の閲覧許可</h2>

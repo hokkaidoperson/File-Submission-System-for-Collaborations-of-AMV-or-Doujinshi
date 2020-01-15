@@ -111,7 +111,7 @@ echo "</tr>";
 </table>
 </div>
 <p>削除してもよろしければ、現在のパスワードを入力して「削除する」ボタンを押して下さい。</p>
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="delete_exec.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="author" value="<?php echo $author; ?>">

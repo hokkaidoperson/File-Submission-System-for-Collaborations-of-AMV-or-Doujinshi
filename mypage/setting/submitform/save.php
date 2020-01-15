@@ -136,7 +136,7 @@ switch ($_POST["recheck"]) {
     default: $invalid = TRUE;
 }
 
-//日付・時刻・拒否通知
+//日付・時刻
 if ($_POST["type"] == "general") {
     list($Y, $m, $d) = explode('-', $_POST["from_date"]);
     if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
@@ -149,13 +149,6 @@ if ($_POST["type"] == "general") {
     list($hr, $mn) = explode(':', $_POST["until_time"]);
     if ($hr < 0 and $hr > 23) $invalid = TRUE;
     if ($mn < 0 and $mn > 59) $invalid = TRUE;
-
-    switch ($_POST["reason"]) {
-        case "notice": break;
-        case "dont-a": break;
-        case "dont-b": break;
-        default: $invalid = TRUE;
-    }
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');

@@ -16,7 +16,7 @@ $fileplace = DATAROOT . 'mail/reset_pw/' . $_POST["userid"] . '.txt';
 
 if (file_exists($fileplace)) {
     $filedata = json_decode(file_get_contents($fileplace), true);
-    if ($filedata["sectok"] != $_POST["sectok"]) $invalid = TRUE;
+    if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
 
@@ -82,11 +82,11 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行完了</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 パスワードの再発行が完了しました。新しいパスワードでログインして下さい。<br>
 ※パスワードは忘れないようにして下さい。<br><br>
 <a href="../index.php">ログインページへ</a>
-</div></p>
+</div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>

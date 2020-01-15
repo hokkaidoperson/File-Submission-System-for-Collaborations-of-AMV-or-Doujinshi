@@ -5,15 +5,15 @@ $titlepart = '招待リンク送信';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'invite_forceexpire') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 招待リンクをリセットしました。正しい送信先にリンクを送り直して下さい。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'invite_sent') {
-    echo '<p><div class="border border-primary" style="padding:10px;">
+    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 招待リンクを送信しました。
-</div></p>';
+</div>';
     $_SESSION["situation"] = '';
 }
 
@@ -72,7 +72,7 @@ switch ($accessok) {
 <?php
 switch ($who) {
     case 'prom':
-        echo '<div class="border border-primary" style="padding:10px;">
+        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="towhom" value="promoter">
@@ -86,7 +86,7 @@ switch ($who) {
 ';
         break;
     case 'co':
-        echo '<div class="border border-primary" style="padding:10px;">
+        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="towhom" value="co">
@@ -143,4 +143,3 @@ if ( problem == 1 ) {
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
-?>

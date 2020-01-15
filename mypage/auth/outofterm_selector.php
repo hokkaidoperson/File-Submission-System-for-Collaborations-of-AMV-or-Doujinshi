@@ -45,7 +45,7 @@ if ($set) echo '<p>現在、一部あるいは全部の操作権限が有効に�
 その設定内容が以下に反映されています。<br>
 設定を変更すると、操作期限が更新されます。操作期限が切れるまでの時間は改めて設定して下さい。</p>';
 ?>
-<form name="form" action="outofterm_handle.php" method="post" onSubmit="return check()">
+<form name="form" action="outofterm_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>操作期限が切れるまでの時間</h2>

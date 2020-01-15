@@ -3,7 +3,7 @@
 //ini_set("display_errors", 1);
 //error_reporting(E_ERROR | E_WARNING | E_PARSE);
 //ini_set("log_errors", "On");
-//ini_set("error_log", "***********/error.log.txt");
+//ini_set("error_log", "******error.log.txt");
 //----------------------------------------------------------
 
 if (file_exists('dataplace.php')) require_once('dataplace.php'); else define('DATAROOT', dirname(__FILE__).'/data/');
@@ -12,12 +12,15 @@ if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいませ�
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-0');
+define('VERSION', 'Gamma-2');
 
 define('FILE_MAX_SIZE', file_get_contents(DATAROOT . 'maxsize.txt'));
 
 $eventname = file_get_contents(DATAROOT . 'eventname.txt');
 $siteurl = file_get_contents(DATAROOT . 'siteurl.txt');
+
+//メール配信制御
+require_once('mail_scheduler.php');
 
 //ユーザー関数
 
@@ -98,6 +101,13 @@ function id_admin() {
         if ($array["admin"]) return $key;
     }
 }
+
+//主催者のID
+function id_promoter() {
+    $array = id_state("p");
+    return $array[0];
+}
+
 
 //ユーザーが存在するかどうか
 function user_exists($id) {

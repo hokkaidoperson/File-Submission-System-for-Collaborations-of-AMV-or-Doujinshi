@@ -9,7 +9,7 @@ if (file_exists(DATAROOT . 'mail/state/co_' . $_GET["id"] . '.txt')) {
         unlink(DATAROOT . 'mail/state/co_' . $_GET["id"] . '.txt');
         $deny = TRUE;
     }
-    if ($filedata["sectok"] != $_GET["sectok"]) $deny = TRUE;
+    if ($filedata["sectok"] !== $_GET["sectok"]) $deny = TRUE;
 } else $deny = TRUE;
 
 if ($deny) die('<!DOCTYPE html>
@@ -113,12 +113,11 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>共同運営者辞退 承認手続</h1>
-<p><div class="border" style="padding:10px;">
+<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 この共同運営者の辞退を承認します。<br><br>
 よろしければ、確認の為、あなたのユーザーIDとパスワードを入力して下さい。
-</div></p>
-<br>
-<div class="border border-primary" style="padding:10px;">
+</div>
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="co_handle.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">

@@ -75,7 +75,7 @@ if($_POST["state"] != "p") $invalid = TRUE;
 //sectokをもっかいチェック
 if (file_exists(DATAROOT . 'mail/invitation/_promoter.txt')) {
     $filedata = json_decode(file_get_contents(DATAROOT . 'mail/invitation/_promoter.txt'), true);
-    if ($filedata["sectok"] != $_POST["sectok"]) $invalid = TRUE;
+    if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
 
