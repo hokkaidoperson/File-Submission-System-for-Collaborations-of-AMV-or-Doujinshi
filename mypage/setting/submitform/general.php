@@ -76,11 +76,11 @@ if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo htmlspecialcha
 ※入力が無い場合は、ファイル提出欄の下に何も表示されません。</font>
 </div>
 <div class="form-group">
-<label for="ext">ファイルの拡張子指定（半角英数字（小文字）とコロン「,」）【必須】</label>
+<label for="ext">ファイルの拡張子指定（半角英数字（小文字）とカンマ「,」）【必須】</label>
 <input type="text" name="ext" class="form-control" id="ext" value="<?php
 if (isset($_SESSION["submitformdata"]["general"]["ext"])) echo htmlspecialchars($_SESSION["submitformdata"]["general"]["ext"]);
 ?>">
-<font size="2">※ <code>jpg,png,gif</code> のように、拡張子をコロン <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
+<font size="2">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
 ※無差別に全ての種類のファイルを受け入れられるようにすると、セキュリティ的に脆弱になる恐れがあります。<br>
 　イベントに応じて、アップロード出来るファイルの種類をある程度制限して下さい。<br>
 ※アップロード出来るファイルの種類を制限しても、悪意あるファイルの全てを防げる訳ではありません。<br>
@@ -186,7 +186,7 @@ if ( problem == 1 ) {
     alert( "【ファイルの拡張子指定】\n入力されていません。" );
   }
   if ( probext == 2) {
-    alert( "【ファイルの拡張子指定】\n半角英数字（小文字）とコロン以外の文字が含まれています。" );
+    alert( "【ファイルの拡張子指定】\n半角英数字（小文字）とカンマ以外の文字が含まれています。" );
   }
   if ( probsiz == 1) {
     alert( "【サーバーに直接アップロード可能な最大サイズ】\n半角数字以外の文字が含まれています。" );

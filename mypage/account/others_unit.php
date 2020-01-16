@@ -183,7 +183,7 @@ foreach ($userformdata as $data) {
             echo '</label>';
             if ($data["width"] != "") echo '<div class="input-group" style="width:' . $data["width"] . 'em;">';
             else echo '<div class="input-group">';
-            if ($data["height"] != "") echo '<textarea id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '" rows="' . $data["height"] . '" cols="80" class="form-control">';
+            if ($data["height"] != "") echo '<textarea id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '" rows="' . $data["height"] . '" cols="80" class="form-control"';
             else echo '<textarea id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '" rows="4" cols="80" class="form-control"';
             if ($disable) echo ' disabled="disabled"';
             echo '>';

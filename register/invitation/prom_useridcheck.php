@@ -211,7 +211,8 @@ var val = getCookie('check_cookie');
 <h1>主催者アカウント登録</h1>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ご指定頂いたユーザーIDはご利用になれます。続いて、アカウントの詳細を設定します。全ての項目について、入力をお願いします。<br><br>
-<b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。
+<b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<br><br>
+<u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。
 </div>
 <br>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">

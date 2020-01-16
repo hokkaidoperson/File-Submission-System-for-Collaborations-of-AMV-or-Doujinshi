@@ -12,7 +12,7 @@ if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいませ�
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-2');
+define('VERSION', 'Gamma-3');
 
 define('FILE_MAX_SIZE', file_get_contents(DATAROOT . 'maxsize.txt'));
 
