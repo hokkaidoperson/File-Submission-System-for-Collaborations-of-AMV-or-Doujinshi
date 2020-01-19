@@ -368,7 +368,7 @@ sendmail(email($promoter[0]), '一般参加者が登録されました', $conten
 
 //ログイン状態に
 session_start();
-if (!isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     $_SESSION['userid'] = $userid;
     $_SESSION['nickname'] = $nickname;
     $_SESSION['email'] = $email;
@@ -377,6 +377,7 @@ if (!isset($_SESSION['userid'])) {
     $_SESSION['situation'] = 'registered';
     $_SESSION['expire'] = time() + (30 * 60);
     $_SESSION['useragent'] = $browser;
+    $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 }
 
 ?>

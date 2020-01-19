@@ -2,7 +2,7 @@
 require_once('set.php');
 session_start();
 //ログイン済みの場合はマイページに飛ばす
-if (isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     die('<!DOCTYPE html>
 <html>
 <head>

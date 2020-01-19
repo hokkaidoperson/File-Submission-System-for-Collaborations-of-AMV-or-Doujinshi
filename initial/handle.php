@@ -206,7 +206,7 @@ if (file_put_contents(DATAROOT . 'init.txt', '1') === FALSE) die('初期設定�
 
 //ログイン状態に
 session_start();
-if (!isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     $_SESSION['userid'] = $userid;
     $_SESSION['nickname'] = $nickname;
     $_SESSION['email'] = $email;

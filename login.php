@@ -4,7 +4,7 @@ session_start();
 //↓セッションハイジャック対策
 session_regenerate_id(true);
 //ログイン済みの場合はマイページに飛ばす
-if (isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     die('<!DOCTYPE html>
 <html>
 <head>
@@ -137,7 +137,7 @@ if (blackuser($userid)) {
 
 
 //認証成功　ログイン情報の格納
-if (!isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     $_SESSION['userid'] = $userid;
     $_SESSION['nickname'] = $nickname;
     $_SESSION['email'] = $email;
@@ -146,6 +146,7 @@ if (!isset($_SESSION['userid'])) {
     $_SESSION['situation'] = 'loggedin';
     $_SESSION['expire'] = time() + (30 * 60);
     $_SESSION['useragent'] = $browser;
+    $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 }
 
 //セキュリティ通知するかどうか

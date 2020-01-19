@@ -9,7 +9,7 @@ $currenturl = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HT
 $redirtopass = str_replace($siteurl, '', $currenturl);
 $redirtopass = urlencode($redirtopass);
 
-if (!isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     die('<!DOCTYPE html>
 <html>
 <head>
@@ -212,7 +212,7 @@ if ($_SESSION["situation"] == 'loggedin') {
 ログインしました。
 </div>';
     echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-当サイトに30分以上アクセスが無い場合は、セキュリティの観点から自動的にログアウトします。<br>
+当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>
 特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。</div>';
     $_SESSION["situation"] = '';
 }

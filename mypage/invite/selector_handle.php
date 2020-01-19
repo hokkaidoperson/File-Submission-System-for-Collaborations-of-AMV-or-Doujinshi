@@ -19,8 +19,8 @@ if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出シ�
 
 $accessok = 'none';
 
-//共催
-if ($_SESSION["state"] == 'c') $accessok = 'ok';
+//主催
+if ($_SESSION["state"] == 'p') $accessok = 'ok';
 
 if ($accessok == 'none') die('<!DOCTYPE html>
 <html>
@@ -36,19 +36,27 @@ if ($accessok == 'none') die('<!DOCTYPE html>
 </html>
 ');
 
-$prom = id_state("p");
 
-$userdata = id_array($prom[0]);
+if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+
+//送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
+$invalid = FALSE;
+
+if (!user_exists($_POST["userid"]) or blackuser($_POST["userid"])) $invalid = TRUE;
+
+if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
+
+$userdata = id_array($_POST["userid"]);
 $email = $userdata["email"];
 
-if (!file_exists(DATAROOT . 'mail/state/')) {
-    if (!mkdir(DATAROOT . 'mail/state/', 0777, true)) die('ディレクトリの作成に失敗しました。');
+if (!file_exists(DATAROOT . 'mail/co_add/')) {
+    if (!mkdir(DATAROOT . 'mail/co_add/', 0777, true)) die('ディレクトリの作成に失敗しました。');
 }
 
 //認証文字列（参考：https://qiita.com/suin/items/c958bcca90262467f2c0）
 $randomchar128 = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 128)), 0, 128);
 
-$fileplace = DATAROOT . 'mail/state/co_' . $_SESSION["userid"] . '.txt';
+$fileplace = DATAROOT . 'mail/co_add/' . $_POST["userid"] . '.txt';
 
 //2日後に有効期限切れ
 $expire = time() + (2 * 24 * 60 * 60);
@@ -66,14 +74,14 @@ if (file_put_contents($fileplace, $filedatajson) === FALSE) die('メール関連
 
 //メール本文形成
 $expireformat = date('Y年n月j日G時i分s秒', $expire);
-$pageurl = $siteurl . 'state_special/co_unit.php?id=' . $_SESSION["userid"] . '&sectok=' . $randomchar128;
+$pageurl = $siteurl . 'state_special/newco_unit.php?id=' . $_POST["userid"] . '&sectok=' . $randomchar128;
 $nickname = $userdata["nickname"];
-$conick = nickname($_SESSION["userid"]);
+$promnick = nickname($_SESSION["userid"]);
 $content = "$nickname 様
 
-$conick 様から、$eventname の共同運営者を辞退するという申請がありました。
-これについて$conick 様から事情を聞いており、辞退を承認する場合は、以下の手続用URLから手続して下さい。
-もし事情を聞いていない場合は、$conick 様に直接お問い合わせ下さい。
+$promnick 様が、あなたを $eventname の新たな共同運営者に任命しました。
+これについて $promnick 様から事情を聞いており、共同運営者になってもよい場合は、以下の手続用URLから手続して下さい。
+もし事情を聞いていない場合は、$promnick 様に直接お問い合わせ下さい。
 
 　手続用URL　　　　：$pageurl
 　上記URLの有効期限：$expireformat
@@ -81,12 +89,12 @@ $conick 様から、$eventname の共同運営者を辞退するという申請�
 ※URLは一部だけ切り取られると認識されません。
 　改行されているなどの理由により正常にURLをクリック出来ない場合は、URLを直接コピーしてブラウザに貼り付けて下さい。
 ※有効期限は24時間表記です。
-※手続前に有効期限が切れてしまった場合は、$conick 様にURLの再送を依頼して下さい。
+※手続前に有効期限が切れてしまった場合は、$promnick 様にURLの再送を依頼して下さい。
 ";
 //内部関数で送信
-sendmail($email, '共同運営者辞退の申請がありました', $content);
+sendmail($email, '共同運営者任命のご案内', $content);
 
-$_SESSION['situation'] = 'state_switcher_mail';
+$_SESSION['situation'] = 'invite_addco';
 
 ?>
 <!DOCTYPE html>

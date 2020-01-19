@@ -2,7 +2,7 @@
 require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
-if (!isset($_SESSION['userid'])) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     die('<!DOCTYPE html>
 <html>
 <head>
@@ -241,16 +241,18 @@ foreach ($zipdata as $userid => $works) {
 }
 
 
-//CSVを作る　文字化け対策参考：https://qiita.com/ikemonn/items/f2bc4f9f834c989084ff
+//CSVを作る　文字化け対策参考：http://dev.blog.fairway.ne.jp/php%E3%82%A8%E3%82%AF%E3%82%BB%E3%83%AB%E3%81%A7%E6%96%87%E5%AD%97%E5%8C%96%E3%81%91%E3%81%95%E3%81%9B%E3%81%AA%E3%81%84csv%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9/
 $fp = fopen(DATAROOT . 'zip/tmp_user_' . $_SESSION["userid"] . '.csv', 'w');
-stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932');
+//stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932//TRANSLIT');
+fwrite($fp, "\xEF\xBB\xBF");
 foreach ($usercsv as $fields) {
     fputcsv($fp, $fields);
 }
 fclose($fp);
 
 $fp = fopen(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv', 'w');
-stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932');
+//stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932//TRANSLIT');
+fwrite($fp, "\xEF\xBB\xBF");
 foreach ($submitcsv as $fields) {
     fputcsv($fp, $fields);
 }
@@ -267,6 +269,11 @@ foreach(users_array() as $key => $data) {
 }
 
 
+//ファイル名の置換用
+$repbefore = array('\\', '/', ':', '*', '?', '"', '<', '>', '|');
+$repafter = array('￥', '／', '：', '＊', '？', '”', '＜', '＞', '｜');
+
+
 //ZIP作るよ！！！！！！
 $zip = new ZipArchive;
 $zip->open(DATAROOT . 'zip/' . $_SESSION["userid"] . '.zip', ZipArchive::CREATE|ZipArchive::OVERWRITE);
@@ -276,23 +283,27 @@ $zip->addFile(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv', '提�
 
 foreach($zipmerge as $userid => $data) {
     $nickname = nickname($userid);
+    $nickname = str_replace($repbefore, $repafter, $nickname);
     $zip->addEmptyDir("$nickname ($userid)");
     if (isset($data["userform"])) foreach($userformdata as $key => $array) {
         if ($array["type"] == "attach") {
             //ユーザー添付ファイルのファイル名は「項目番号 - 項目名.拡張子」
-            if ($data["userform"][$array["id"]] != "") $zip->addFile(DATAROOT . "users_attach/" . $userid . "/" . $array["id"], "$nickname ($userid)/$key - " . $array["title"] . "." . $data["userform"][$array["id"]]);
+            $title = str_replace($repbefore, $repafter, $array["title"]);
+            if ($data["userform"][$array["id"]] != "") $zip->addFile(DATAROOT . "users_attach/" . $userid . "/" . $array["id"], "$nickname ($userid)/$key - $title." . $data["userform"][$array["id"]]);
         }
     }
     foreach ($data as $id => $work) {
-        if ($id == "userform") continue;
+        if ($id === "userform") continue;
         $submitcsv[$i] = array();
+        $worktitle = str_replace($repbefore, $repafter, $work["title"]);
         //メインファイル名は「提出ファイル.拡張子」
-        $zip->addEmptyDir("$nickname ($userid)/" . $work["title"] . " ($id)");
-        if (isset($work["submit"]) and $work["submit"] != "") $submitcsv[$i][] = $zip->addFile(DATAROOT . "files/" . $userid . "/" . $id, "$nickname ($userid)/" . $work["title"] . " ($id)/提出ファイル." . $work["submit"]);
+        $zip->addEmptyDir("$nickname ($userid)/$worktitle ($id)");
+        if (isset($work["submit"]) and $work["submit"] != "") $submitcsv[$i][] = $zip->addFile(DATAROOT . "files/" . $userid . "/" . $id, "$nickname ($userid)/$worktitle ($id)/提出ファイル." . $work["submit"]);
         foreach($submitformdata as $key => $array) {
             if ($array["type"] == "attach") {
                 //提出添付ファイルのファイル名も「項目番号 - 項目名.拡張子」
-                if ($work[$array["id"]] != "") $export = $zip->addFile(DATAROOT . "submit_attach/" . $userid . "/" . $id . "_" . $array["id"], "$nickname ($userid)/" . $work["title"] . " ($id)/$key - " . $array["title"] . "." . $work[$array["id"]]);
+                $parttitle = str_replace($repbefore, $repafter, $array["title"]);
+                if ($work[$array["id"]] != "") $export = $zip->addFile(DATAROOT . "submit_attach/" . $userid . "/" . $id . "_" . $array["id"], "$nickname ($userid)/$worktitle ($id)/$key - $parttitle." . $work[$array["id"]]);
             }
         }
         $i++;

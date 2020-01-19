@@ -9,7 +9,7 @@ if ($_SESSION["situation"] == 'registered') {
 ユーザー登録が完了しました。<br><br>
 登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。</div>';
     echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-当サイトに30分以上アクセスが無い場合は、セキュリティの観点から自動的にログアウトします。<br>
+当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>
 特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。</div>';
     $_SESSION["situation"] = '';
 }
@@ -164,28 +164,31 @@ if ($unread > 0) echo '<div class="border border-primary" style="padding:10px; m
 <h1>マイページ　トップ</h1>
 
 <h2>作品提出・閲覧・管理</h2>
-<div class="row">
+<div class="row" style="padding:10px; margin-bottom:1em;">
 <?php
 if ($_SESSION["state"] == 'p') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="submit/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/upload.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>作品を提出する</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/list.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>参加者・作品の一覧・編集</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">参加者から提出された作品、及びご自身の作品はこちらから確認・ダウンロード出来ます。ご自身の作品の編集も行えます。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="exam/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/exam.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>提出作品の確認・承認</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">作品が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
 </a></div>
 ';
 if ($_SESSION["state"] == 'c') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="submit/index.php">
@@ -193,88 +196,99 @@ if ($_SESSION["state"] == 'c') echo '<div style="width: 20rem; margin: 0.5rem;">
 <img class="align-self-center mr-3" src="../images/upload.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>作品を提出する</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/list.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>提出済み作品一覧・編集</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。<br>主催者から特定の作品の閲覧権が与えられている場合、その作品も閲覧出来ます。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="exam/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/exam.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>提出作品の確認・承認</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">作品が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
 </a></div>';
 if ($_SESSION["state"] == 'g') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="submit/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/upload.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>作品を提出する</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/list.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>提出済み作品一覧・編集</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。</span></p></div></div>
 </a></div>';
-if ($_SESSION["state"] == 'o') echo '<p>表示可能な項目がありません。</p>';
+if ($_SESSION["state"] == 'o') echo '<p style="padding:10px; margin-bottom:1em;">表示可能な項目がありません。</p>';
 ?>
 </div>
 <h2>やり取り</h2>
-<div class="row">
+<div class="row" style="padding:10px; margin-bottom:1em;">
 <?php
 echo '<div style="width: 20rem; margin: 0.5rem;"><a href="message/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/message.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>メッセージ機能</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">あなた宛てに届いたメッセージの確認、及びメッセージの新規作成を行えます。</span></p></div></div>
 </a></div>';
 ?>
 </div>
 <h2>各種設定・その他</h2>
-<div class="row">
+<div class="row" style="padding:10px; margin-bottom:1em;">
 <?php
 if ($_SESSION["state"] == 'p') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="auth/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/acl.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>権限コントロール</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>共同運営者の他者ファイル閲覧権限 ／ 提出期間外のファイル提出・情報編集権限</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="setting/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/edit.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>イベント情報編集</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>ユーザー登録時・ファイル提出時の記入事項 ／ ファイルの提出期間 ／ ファイル確認に関する設定</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="invite/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/invite.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
-<h5>共同運営者の招待</h5>
-</div></div></div></div>
+<h5>共同運営者の追加・招待</h5>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">登録済みのユーザーを共同運営者にする事が出来ます。また、共同運営者の招待（アカウント作成）リンクをメール送信出来ます。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="schedule/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/mail.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>受付開始・締切メールの自動配信</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">提出受付開始前・開始直後、締切前・締切直後に、通知メールを送信出来ます。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="ban/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/ban.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>ブラックリスト・アクセス制限</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">登録済みユーザーの凍結、及びアカウント新規作成の制限を行えます。</span></p></div></div>
 </a></div>';
 
 if ($_SESSION["admin"]) echo '<div style="width: 20rem; margin: 0.5rem;"><a href="system/index.php">
@@ -282,14 +296,16 @@ if ($_SESSION["admin"]) echo '<div style="width: 20rem; margin: 0.5rem;"><a href
 <img class="align-self-center mr-3" src="../images/setting.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
 <h5>システム設定</h5>
-</div></div></div></div>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">初期設定時に入力したシステム設定を変更出来ます。</span></p></div></div>
 </a></div>';
 echo '<div style="width: 20rem; margin: 0.5rem;"><a href="account/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/account.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
-<h5>アカウント情報編集</h5>
-</div></div></div></div>
+<h5 class="card-title">アカウント情報編集</h5>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">ユーザー登録時に入力した情報の変更はこちらから行えます。</span></p></div></div>
 </a></div>';
 ?>
 </div>
