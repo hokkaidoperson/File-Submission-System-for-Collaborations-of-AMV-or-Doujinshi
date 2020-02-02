@@ -587,7 +587,7 @@ function check(){
             }
         } else {
           ext = val.ext;
-          ext = ext.replace(",", "|");
+          ext = ext.replace(/,/g, "|");
           ext = ext.toUpperCase();
           reg = new RegExp('\.(' + ext + ')$', 'i');
           result = check_ext(name, reg, val.title);
