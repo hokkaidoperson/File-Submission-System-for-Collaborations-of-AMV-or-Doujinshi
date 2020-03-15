@@ -1,8 +1,7 @@
 <?php
 require_once('../../set.php');
 
-if ($_POST["successfully"] != "2") die("不正なアクセスです。\nフォームが入力されていません。");
-
+if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -13,8 +12,11 @@ else if(mb_strlen($_POST["userid"]) > 20) $invalid = TRUE;
 
 $IP = getenv("REMOTE_ADDR");
 
-//登録中のユーザーID横取り阻止（保証期間は30分）
 $conflict = FALSE;
+$userid = basename($_POST["userid"]);
+$IP = getenv("REMOTE_ADDR");
+
+//登録中のユーザーID横取り阻止（保証期間は30分）
 if (file_exists(DATAROOT . 'users_reserve/')) {
     foreach (glob(DATAROOT . 'users_reserve/*.txt') as $filename) {
         $filedata = json_decode(file_get_contents($filename), true);
@@ -23,8 +25,8 @@ if (file_exists(DATAROOT . 'users_reserve/')) {
             continue;
         }
         // 自分自身だったら通してあげる
-        if ($filedata["ip"] == $IP) continue;
-        if (basename($filename, ".txt") == $_POST["userid"]) {
+        if (basename($filename, ".txt") == $IP) continue;
+        if ($filedata["userid"] == $userid) {
             $conflict = TRUE;
             break;
         }
@@ -33,7 +35,7 @@ if (file_exists(DATAROOT . 'users_reserve/')) {
 
 //登録済みの中から探す
 foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-    if (basename($filename, ".txt") == $_POST["userid"]) {
+    if (basename($filename, ".txt") == $userid) {
         $conflict = TRUE;
         break;
     }
@@ -53,7 +55,6 @@ if ($conflict) die('<!DOCTYPE html>
 </body>
 </html>');
 
-
 //必須の場合のパターン 文字数
 if($_POST["nickname"] == "") $invalid = TRUE;
 else if(mb_strlen($_POST["nickname"]) > 30) $invalid = TRUE;
@@ -62,6 +63,20 @@ else if(mb_strlen($_POST["nickname"]) > 30) $invalid = TRUE;
 if($_POST["email"] == "") $invalid = TRUE;
 else if(!preg_match('/.+@.+\..+/', $_POST["email"])) $invalid = TRUE;
 else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
+
+//重複確認
+$email = $_POST["email"];
+$conflict = FALSE;
+//登録済みの中から探す
+foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
+    $filedata = json_decode(file_get_contents($filename), true);
+    if ($filedata["email"] == $email) {
+        $conflict = TRUE;
+        break;
+    }
+}
+if ($conflict) $invalid = TRUE;
+
 
 //必須の場合のパターン・文字数・一致確認
 if($_POST["password"] == "") $invalid = TRUE;
@@ -84,8 +99,6 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 
 
 $browser = $_SERVER['HTTP_USER_AGENT'];
-
-$eventname = file_get_contents(DATAROOT . 'eventname.txt');
 
 //パスワードハッシュ化
 $hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
@@ -171,16 +184,4 @@ if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出シ�
     $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 }
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='../../mypage/index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("../../mypage/index.php");

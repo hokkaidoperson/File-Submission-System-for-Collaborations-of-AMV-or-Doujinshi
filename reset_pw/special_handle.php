@@ -12,7 +12,7 @@ else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
 else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 
 //sectokをもっかいチェック
-$fileplace = DATAROOT . 'mail/reset_pw/' . $_POST["userid"] . '.txt';
+$fileplace = DATAROOT . 'mail/reset_pw/' . basename($_POST["userid"]) . '.txt';
 
 if (file_exists($fileplace)) {
     $filedata = json_decode(file_get_contents($fileplace), true);
@@ -26,12 +26,12 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 //パスワードハッシュ化
 $hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
 
-$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_POST["userid"] . '.txt'), true);
+$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt'), true);
 $userdata["pwhash"] = $hash;
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . $_POST["userid"] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 
 //リンクを消す
@@ -83,8 +83,7 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>パスワード再発行完了</h1>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-パスワードの再発行が完了しました。新しいパスワードでログインして下さい。<br>
-※パスワードは忘れないようにして下さい。<br><br>
+パスワードの再発行が完了しました。新しいパスワードでログインして下さい。<br><br>
 <a href="../index.php">ログインページへ</a>
 </div>
 </div>

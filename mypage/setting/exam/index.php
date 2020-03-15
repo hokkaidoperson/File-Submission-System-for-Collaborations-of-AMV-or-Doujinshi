@@ -22,7 +22,7 @@ else $editmem = array();
 ?>
 
 <h1>ファイル確認に関する設定</h1>
-<p>ファイル確認（提出された作品を確認し、承認するかどうか決める作業）に関する設定をします。</p>
+<p>ファイル確認（提出された作品や情報を確認し、承認するかどうか決める作業）に関する設定をします。</p>
 <form name="form" action="handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <h2>ファイル確認の担当者</h2>
@@ -61,7 +61,7 @@ if (isset($examsetting["submit_add"]) and $examsetting["submit_add"] == "1") ech
 </div>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <div class="form-group">
-作品編集時（提出ファイル自体は変更しない場合）の確認担当者（複数選択可）【必須】
+作品編集時（提出ファイル自体は変更しない場合）、及び共通情報設定時の確認担当者（複数選択可）【必須】
 <?php
 echo '<div class="form-check">';
 echo '<input id="edit_promoter" class="form-check-input" type="checkbox" name="edit[]" value="_promoter"';
@@ -84,7 +84,7 @@ foreach ($choices as $choice) {
 <input id="edit_add" class="form-check-input" type="checkbox" name="edit_add" value="1"<?php
 if (isset($examsetting["edit_add"]) and $examsetting["edit_add"] == "1") echo ' checked="checked"';
 ?>>
-<label class="form-check-label" for="edit_add">共同運営者が増えた際、そのユーザーを作品編集時の確認メンバーとして自動的に追加する</label>
+<label class="form-check-label" for="edit_add">共同運営者が増えた際、そのユーザーを作品編集・共通情報設定時の確認メンバーとして自動的に追加する</label>
 </div>
 </div>
 </div>

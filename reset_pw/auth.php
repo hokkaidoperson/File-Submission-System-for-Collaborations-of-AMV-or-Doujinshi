@@ -6,7 +6,7 @@ if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォ�
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
 
-if ($recdata["site"] != "" and $recdata["sec"] != "") {
+if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
     $token = $_POST['g-recaptcha-response'];
     $url = 'https://www.google.com/recaptcha/api/siteverify';
@@ -41,7 +41,7 @@ if ($recdata["site"] != "" and $recdata["sec"] != "") {
 
 $invalid = FALSE;
 
-$userid = $_POST["userid"];
+$userid = basename($_POST["userid"]);
 
 if (!file_exists(DATAROOT . 'users/' . $userid . '.txt')) $invalid = TRUE;
 else {
@@ -177,8 +177,9 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>パスワード再発行 - メール送信完了</h1>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-お使いのアカウントの連絡メールアドレス宛に、パスワード再発行用URLが記載されたメールを送信しました。<br><br>
-メールを確認し、指示に従って下さい。
+お使いのアカウントの連絡メールアドレス宛に、パスワード再発行用URLが記載されたメールを送信しました。<br>
+メールを確認し、指示に従って下さい。<br><br>
+※この画面は閉じても構いません。
 </div>
 </div>
 </div>

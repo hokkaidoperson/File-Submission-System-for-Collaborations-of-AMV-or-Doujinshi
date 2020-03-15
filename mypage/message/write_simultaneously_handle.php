@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/exam/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die('<h1>権限エラー</h1>
@@ -27,7 +16,7 @@ if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォ�
 $invalid = FALSE;
 
 if($_POST["msg_content"] == "") $invalid = TRUE;
-else if(mb_strlen($_POST["msg_content"]) > 1000) $invalid = TRUE;
+else if(length_with_lb($_POST["msg_content"]) > 1000) $invalid = TRUE;
 
 if($_POST["msg_subject"] == "") {}
 else if(mb_strlen($_POST["msg_subject"]) > 50) $invalid = TRUE;
@@ -53,6 +42,9 @@ $messagedata = array(
 );
 foreach ($to as $userid => $data) {
     $messagedata[$userid] = 0;
+    //認証文字列（参考：https://qiita.com/suin/items/c958bcca90262467f2c0）
+    $randomchar128 = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 128)), 0, 128);
+    $messagedata["sectok_$userid"] = $randomchar128;
 }
 
 $authornick = "";
@@ -70,6 +62,7 @@ $message = $_POST["msg_content"];
 $pageurl = $siteurl . 'mypage/message/read.php?name=' . $id;
 foreach ($to as $userid => $data) {
     $nickname = $data["nickname"];
+    $readurl = $siteurl . 'message_read_shortcut/index.php?name=' . $id . '&userid=' . $userid . '&sectok=' . $messagedata["sectok_$userid"];
     $content = "$nickname 様
 
 $authornick 様が、あなた宛てにメッセージを送信しました。
@@ -81,8 +74,15 @@ $subject
 【メッセージ内容】
 $message
 
+【メッセージに既読を付ける（ログイン不要）】
+このメッセージに既読を付けるには、以下の開封確認URLにアクセスして下さい。
+その際、ログインは不要です。
+　開封確認URL：$readurl
 
-　詳細確認・返信はこちら：$pageurl
+【詳細確認・返信をする（要ログイン）】
+このメッセージの詳細を確認したり、返信したりするには、ログインした状態で以下のURLに
+アクセスして下さい。
+　メッセージ詳細・返信用URL：$pageurl
 ";
     sendmail($data["email"], 'メッセージ通知（' . $subject . '）', $content);
 }
@@ -92,16 +92,4 @@ if (file_put_contents(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === 
 
 $_SESSION['situation'] = 'message_sent';
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

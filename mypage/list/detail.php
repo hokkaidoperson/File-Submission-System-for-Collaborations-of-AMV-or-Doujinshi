@@ -14,10 +14,10 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 //ファイル提出者のユーザーID
-$author = $_GET["author"];
+$author = basename($_GET["author"]);
 
 //提出ID
-$id = $_GET["id"];
+$id = basename($_GET["id"]);
 
 if ($author == "" or $id == "") die_mypage('パラメーターエラー');
 
@@ -100,12 +100,14 @@ if (blackuser($author)) echo '<div class="border border-danger" style="padding:1
 <?php
 if ($id != "userform") {
 
-if (isset($formdata["submit"]) and $formdata["submit"] != "") echo '<tr>
-<th>提出ファイル</th><td><a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '" target="_blank">' . $formdata["submit"] . 'ファイル（クリックでダウンロード）</a></td>
-</tr>';
-else {
+if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
+    echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+    foreach ($formdata["submit"] as $filename => $title)
+    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+    echo '</td></tr>';
+} else {
     echo '<tr>
-<th>提出ファイルダウンロード先</th><td><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
+<th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
     if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . htmlspecialchars($formdata["dldpw"]) . '</code></font>';
     if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
     echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
@@ -118,6 +120,12 @@ else {
 <tr>
 <th>タイトル</th><td><?php echo htmlspecialchars($formdata["title"]); ?></td>
 </tr>
+<tr>
+<th>提出日時</th><td><?php echo date('Y年n月j日G時i分s秒', $id); ?></td>
+</tr>
+<tr>
+<th>最終更新日時</th><td><?php if (isset($formdata["editdate"])) echo date('Y年n月j日G時i分s秒', $formdata["editdate"]); else echo date('Y年n月j日G時i分s秒', $id); ?></td>
+</tr>
 <?php
 foreach ($formsetting as $key => $array) {
     if ($key === "general") continue;
@@ -125,7 +133,11 @@ foreach ($formsetting as $key => $array) {
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";
     if ($array["type"] == "attach") {
-        if ($formdata[$array["id"]] != "") echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '" target="_blank">' . htmlspecialchars($formdata[$array["id"]]) . 'ファイル（クリックでダウンロード）</a>';
+        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+            foreach ($formdata[$array["id"]] as $filename => $title)
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+        }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
@@ -135,13 +147,13 @@ foreach ($formsetting as $key => $array) {
         echo htmlspecialchars($formdata[$array["id"] . "-1"]);
         echo '<br>';
         echo htmlspecialchars($formdata[$array["id"] . "-2"]);
-    } else echo htmlspecialchars($formdata[$array["id"]]);
+    } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";
 }
 ?>
 <tr><th>承認の状態</th><?php
-if (isset($formdata["editing"]) and $formdata["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
+if (isset($formdata["editing"]) and $formdata["editing"] == 1) echo '<td>項目編集の承認待ち<br>※変更後の内容は上記表に反映されていません。</td>';
 else switch ($formdata["exam"]) {
     case 0:
         echo '<td>承認待ち</td>';
@@ -162,7 +174,7 @@ echo "</tr>";
 
 ?>
 <tr>
-<th>ニックネーム</th><td><?php echo htmlspecialchars(nickname($author)); ?></td>
+<th width="30%">ニックネーム</th><td width="70%"><?php echo htmlspecialchars(nickname($author)); ?></td>
 </tr>
 <?php
 foreach ($userformdata as $key => $array) {
@@ -170,7 +182,11 @@ foreach ($userformdata as $key => $array) {
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";
     if ($array["type"] == "attach") {
-        if ($formdata[$array["id"]] != "") echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=userform&id=' . $array["id"] . '" target="_blank">' . htmlspecialchars($formdata[$array["id"]]) . 'ファイル（クリックでダウンロード）</a>';
+        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+            foreach ($formdata[$array["id"]] as $filename => $title)
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=userform&id=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+        }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
@@ -180,7 +196,7 @@ foreach ($userformdata as $key => $array) {
         echo htmlspecialchars($formdata[$array["id"] . "-1"]);
         echo '<br>';
         echo htmlspecialchars($formdata[$array["id"] . "-2"]);
-    } else echo htmlspecialchars($formdata[$array["id"]]);
+    } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";
 }

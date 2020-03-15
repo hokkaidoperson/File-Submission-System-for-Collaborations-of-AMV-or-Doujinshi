@@ -3,18 +3,7 @@ require_once('../../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../../index.php?redirto=mypage/setting/submitform/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../../index.php");
 }
 
 $accessok = 'none';
@@ -22,19 +11,7 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
@@ -76,7 +53,7 @@ if ($_POST["type"] != "general") {
 
 //文字数 必須でない
 if($_POST["detail"] == ""){
-} else if(mb_strlen($_POST["detail"]) > 500) $invalid = TRUE;
+} else if(length_with_lb($_POST["detail"]) > 500) $invalid = TRUE;
 
 //文字種・数の範囲 必須でない
 if($_POST["max"] == ""){
@@ -184,22 +161,22 @@ $filedata = $_SESSION["submitformdata"][$number];
 
 $filedatajson = json_encode($filedata);
 
+if (!file_exists(DATAROOT . 'form/submit/draft/')) {
+    if (!mkdir(DATAROOT . 'form/submit/draft/')) die_mypage('ディレクトリの作成に失敗しました。');
+    for ($i = 0; $i <= 9; $i++) {
+        if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
+        copy(DATAROOT . 'form/submit/' . "$i" . '.txt', DATAROOT . 'form/submit/draft/' . "$i" . '.txt');
+    }
+    if (file_exists(DATAROOT . 'form/submit/general.txt')) {
+        copy(DATAROOT . 'form/submit/general.txt', DATAROOT . 'form/submit/draft/general.txt');
+    }
+
+}
+
 $fileplace = DATAROOT . 'form/submit/draft/' . $number . '.txt';
 
 if (file_put_contents($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 $_SESSION['situation'] = 'submitform_saved';
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

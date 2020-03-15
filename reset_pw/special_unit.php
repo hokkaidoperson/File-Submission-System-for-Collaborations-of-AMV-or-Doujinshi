@@ -3,7 +3,9 @@ require_once('../set.php');
 
 $deny = FALSE;
 
-$fileplace = DATAROOT . 'mail/reset_pw/' . $_GET["userid"] . '.txt';
+$userid = basename($_GET["userid"]);
+
+$fileplace = DATAROOT . 'mail/reset_pw/' . $userid . '.txt';
 
 if (file_exists($fileplace)) {
     $filedata = json_decode(file_get_contents($fileplace), true);
@@ -40,52 +42,100 @@ if ($deny) die('<!DOCTYPE html>
 </head>
 <script type="text/javascript">
 <!--
-// 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
+function check_individual(id) {
+    var valid = 1;
+    if (id === "password") {
+        document.getElementById("password-errortext").innerHTML = "";
+        if(document.form.password.value === ""){
+            valid = 0;
+            document.getElementById("password-errortext").innerHTML = "入力されていません。";
+        } else if(document.form.password.value.length > 30){
+            valid = 0;
+            document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。30文字以内に抑えて下さい。";
+        } else if(document.form.password.value.length < 8){
+            valid = 0;
+            document.getElementById("password-errortext").innerHTML = "文字数が少なすぎます。8文字以上のパスワードにして下さい。";
+        }
+        if (valid) {
+            document.form.password.classList.add("is-valid");
+            document.form.password.classList.remove("is-invalid");
+        } else {
+            document.form.password.classList.add("is-invalid");
+            document.form.password.classList.remove("is-valid");
+        }
+        return;
+    }
+
+    if (id === "passwordagn") {
+        document.getElementById("passwordagn-errortext").innerHTML = "";
+        if(document.form.password.value !== document.form.passwordagn.value){
+            valid = 0;
+            document.getElementById("passwordagn-errortext").innerHTML = "再入力のパスワードが違います。もう一度入力して下さい。パスワードは間違っていませんか？";
+        }
+        if (valid) {
+            document.form.passwordagn.classList.add("is-valid");
+            document.form.passwordagn.classList.remove("is-invalid");
+        } else {
+            document.form.passwordagn.classList.add("is-invalid");
+            document.form.passwordagn.classList.remove("is-valid");
+        }
+        return;
+    }
+}
+
 function check(){
 
-  problem = 0;
+    var problem = 0;
+    var valid = 1;
 
-  probpw = 0;
-
-  if(document.form.password.value === ""){
-    problem = 1;
-    probpw = 1;
-  } else if(document.form.password.value.length > 30){
-    problem = 1;
-    probpw = 2;
-  } else if(document.form.password.value.length < 8){
-    problem = 1;
-    probpw = 3;
-  } else if(document.form.password.value !== document.form.passwordagn.value){
-    problem = 1;
-    probpw = 4;
-  }
-
-//問題ありの場合はエラー表示　ない場合は移動　エラー状況に応じて内容を表示
-if ( problem == 1 ) {
-  if ( probpw == 1) {
-    alert( "【パスワード】\n入力されていません。" );
-  }
-  if ( probpw == 2) {
-    alert( "【パスワード】\n文字数が多すぎます（現在" + document.form.password.value.length + "文字）。30文字以内に抑えて下さい。" );
-  }
-  if ( probpw == 3) {
-    alert( "【パスワード】\n文字数が少なすぎます（現在" + document.form.password.value.length + "文字）。8文字以上のパスワードにして下さい。" );
-  }
-  if ( probpw == 4) {
-    alert( "【パスワード】\n再入力のパスワードが違います。もう一度入力して下さい。パスワードは間違っていませんか？" );
-  }
-  return false;
+    document.getElementById("password-errortext").innerHTML = "";
+    document.getElementById("passwordagn-errortext").innerHTML = "";
+    if(document.form.password.value === ""){
+        problem = 1;
+        valid = 0;
+        document.getElementById("password-errortext").innerHTML = "入力されていません。";
+    } else if(document.form.password.value.length > 30){
+        problem = 1;
+        valid = 0;
+        document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。30文字以内に抑えて下さい。";
+    } else if(document.form.password.value.length < 8){
+        problem = 1;
+        valid = 0;
+        document.getElementById("password-errortext").innerHTML = "文字数が少なすぎます。8文字以上のパスワードにして下さい。";
+    } else if(document.form.password.value !== document.form.passwordagn.value){
+        problem = 1;
+        valid = 0;
+        document.getElementById("passwordagn-errortext").innerHTML = "再入力のパスワードが違います。もう一度入力して下さい。パスワードは間違っていませんか？";
+    }
+    if (valid) {
+        document.form.password.classList.add("is-valid");
+        document.form.password.classList.remove("is-invalid");
+        document.form.passwordagn.classList.add("is-valid");
+        document.form.passwordagn.classList.remove("is-invalid");
+    } else {
+        document.form.password.classList.add("is-invalid");
+        document.form.password.classList.remove("is-valid");
+        document.form.passwordagn.classList.add("is-invalid");
+        document.form.passwordagn.classList.remove("is-valid");
+    }
+    if ( problem == 0 ) {
+        $('#confirmmodal').modal();
+        $('#confirmmodal').on('shown.bs.modal', function () {
+            document.getElementById("submitbtn").focus();
+        });
+    }
+    return false;
 }
 
-if(window.confirm('現在のパスワードを登録します。よろしいですか？')){
-  submitbtn = document.getElementById("submitbtn");
-  submitbtn.disabled = "disabled";
-  return true;
-} else{
-  return false;
+function submittohandle() {
+    submitbtn = document.getElementById("submitbtn");
+    submitbtn.disabled = "disabled";
+    document.form.submit();
 }
 
+//文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
+function ShowLength(str, resultid) {
+   document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
@@ -124,23 +174,48 @@ var val = getCookie('check_cookie');
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 新しいパスワードを入力して下さい。
 </div>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="special_handle.php" method="post" onSubmit="return check()">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
-<input type="hidden" name="userid" value="<?php echo $_GET["userid"]; ?>">
+<input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <div class="form-group">
-<label for="password">パスワード（8文字以上30文字以内）</label>
-<input type="password" name="password" class="form-control" id="password">
+<label for="password">パスワード（8文字以上30文字以内）【必須】</label>
+<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
+<font size="2"><div id="password-counter" class="text-right">現在 - 文字</div></font>
+<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</font>
 </div>
 <div class="form-group">
-<label for="passwordagn">パスワード（確認の為再入力）</label>
-<input type="password" name="passwordagn" class="form-control" id="passwordagn">
+<label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
+<input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
+<div id="passwordagn-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
-<button type="submit" class="btn btn-primary" id="submitbtn">入力したパスワードで設定する</button>
+<button type="submit" class="btn btn-primary">入力したパスワードで設定する</button>
+</div>
+<!-- 送信確認Modal -->
+<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="confirmmodaltitle">変更確認</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+入力したパスワードで再発行を行います。<br>
+よろしければ「再発行する」を押して下さい。<br>
+別のパスワードにする場合は「戻る」を押して下さい。
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
+<button type="button" class="btn btn-primary" id="submitbtn" onClick="submittohandle();">再発行する</button>
+</div>
+</div>
+</div>
+</div>
 </form>
-</div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>

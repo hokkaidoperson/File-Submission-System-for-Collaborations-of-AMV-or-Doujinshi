@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/ban/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -22,19 +11,7 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
@@ -42,7 +19,7 @@ if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォ�
 $invalid = FALSE;
 if ($_POST["subject"] == "") $invalid = TRUE;
 if ($_POST["message_mail"] == "") {
-} else if (mb_strlen($_POST["message_mail"]) > 500) $invalid = TRUE;
+} else if (length_with_lb($_POST["message_mail"]) > 500) $invalid = TRUE;
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
 $id = $_POST["subject"];
@@ -100,17 +77,4 @@ sendmail(email($id), $title, $content);
 if ($rem) $_SESSION['situation'] = 'ban_user_rem';
 else $_SESSION['situation'] = 'ban_user_add';
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

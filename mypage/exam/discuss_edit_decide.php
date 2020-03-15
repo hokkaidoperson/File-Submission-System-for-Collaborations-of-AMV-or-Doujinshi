@@ -3,26 +3,17 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/exam/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
+$subject = basename($_POST["subject"]);
+
 //議論ログ
-if (!file_exists(DATAROOT . 'exam_edit_discuss/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
-$discussdata = json_decode(file_get_contents(DATAROOT . 'exam_edit_discuss/' . $_POST["subject"] . '.txt'), true);
+if (!file_exists(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt')) die('ファイルが存在しません。');
+$discussdata = json_decode(file_get_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt'), true);
 
 //投票の回答データ
-$answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $_POST["subject"] . '.txt'), true);
+$answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
 if ($answerdata["_state"] != 1) die();
 
 $memberfile = DATAROOT . 'exammember_' . $answerdata["_membermode"] . '.txt';
@@ -36,38 +27,14 @@ if ($key !== FALSE) {
 
 if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
-if ($_SESSION["state"] != 'p' and $noprom == FALSE) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
-if (!file_exists(DATAROOT . 'exam_edit/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
-list($author, $id, $editid) = explode('_', $_POST["subject"]);
+if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
+list($author, $id, $editid) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -81,13 +48,12 @@ switch ($_POST["ans"]) {
 
 if($_POST["reason"] == ""){
   if($_POST["ans"] == "2") $invalid = TRUE;
-  else if(mb_strlen($_POST["reason"]) > 500) $invalid = TRUE;
+  else if(length_with_lb($_POST["reason"]) > 500) $invalid = TRUE;
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) die();
-else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) die();
 
 //理由通知の設定呼び出し
 $examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
@@ -99,24 +65,44 @@ $answerdata["_result"] = $_POST["ans"];
 $discussdata["comments"]["-system_" . time()] = "最終結論の入力が完了し、議論を終了しました。";
 
 $filedatajson = json_encode($answerdata);
-if (file_put_contents(DATAROOT . 'exam_edit/' . $_POST["subject"] . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
+if (file_put_contents(DATAROOT . 'exam_edit/' . $subject . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
 
 $filedatajson = json_encode($discussdata);
-if (file_put_contents(DATAROOT . 'exam_edit_discuss/' . $_POST["subject"] . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
+if (file_put_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 
 //入力内容を読み込んで書き換え
 $formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 $formdata["editing"] = 0;
 if ($_POST["ans"] == 1) {
     $formdata["exam"] = 1;
+    $formdata["editdate"] = $editid;
     $changeddata = json_decode(file_get_contents(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
     foreach($changeddata as $key => $data) {
+        if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
+            $fileto = DATAROOT . 'files/' . $author . '/' . $id . '/';
+            if (!file_exists($fileto)) {
+                if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
+            }
+            $tmp = explode("_", $key);
+            $partid = $tmp[0];
+            if ($partid === "submit") $saveid = "main";
+            else $saveid = $partid;
+            if ($tmp[1] === "add") {
+                foreach ($data as $fileplace => $name) {
+                    rename(DATAROOT . 'edit_files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace", DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace");
+                }
+                if (!is_array($formdata[$partid])) $formdata[$partid] = array();
+                $formdata[$partid] = array_merge($formdata[$partid], $data);
+            }
+            if ($tmp[1] === "delete") {
+                foreach ($data as $name) {
+                    unlink(DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$name");
+                    unset($formdata[$partid][$name]);
+                }
+            }
+            continue;
+        }
         $formdata[$key] = $data;
-    }
-    if (file_exists(DATAROOT . 'edit_files/' . $author . '/' . $id)) rename(DATAROOT . 'edit_files/' . $author . '/' . $id, DATAROOT . 'files/' . $author . '/' . $id);
-    foreach(glob(DATAROOT . 'edit_attach/' . $author . '/' . $id . '_*') as $filename) {
-        $name = basename($filename);
-        rename($filename, DATAROOT . 'submit_attach/' . $author . '/' . $name);
     }
 }
 $filedatajson =  json_encode($formdata);
@@ -207,16 +193,4 @@ switch ($_POST["ans"]){
     break;
 }
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

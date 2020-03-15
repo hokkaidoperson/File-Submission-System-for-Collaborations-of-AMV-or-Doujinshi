@@ -1,7 +1,7 @@
 <?php
 require_once('../../../set.php');
 session_start();
-$titlepart = 'ユーザー登録画面の編集';
+$titlepart = '共通情報入力画面の編集';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["situation"] == 'userform_saved') {
@@ -24,38 +24,6 @@ if (!file_exists(DATAROOT . 'form/userinfo/')) {
     if (!mkdir(DATAROOT . 'form/userinfo/', 0777, true)) die_mypage('ディレクトリの作成に失敗しました。');
 }
 
-//フォームデータの規則
-//0.txt ~ 9.txt 番号抜けは無い（削除などで欠番が生じたら詰める）
-//各txtにフォームデータ（種別やタイトルなど）を格納
-//draftディレクトリは、作業内容公開時に削除する
-
-//フォームデータ
-//id:項目新規作成時のunix　PHPとかJavascriptとかの内部処理で使う（名前は「custom-xxxxxx」）
-//type:形式
-//title:項目名
-//required:必須？（0 任意　1 必須　2 いずれか必須※テキストボックス×2時）
-//detail:欄の下に表示するやつ
-//max:最大文字数
-//min:最小ry
-//width:フォーム幅
-//height:テキストエリア高さ
-//prefix_a:欄の前に表示するやつ
-//suffix_a:欄の後にry
-//max2、min2、width2、prefix_b、suffix_b:テキストボックス×2の時使う
-//list:選択系のやつの選択肢　改行で区切り
-//arrangement:テキストボックスや選択肢を縦に並べるか横に並べるか（"h"で横並び（horizontally））
-//ext:添付ファイルの拡張子制限
-//size:ファイルサイズ最大
-
-//type名
-//textbox
-//textbox2:テキストボックス×2
-//textarea
-//radio
-//check
-//dropdown
-//attach
-
 //SESSIONデータある？そして一時ファイルある？
 if (!isset($_SESSION["userformdata"])) {
     $_SESSION["userformdata"] = array();
@@ -69,13 +37,8 @@ if (!isset($_SESSION["userformdata"])) {
 </div>';
     } else {
         for ($i = 0; $i <= 9; $i++) {
-            if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
-                if (!mkdir(DATAROOT . 'form/userinfo/draft/')) die_mypage('ディレクトリの作成に失敗しました。');
-            }
-
             if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
             $_SESSION["userformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
-            copy(DATAROOT . 'form/userinfo/' . "$i" . '.txt', DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt');
         }
     }
 }
@@ -89,17 +52,17 @@ for ($i = 0; $i <= 9; $i++) {
 
 ?>
 
-<h1>ユーザー登録画面の編集</h1>
-<p>ポータルサイトへのユーザー登録時に求める入力事項を設定します（「ユーザーID」以外は後から変更可）。</p>
-<p>「ユーザーID」「ニックネーム」「メールアドレス」「パスワード」の4項目は、システム上必要になるため、ユーザー登録時に必ず入力を求めます（メールアドレス・パスワードは非公開です<font size="2">※1</font>）。<br>
-<font size="2">※1 ユーザーへの連絡には、本ポータルサイトのメッセージ機能をご利用下さい。</font></p>
-<p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
+<h1>共通情報入力画面の編集</h1>
+<p>共通情報として入力を求める事項を設定します。</p>
+<p>ポータルサイトのマイページトップの「共通情報の入力・編集」という項目から、ここで設定する共通情報を登録・編集出来ます。</p>
+<p><b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
+<p>※求める共通情報が特に無い場合は、何も設定せずに下の「変更内容を保存し適用する」ボタンを押して下さい。</p>
 <?php
 if (file_exists(DATAROOT . 'form/userinfo/done.txt')) echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ユーザー登録時の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。
+共通情報の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。
 </div>';
 else echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ユーザー登録時の入力項目は後から変更出来ますが、変更は最小限にとどめる事をお勧め致します。
+共通情報の入力項目は後から変更出来ますが、変更は最小限にとどめる事をお勧め致します。
 </div>';
 ?>
 <p><a class="btn btn-primary" data-toggle="collapse" href="#detail" role="button" aria-expanded="false" aria-controls="detail">
@@ -126,25 +89,13 @@ else echo '<div class="border border-warning" style="padding:10px; margin-top:1e
 </div>
 </div>
 <p><font size="2">※公開前の設定内容は一時ファイルに保存されます。途中でブラウザを閉じてしまってもその一時ファイルを基に作業を再開出来ますが、<b>最終的に「変更内容を保存し適用する」ボタンを押さないと実際の入力画面に反映されません。</font></b></p>
-<h2>ユーザー登録画面の項目一覧</h2>
-<p>変更したい項目の項目名をクリックして下さい（「ユーザーID」「ニックネーム」「メールアドレス」「パスワード」は変更出来ません）。</p>
-<p>実際のユーザー登録画面では、下表の順番で項目が並びます。</p>
+<h2>共通情報入力画面の項目一覧</h2>
+<p>変更したい項目の項目名をクリックして下さい。</p>
+<p>実際の入力画面では、下表の順番で項目が並びます。</p>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
 <th>項目名</th><th>入力形式</th><th>必須・任意</th>
-</tr>
-<tr>
-<td>ユーザーID</td><td>テキストボックス</td><td>必須</td>
-</tr>
-<tr>
-<td>ニックネーム</td><td>テキストボックス</td><td>必須</td>
-</tr>
-<tr>
-<td>メールアドレス</td><td>テキストボックス</td><td>必須</td>
-</tr>
-<tr>
-<td>パスワード</td><td>テキストボックス</td><td>必須</td>
 </tr>
 <?php
 for ($i = 0; $i <= 10; $i++) {
@@ -208,8 +159,8 @@ for ($i = 0; $i <= 10; $i++) {
 ?>
 </table>
 </div>
-<p><a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm('設定内容を、実際のユーザー登録画面に適用します。よろしいですか？')">変更内容を保存し適用する</a> 
-<a href="dispose.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を、保存せず削除します。実際のユーザー登録画面は変更されません。よろしいですか？')">変更内容を保存せず破棄する</a></p>
+<p><a href="apply.php" class="btn btn-primary" role="button" onclick="return window.confirm('設定内容を、実際の共通情報入力画面に適用します。よろしいですか？')">変更内容を保存し適用する</a> 
+<a href="dispose.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を、保存せず削除します。実際の共通情報入力画面は変更されません。よろしいですか？')">変更内容を保存せず破棄する</a></p>
 <script type="text/javascript">
 <!--
 function check(){

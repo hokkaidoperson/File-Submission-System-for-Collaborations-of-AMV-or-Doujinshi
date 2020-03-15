@@ -5,7 +5,7 @@ require_once('../set.php');
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
 
 $userec = FALSE;
-if ($recdata["site"] != "" and $recdata["sec"] != "") $userec = TRUE;
+if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) $userec = TRUE;
 
 ?>
 
@@ -20,35 +20,99 @@ if ($recdata["site"] != "" and $recdata["sec"] != "") $userec = TRUE;
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
-// 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
-function check(){
+function check_individual(id){
 
-  problem = 0;
-
-  if(document.form.userid.value === ""){
-    problem = 1;
+  if (id === "userid") {
+      document.getElementById("userid-errortext").innerHTML = "";
+      if(document.form.userid.value === ""){
+        document.getElementById("userid-errortext").innerHTML = "入力されていません。";
+        document.form.userid.classList.add("is-invalid");
+        document.form.userid.classList.remove("is-valid");
+      } else {
+        document.form.userid.classList.add("is-valid");
+        document.form.userid.classList.remove("is-invalid");
+      }
+      return;
   }
 
-  if(document.form.nickname.value === ""){
-    problem = 1;
+  if (id === "nickname") {
+      document.getElementById("nickname-errortext").innerHTML = "";
+      if(document.form.nickname.value === ""){
+        document.getElementById("nickname-errortext").innerHTML = "入力されていません。";
+        document.form.nickname.classList.add("is-invalid");
+        document.form.nickname.classList.remove("is-valid");
+      } else {
+        document.form.nickname.classList.add("is-valid");
+        document.form.nickname.classList.remove("is-invalid");
+      }
+      return;
   }
 
-  if(document.form.email.value === ""){
-    problem = 1;
+  if (id === "email") {
+      document.getElementById("email-errortext").innerHTML = "";
+      if(document.form.email.value === ""){
+        document.getElementById("email-errortext").innerHTML = "入力されていません。";
+        document.form.email.classList.add("is-invalid");
+        document.form.email.classList.remove("is-valid");
+      } else {
+        document.form.email.classList.add("is-valid");
+        document.form.email.classList.remove("is-invalid");
+      }
+      return;
   }
-
-//問題ありの場合はエラー表示　ない場合は移動　エラー状況に応じて内容を表示
-if ( problem == 1 ) {
-  alert( "全ての項目を入力して下さい。" );
-  return false;
 }
 
-return true;
+function check(){
+
+  var problem = 0;
+  document.getElementById("neterrortext").style.display = "none";
+  document.getElementById("userid-errortext").innerHTML = "";
+  if(document.form.userid.value === ""){
+    problem = 1;
+    document.getElementById("userid-errortext").innerHTML = "入力されていません。";
+    document.form.userid.classList.add("is-invalid");
+    document.form.userid.classList.remove("is-valid");
+  } else {
+    document.form.userid.classList.add("is-valid");
+    document.form.userid.classList.remove("is-invalid");
+  }
+
+  document.getElementById("nickname-errortext").innerHTML = "";
+  if(document.form.nickname.value === ""){
+    problem = 1;
+    document.getElementById("nickname-errortext").innerHTML = "入力されていません。";
+    document.form.nickname.classList.add("is-invalid");
+    document.form.nickname.classList.remove("is-valid");
+  } else {
+    document.form.nickname.classList.add("is-valid");
+    document.form.nickname.classList.remove("is-invalid");
+  }
+
+  document.getElementById("email-errortext").innerHTML = "";
+  if(document.form.email.value === ""){
+    problem = 1;
+    document.getElementById("email-errortext").innerHTML = "入力されていません。";
+    document.form.email.classList.add("is-invalid");
+    document.form.email.classList.remove("is-valid");
+  } else {
+    document.form.email.classList.add("is-valid");
+    document.form.email.classList.remove("is-invalid");
+  }
+
+  if ( problem == 1 ) {
+    return false;
+  }
+
+  <?php if ($userec) echo "grecaptcha.execute(); return false;"; else echo "return true;"; ?>
 
 }
 
 function recSubmit(token) {
-  if (check() === true) document.form.submit();
+  document.form.submit();
+}
+
+function recError(token) {
+  document.getElementById("neterrortext").style.display = "block";
 }
 
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
@@ -87,27 +151,33 @@ var val = getCookie('check_cookie');
 <h1>パスワード再発行</h1>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。<br><br>
-確認の為、お使いのアカウントの情報を以下に入力して下さい。
+確認の為、お使いのアカウントの情報を以下に入力して下さい。<br><br>
+※<a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a>
 </div>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<form name="form" action="auth.php" method="post"<?php if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>
+<form name="form" action="auth.php" method="post" onSubmit="return check()">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">
 <label for="userid">ユーザーID</label>
-<input type="text" name="userid" class="form-control" id="userid">
+<input type="text" name="userid" class="form-control" id="userid" onBlur="check_individual(&quot;userid&quot;);">
+<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム</label>
-<input type="text" name="nickname" class="form-control" id="nickname">
+<input type="text" name="nickname" class="form-control" id="nickname" onBlur="check_individual(&quot;nickname&quot;);">
+<div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス</label>
-<input type="email" name="email" class="form-control" id="email">
+<input type="email" name="email" class="form-control" id="email" onBlur="check_individual(&quot;email&quot;);">
+<div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <?php
-if ($userec) echo '<button class="g-recaptcha btn btn-primary" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit">URLを送信</button>';
+if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
+<button class="btn btn-primary" type="submit">URLを送信</button><br><font size="2"><span class="text-muted">※「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></font>';
 else echo '<button type="submit" class="btn btn-primary" id="submitbtn">URLを送信</button>';
 ?>
+<div id="neterrortext" style="display: none;"><font size="2"><span class="text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「URLを送信」を押して下さい。</span></font></div>
 </form>
 </div>
 </div>

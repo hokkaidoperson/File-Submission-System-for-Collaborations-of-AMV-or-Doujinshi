@@ -1,7 +1,7 @@
 <?php
 require_once('../../../set.php');
 session_start();
-$titlepart = 'ユーザー登録画面 項目設定';
+$titlepart = '共通情報入力画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
 $accessok = 'none';
@@ -13,7 +13,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
 <p><a href="../../index.php">マイページトップに戻る</a></p>');
 
-$number = $_GET['number'];
+$number = basename($_GET['number']);
 
 if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) or ('textarea' != $_SESSION["userformdata"][$number]["type"]))
     die_mypage('<h1>エラーが発生しました</h1>
@@ -104,6 +104,16 @@ if (isset($_SESSION["userformdata"][$number]["height"])) echo htmlspecialchars($
 </div>
 <font size="2">※指定が無い場合は、入力欄の高さは4行となります。
 </font>
+</div>
+<div class="form-group">
+入力内容の変更の自動承認について
+<div class="form-check">
+<input id="recheck" class="form-check-input" type="checkbox" name="recheck" value="auto" <?php
+if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userformdata"][$number]["recheck"] == "auto") echo 'checked="checked"';
+?>>
+<label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
+</div>
+<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

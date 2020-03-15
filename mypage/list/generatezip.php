@@ -50,10 +50,10 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 ?>
 <p>※扱うファイルの量によっては、<b>ZIPファイルの生成が完了するまで数十秒掛かる可能性があります</b>。</p>
 <h2>生成されるZIPファイルの構造</h2>
-<p>※実際のファイル名やフォルダ名では、ユーザーのニックネームや作品名の後ろに、ユーザーIDや作品の内部IDが括弧付きで付与されます（ファイル・フォルダ名の重複防止のため）。<br>
+<p>※実際のファイル名やフォルダ名ではユーザーIDや作品の内部IDが括弧書きで付与されます（ファイル・フォルダ名の重複防止のため）。<br>
 ※ファイル・フォルダ名に使用出来ない文字（半角の <code>\</code> <code>/</code> <code>:</code> <code>*</code> <code>?</code> <code>&quot;</code> <code>&lt;</code> <code>&gt;</code> <code>|</code>）がユーザー名や作品名などに含まれる場合、これらを全角文字に変換してファイル・フォルダ名として使用します（CSVファイル上では全角に変換されません）。<br>
 ※システムの都合上、空のフォルダが出来る可能性があります。予めご了承下さい。</p>
-<pre><code><?php echo $eventname; ?>.zip
+<pre><code><?php echo $eventname; ?> - 一括ダウンロード.zip
 ├── ユーザーA/
 │   ├── 作品A-1/
 │   │   ├── 作品A-1の提出ファイル（メイン）
@@ -88,14 +88,14 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 └── 参加者データ.csv
 </code></pre>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="generatezip_exec.php" method="post" onSubmit="return check()">
+<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <input type="hidden" name="successfully" value="1">
 <div class="form-group">
 オプション（任意）
 <div class="form-check">
 <input id="options-1" class="form-check-input" type="checkbox" name="include_non_accepted" value="1">
-<label class="form-check-label" for="options-1">承認されていない（承認待ち・修正待ち・拒否）の作品も併せてダウンロードする</label>
+<label class="form-check-label" for="options-1">承認されていない（承認待ち・修正待ち・拒否）作品も併せてダウンロードする</label>
 </div>
 <div class="form-check">
 <input id="options-2" class="form-check-input" type="checkbox" name="include_without_submission" value="1">
@@ -104,15 +104,32 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">ZIPファイルを生成</button>
-</form>
 </div>
+<!-- 送信中Modal -->
+<div class="modal fade" id="sendingmodal" tabindex="-1" role="dialog" aria-labelledby="sendingmodaltitle" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="sendingmodaltitle">ZIPファイル生成中…</h5>
+</div>
+<div class="modal-body">
+ZIPファイルを生成中です。<br>
+画面が自動的に推移するまでしばらくお待ち下さい。
+</div>
+</div>
+</div>
+</div>
+</form>
 <script type="text/javascript">
 <!--
 function check(){
 
   submitbtn = document.getElementById("submitbtn");
   submitbtn.disabled = "disabled";
-  submitbtn.innerHTML = "生成中です。そのまましばらくお待ち下さい…。";
+  $('#sendingmodal').modal({
+    keyboard: false,
+    backdrop: "static"
+  });
   return true;
 
 }

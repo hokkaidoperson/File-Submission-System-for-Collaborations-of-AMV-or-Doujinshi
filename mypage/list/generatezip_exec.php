@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/exam/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -22,19 +11,7 @@ $accessok = 'none';
 //非参加者以外
 if ($_SESSION["state"] != 'o') $accessok = 'ok';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 //zipモジュールチェック
 if (!extension_loaded('zip')) die('<!DOCTYPE html>
@@ -167,11 +144,17 @@ foreach ($zipuser as $userid => $data) {
     foreach($userformdata as $key => $array) {
         $export = "";
         if ($array["type"] == "attach") {
-            //ユーザー添付ファイルのファイル名は「項目番号 - 項目名.拡張子」
-            if ($data[$array["id"]] != "") $export .= $data["nickname"] . " ($userid) / $key - " . $array["title"] . "." . $data[$array["id"]];
-        } else if ($array["type"] == "check") {
+            //ユーザー添付ファイルのファイル名は「項目番号 (内部ID) - 項目名 - ファイル名」
+            if (isset($data["common_acceptance"]) and $data[$array["id"]] != array()) {
+                $exportarray = array();
+                foreach ($data[$array["id"]] as $internal => $external) {
+                    $exportarray[] = $data["nickname"] . " ($userid) / $key ($internal) - " . $array["title"] . " - $external";
+                }
+                $export .= implode("\n", $exportarray);
+            }
+        } else if (isset($data["common_acceptance"]) and $array["type"] == "check") {
             $export .= implode("\n", (array)$data[$array["id"]]);
-        } else if ($array["type"] == "textbox2") {
+        } else if (isset($data["common_acceptance"]) and $array["type"] == "textbox2") {
             if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
             $export .= $data[$array["id"] . "-1"];
             if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
@@ -179,7 +162,7 @@ foreach ($zipuser as $userid => $data) {
             if (isset($array["prefix_b"]) and $array["prefix_b"] != "") $export .= "（" . $array["prefix_b"] . "）";
             $export .= $data[$array["id"] . "-2"];
             if (isset($array["suffix_b"]) and $array["suffix_b"] != "") $export .= "（" . $array["suffix_b"] . "）";
-        } else {
+        } else if (isset($data["common_acceptance"])) {
             if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
             $export .= $data[$array["id"]];
             if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
@@ -204,8 +187,14 @@ foreach ($zipdata as $userid => $works) {
     $nickname = nickname($userid);
     foreach ($works as $id => $data) {
         $submitcsv[$i] = array();
-        //メインファイル名は「提出ファイル.拡張子」
-        if (isset($data["submit"]) and $data["submit"] != "") $submitcsv[$i][] = $nickname . " ($userid) / " . $data["title"] . " ($id) / 提出ファイル." . $data["submit"];
+        //メインファイル名は「提出ファイル (内部ID) - ファイル名」
+        if (isset($data["submit"]) and $data["submit"] != array()) {
+            $exportarray = array();
+            foreach ($data["submit"] as $internal => $external) {
+                $exportarray[] = $nickname . " ($userid) / " . $data["title"] . " ($id) / 提出ファイル ($internal) - $external";
+            }
+            $submitcsv[$i][] = implode("\n", $exportarray);
+        }
         else {
             $export = $data["url"];
             if (isset($data["dldpw"]) and $data["dldpw"] != "") $export .= "\n※パスワード： " . $data["dldpw"];
@@ -217,8 +206,14 @@ foreach ($zipdata as $userid => $works) {
         foreach($submitformdata as $key => $array) {
             $export = "";
             if ($array["type"] == "attach") {
-                //提出添付ファイルのファイル名も「項目番号 - 項目名.拡張子」
-                if ($data[$array["id"]] != "") $export .= $nickname . " ($userid) / " . $data["title"] . " ($id) /  $key - " . $array["title"] . "." . $data[$array["id"]];
+                //提出添付ファイルのファイル名も「項目番号 (内部ID) - 項目名 - ファイル名」
+                if ($data[$array["id"]] != array()) {
+                    $exportarray = array();
+                    foreach ($data[$array["id"]] as $internal => $external) {
+                        $exportarray[] = $nickname . " ($userid) / " . $data["title"] . " ($id) / $key ($internal) - " . $array["title"] . " - $external";
+                    }
+                    $export .= implode("\n", $exportarray);
+                }
             } else if ($array["type"] == "check") {
                 $export .= implode("\n", (array)$data[$array["id"]]);
             } else if ($array["type"] == "textbox2") {
@@ -243,7 +238,6 @@ foreach ($zipdata as $userid => $works) {
 
 //CSVを作る　文字化け対策参考：http://dev.blog.fairway.ne.jp/php%E3%82%A8%E3%82%AF%E3%82%BB%E3%83%AB%E3%81%A7%E6%96%87%E5%AD%97%E5%8C%96%E3%81%91%E3%81%95%E3%81%9B%E3%81%AA%E3%81%84csv%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9/
 $fp = fopen(DATAROOT . 'zip/tmp_user_' . $_SESSION["userid"] . '.csv', 'w');
-//stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932//TRANSLIT');
 fwrite($fp, "\xEF\xBB\xBF");
 foreach ($usercsv as $fields) {
     fputcsv($fp, $fields);
@@ -251,7 +245,6 @@ foreach ($usercsv as $fields) {
 fclose($fp);
 
 $fp = fopen(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv', 'w');
-//stream_filter_prepend($fp, 'convert.iconv.utf-8/cp932//TRANSLIT');
 fwrite($fp, "\xEF\xBB\xBF");
 foreach ($submitcsv as $fields) {
     fputcsv($fp, $fields);
@@ -287,26 +280,38 @@ foreach($zipmerge as $userid => $data) {
     $zip->addEmptyDir("$nickname ($userid)");
     if (isset($data["userform"])) foreach($userformdata as $key => $array) {
         if ($array["type"] == "attach") {
-            //ユーザー添付ファイルのファイル名は「項目番号 - 項目名.拡張子」
-            $title = str_replace($repbefore, $repafter, $array["title"]);
-            if ($data["userform"][$array["id"]] != "") $zip->addFile(DATAROOT . "users_attach/" . $userid . "/" . $array["id"], "$nickname ($userid)/$key - $title." . $data["userform"][$array["id"]]);
+            //ユーザー添付ファイルのファイル名は「項目番号 (内部ID) - 項目名 - ファイル名」
+            if (isset($data["userform"]["common_acceptance"]) and $data["userform"][$array["id"]] != array()) {
+                foreach ($data["userform"][$array["id"]] as $internal => $external) {
+                    $title = str_replace($repbefore, $repafter, $array["title"]);
+                    $external = str_replace($repbefore, $repafter, $external);
+                    $zip->addFile(DATAROOT . "files/" . $userid . "/common/" . $array["id"] . "_$internal", "$nickname ($userid)/$key ($internal) - $title - $external");
+                }
+            }
         }
     }
     foreach ($data as $id => $work) {
         if ($id === "userform") continue;
-        $submitcsv[$i] = array();
         $worktitle = str_replace($repbefore, $repafter, $work["title"]);
-        //メインファイル名は「提出ファイル.拡張子」
+        //メインファイル名は「提出ファイル (内部ID) - ファイル名」
         $zip->addEmptyDir("$nickname ($userid)/$worktitle ($id)");
-        if (isset($work["submit"]) and $work["submit"] != "") $submitcsv[$i][] = $zip->addFile(DATAROOT . "files/" . $userid . "/" . $id, "$nickname ($userid)/$worktitle ($id)/提出ファイル." . $work["submit"]);
-        foreach($submitformdata as $key => $array) {
-            if ($array["type"] == "attach") {
-                //提出添付ファイルのファイル名も「項目番号 - 項目名.拡張子」
-                $parttitle = str_replace($repbefore, $repafter, $array["title"]);
-                if ($work[$array["id"]] != "") $export = $zip->addFile(DATAROOT . "submit_attach/" . $userid . "/" . $id . "_" . $array["id"], "$nickname ($userid)/$worktitle ($id)/$key - $parttitle." . $work[$array["id"]]);
+        if (isset($work["submit"]) and $work["submit"] != array()) {
+            foreach ($work["submit"] as $internal => $external) {
+                $external = str_replace($repbefore, $repafter, $external);
+                $zip->addFile(DATAROOT . "files/$userid/$id/main_$internal", "$nickname ($userid)/$worktitle ($id)/提出ファイル ($internal) - $external");
             }
         }
-        $i++;
+        foreach($submitformdata as $key => $array) {
+            if ($array["type"] == "attach") {
+                //提出添付ファイルのファイル名も「項目番号 (内部ID) - 項目名 - ファイル名」
+                $parttitle = str_replace($repbefore, $repafter, $array["title"]);
+                if ($work[$array["id"]] != array()) {
+                    foreach ($work[$array["id"]] as $internal => $external) {
+                        $zip->addFile(DATAROOT . "files/$userid/$id/" . $array["id"] . "_$internal", "$nickname ($userid)/$worktitle ($id)/$key ($internal) - $parttitle - $external");
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -316,16 +321,4 @@ unlink(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv');
 
 $_SESSION['situation'] = 'zip_generated';
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='generatezip.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./generatezip.php");

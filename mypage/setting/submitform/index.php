@@ -24,38 +24,6 @@ if (!file_exists(DATAROOT . 'form/submit/')) {
     if (!mkdir(DATAROOT . 'form/submit/', 0777, true)) die_mypage('ディレクトリの作成に失敗しました。');
 }
 
-//フォームデータの規則
-//0.txt ~ 9.txt 番号抜けは無い（削除などで欠番が生じたら詰める）
-//各txtにフォームデータ（種別やタイトルなど）を格納
-//draftディレクトリは、作業内容公開時に削除する
-
-//フォームデータ
-//id:項目新規作成時のunix　PHPとかJavascriptとかの内部処理で使う（名前は「custom-xxxxxx」）
-//type:形式
-//title:項目名
-//required:必須？（0 任意　1 必須　2 いずれか必須※テキストボックス×2時）
-//detail:欄の下に表示するやつ
-//max:最大文字数
-//min:最小ry
-//width:フォーム幅
-//height:テキストエリア高さ
-//prefix_a:欄の前に表示するやつ
-//suffix_a:欄の後にry
-//max2、min2、width2、prefix_b、suffix_b:テキストボックス×2の時使う
-//list:選択系のやつの選択肢　改行で区切り
-//arrangement:テキストボックスや選択肢を縦に並べるか横に並べるか（"h"で横並び（horizontally））
-//ext:添付ファイルの拡張子制限
-//size:ファイルサイズ最大
-
-//type名
-//textbox
-//textbox2:テキストボックス×2
-//textarea
-//radio
-//check
-//dropdown
-//attach
-
 //SESSIONデータある？そして一時ファイルある？
 if (!isset($_SESSION["submitformdata"])) {
     $_SESSION["submitformdata"] = array();
@@ -70,17 +38,11 @@ if (!isset($_SESSION["submitformdata"])) {
 </div>';
     } else {
         for ($i = 0; $i <= 9; $i++) {
-            if (!file_exists(DATAROOT . 'form/submit/draft/')) {
-                if (!mkdir(DATAROOT . 'form/submit/draft/')) die_mypage('ディレクトリの作成に失敗しました。');
-            }
-
             if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
             $_SESSION["submitformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
-            copy(DATAROOT . 'form/submit/' . "$i" . '.txt', DATAROOT . 'form/submit/draft/' . "$i" . '.txt');
         }
         if (file_exists(DATAROOT . 'form/submit/general.txt')) {
             $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
-            copy(DATAROOT . 'form/submit/general.txt', DATAROOT . 'form/submit/draft/general.txt');
         }
     }
 }
@@ -102,6 +64,7 @@ if (isset($_SESSION["submitformdata"]["general"])) {
 ユーザーは、後から入力内容を変更出来ますが、変更時には原則として主催者の承認が必要です（自動承認してもよい項目を個別に設定可能）。</p>
 <p>「提出ファイル」「タイトル」の2項目は、システム上必要になるため、ファイル提出時に必ず入力を求めます。</p>
 <p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
+<p>※求める入力事項が特に無い場合は、何も設定せずに下の「変更内容を保存し適用する」ボタンを押して下さい。</p>
 <?php
 if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 ファイル提出時の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。

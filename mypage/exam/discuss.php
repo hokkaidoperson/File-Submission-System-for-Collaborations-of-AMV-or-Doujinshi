@@ -27,10 +27,10 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . '
 
 
 //ファイル提出者のユーザーID
-$author = $_GET["author"];
+$author = basename($_GET["author"]);
 
 //提出ID
-$id = $_GET["id"];
+$id = basename($_GET["id"]);
 
 if ($author == "" or $id == "") die_mypage('パラメーターエラー');
 
@@ -61,7 +61,6 @@ if ($key !== FALSE) {
 
 $nopermission = FALSE;
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) $nopermission = TRUE;
-else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
 
 if ($filedata["_state"] == 1) echo '<h1>提出作品の確認・承認 - 議論画面</h1>
 <p>この作品への対応について、意見が分かれたため、以下の簡易チャットを用いて議論を行って下さい。</p>
@@ -85,7 +84,6 @@ else {
         "comments" => array()
     );
     foreach ($submitmem as $key) {
-        if (isset($filedata[$key]["opinion"]) and $filedata[$key]["opinion"] == -1) continue;
         $discussdata["read"][$key] = 1;
     }
     $filedatajson = json_encode($discussdata);
@@ -122,15 +120,17 @@ if (!isset($_SESSION["dld_caution"])) {
 <?php
 if ($filedata["_state"] == 1) {
 
-if (isset($formdata["submit"]) and $formdata["submit"] != "") echo '<tr>
-<th>提出ファイル</th><td><a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '" target="_blank">' . $formdata["submit"] . 'ファイル（クリックでダウンロード）</a></td>
-</tr>';
-else {
+if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
+    echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+    foreach ($formdata["submit"] as $filename => $title)
+    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+    echo '</td></tr>';
+} else {
     echo '<tr>
 <th>提出ファイルダウンロード先</th><td><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
     if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . htmlspecialchars($formdata["dldpw"]) . '</code></font>';
     if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
-    echo '<br><font size="2">※<u>このファイルは、作品一覧画面の一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
+    echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
     echo '</td></tr>';
 }
 
@@ -151,7 +151,11 @@ foreach ($formsetting as $key => $array) {
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";
     if ($array["type"] == "attach") {
-        if ($formdata[$array["id"]] != "") echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '" target="_blank">' . htmlspecialchars($formdata[$array["id"]]) . 'ファイル（クリックでダウンロード）</a>';
+        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+            foreach ($formdata[$array["id"]] as $filename => $title)
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+        }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
@@ -161,7 +165,7 @@ foreach ($formsetting as $key => $array) {
         echo htmlspecialchars($formdata[$array["id"] . "-1"]);
         echo '<br>';
         echo htmlspecialchars($formdata[$array["id"] . "-2"]);
-    } else echo htmlspecialchars($formdata[$array["id"]]);
+    } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";
 }
@@ -175,8 +179,7 @@ foreach ($formsetting as $key => $array) {
 <table class="table table-hover table-bordered">
 <tr>
 <?php
-if ($filedata["_state"] == 0) echo '<th>回答者</th><th>回答状況</th>';
-else echo '<th>回答者</th><th>回答内容</th><th>理由</th>';
+echo '<th width="30%">回答者</th><th width="30%">回答内容</th><th width="40%">理由</th>';
 ?>
 </tr>
 <?php
@@ -187,9 +190,6 @@ foreach ($filedata as $key => $data) {
     echo "<td>" . htmlspecialchars($nickname) . "</td>";
     // opinion 0...未回答　1...承認 2...修正求む 3...拒否
     switch ($data["opinion"]) {
-        case -1:
-            echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
-        break;
         case 1:
             echo '<td>承認しても問題無い</td>';
         break;
@@ -232,7 +232,7 @@ if ($discussdata["comments"] != array()) {
     foreach ($discussdata["comments"] as $key => $log) {
         list($comid, $date) = explode('_', $key);
         $log = str_replace('&amp;', '&', htmlspecialchars($log));
-        $log = preg_replace('{https?://[\w/:%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank">$0</a>', $log);
+        $log = preg_replace('{https?://[\w/:%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break">$0</a>', $log);
         $log = str_replace(array("\r\n", "\r", "\n"), "\n", $log);
         $log = str_replace("\n", "<br>", $log);
         if ($comid == "-system") $nickname = "<u>システム</u>";

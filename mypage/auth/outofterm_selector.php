@@ -14,7 +14,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 //ユーザーID
-$userid = $_GET["userid"];
+$userid = basename($_GET["userid"]);
 
 if ($userid == "") die_mypage('パラメーターエラー');
 if (!user_exists($userid)) die_mypage('ユーザーが存在しません。');
@@ -64,7 +64,7 @@ if ($set) echo '<p>現在、一部あるいは全部の操作権限が有効に�
 <input id="userform" class="form-check-input" type="checkbox" name="fncs[]" value="userform"<?php
 if (array_search('userform', $acldata) !== FALSE) echo ' checked="checked"';
 ?>>
-<label class="form-check-label" for="userform">ユーザー情報編集機能</label>
+<label class="form-check-label" for="userform">共通情報（ニックネーム含む）編集機能</label>
 </div>
 <div class="form-check">
 <input id="submit" class="form-check-input" type="checkbox" name="fncs[]" value="submit"<?php

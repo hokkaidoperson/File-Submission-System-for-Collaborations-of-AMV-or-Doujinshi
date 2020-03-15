@@ -5,24 +5,13 @@ session_start();
 session_regenerate_id(true);
 //ログイン済みの場合はマイページに飛ばす
 if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'mypage/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("./mypage/index.php");
 }
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
 
-if ($recdata["site"] != "" and $recdata["sec"] != "") {
+if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
     $token = $_POST['g-recaptcha-response'];
     $url = 'https://www.google.com/recaptcha/api/siteverify';
@@ -64,7 +53,7 @@ $browser = $_SERVER['HTTP_USER_AGENT'];
 
 $invalid = FALSE;
 
-$userid = $_POST["userid"];
+$userid = basename($_POST["userid"]);
 
 if (!file_exists(DATAROOT . 'users/' . $userid . '.txt')) $invalid = TRUE;
 else {
@@ -153,7 +142,6 @@ if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出シ�
 if (($userdata["lastip"] != $IP) or ($userdata["lastbr"] != $browser)) {
   //メール本文形成
   $date = date('Y/m/d H:i:s');
-  $eventname = file_get_contents(DATAROOT . 'eventname.txt');
 
   $content = "$nickname 様
 
@@ -197,20 +185,8 @@ $eventname のポータルサイトに、あなたのアカウントでログイ
 
 }
 
-if (isset($_POST['redirto'])) $redirto = $_POST['redirto'];
+if (isset($_POST['redirto']) and !preg_match('/^javascript:/i', $_POST['redirto'])) $redirto = $_POST['redirto'];
 else $redirto = 'mypage/index.php';
+$redirto = htmlspecialchars($redirto);
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='<?php echo htmlspecialchars($redirto) ?>'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./$redirto");

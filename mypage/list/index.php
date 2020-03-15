@@ -12,7 +12,7 @@ if ($_SESSION["situation"] == 'edit_nochange') {
 if ($_SESSION["situation"] == 'edit_autoaccept') {
     echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 登録情報を変更しました。<br>
-自動承認される項目のみ変更されていたため、変更は完全に自動承認されました。</div>';
+自動承認される項目のみ変更されていたため、変更は自動的に承認されました。</div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'edit_submitted') {
@@ -81,7 +81,7 @@ foreach(glob(DATAROOT . 'submit/*', GLOB_MARK | GLOB_ONLYDIR) as $dirname) {
 
 if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 提出済み作品</h1>
 <p>本イベントに対し提出された作品の一覧です（修正待ち・拒否の作品を含む）。<br>
-提出者の名前をクリックすると提出者の情報（ユーザー登録時に入力された情報）を確認出来ます。<br>
+提出者の名前をクリックすると提出者の情報（ニックネーム・共通情報）を確認出来ます。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。</p>
 <p>あなた自身の作品については、作品情報のページから編集を行えます。<br>
 他者および他者の作品については編集出来ません（メッセージ機能で、該当者に編集を依頼して下さい。<b>該当者のユーザーIDやパスワードを直接尋ねる行為はおやめ下さい。</b>）。</p>
@@ -90,7 +90,7 @@ if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 提出済
 ';
 if ($_SESSION["state"] == 'c') echo '<h1>提出済み作品の一覧</h1>
 <p>あなたが提出した作品、及び主催者から閲覧権限を与えられた作品の一覧です（修正待ち・拒否の作品を含む）。<br>
-提出者の情報（ユーザー登録時に入力された情報）の閲覧権限がある場合、提出者の名前がクリック出来るようになっています。クリックすると確認出来ます。<br>
+提出者の情報（ニックネーム・共通情報）の閲覧権限がある場合、提出者の名前がクリック出来るようになっています。クリックすると確認出来ます。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。</p>
 <p>あなた自身の作品については、作品情報のページから編集を行えます。<br>
 他者および他者の作品については編集出来ません（入力内容に何か懸案事項があれば、主催者にご相談下さい）。</p>
@@ -116,7 +116,7 @@ else if (!in_term()) echo '<div class="border border-danger" style="padding:10px
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
-<th>提出者</th><th>作品名</th><th>承認の状態</th>
+<th width="30%">提出者</th><th width="50%">作品名</th><th width="20%">承認の状態</th>
 </tr>
 <?php
 foreach ($canshow as $author => $array) {

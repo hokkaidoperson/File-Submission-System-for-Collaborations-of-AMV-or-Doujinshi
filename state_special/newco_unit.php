@@ -3,10 +3,12 @@ require_once('../set.php');
 
 $deny = FALSE;
 
-if (file_exists(DATAROOT . 'mail/co_add/' . $_GET["id"] . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/co_add/' . $_GET["id"] . '.txt'), true);
+$id = basename($_GET["id"]);
+
+if (file_exists(DATAROOT . 'mail/co_add/' . $id . '.txt')) {
+    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/co_add/' . $id . '.txt'), true);
     if ($filedata["expire"] <= time()) {
-        unlink(DATAROOT . 'mail/co_add/' . $_GET["id"] . '.txt');
+        unlink(DATAROOT . 'mail/co_add/' . $id . '.txt');
         $deny = TRUE;
     }
     if ($filedata["sectok"] !== $_GET["sectok"]) $deny = TRUE;

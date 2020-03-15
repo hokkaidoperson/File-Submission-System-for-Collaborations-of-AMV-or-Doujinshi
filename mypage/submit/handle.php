@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/invite/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -59,49 +48,7 @@ $invalid = FALSE;
 
 switch ($_POST["method"]) {
     case 'direct':
-        $name = $_FILES["submit"]['name'];
-        if ($_FILES["submit"]['error'] == 4) $invalid = TRUE;
-        else if ($_FILES["submit"]['error'] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
-お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
-<p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["submit"]['error'] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
-        else {
-            $ext = $submitformdata["general"]["ext"];
-            $ext = str_replace(",", "|", $ext);
-            $ext = strtoupper($ext);
-            $reg = '/\.(' . $ext . ')$/i';
-            if (!preg_match($reg, $name)) $invalid = TRUE;
-            else {
-                $size = $_FILES["general"]['size'];
-                if ($submitformdata["general"]["size"] != "") $oksize = (int) $submitformdata["general"]["size"];
-                else $oksize = FILE_MAX_SIZE;
-                $oksize = $oksize * 1024 * 1024;
-                if ($size > $oksize) $invalid = TRUE;
-            }
-        }
+        if (check_submitfile($submitformdata["general"], array(), 0)) $invalid = TRUE;
     break;
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
@@ -122,94 +69,16 @@ else if(mb_strlen($_POST["title"]) > 50) $invalid = TRUE;
 //カスタム内容
 foreach ($submitformdata as $array) {
     if ($array["type"] == "textbox2") {
-      $item = $_POST["custom-" . $array["id"] . "-1"];
-      $item2 = $_POST["custom-" . $array["id"] . "-2"];
-      $result = check_required2($array["required"], $item, $item2);
-      if ($result != 0) $invalid = TRUE;
-      if ($item != "") {
-        if ($array["max"] != "") $vmax = (int) $array["max"];
-        else $vmax = 9999;
-        if ($array["min"] != "") $vmin = (int) $array["min"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item);
-        if ($result != 0) $invalid = TRUE;
-      }
-      if ($item2 != "") {
-        if ($array["max2"] != "") $vmax = (int) $array["max2"];
-        else $vmax = 9999;
-        if ($array["min2"] != "") $vmin = (int) $array["min2"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item2);
-        if ($result != 0) $invalid = TRUE;
-      }
+        if (check_textbox2($array)) $invalid = TRUE;
     } else if ($array["type"] == "textbox" || $array["type"] == "textarea") {
-      $item = $_POST["custom-" . $array["id"]];
-      $result = check_required($array["required"], $item);
-      if ($result != 0) $invalid = TRUE;
-      else {
-        if ($array["max"] != "") $vmax = (int) $array["max"];
-        else $vmax = 9999;
-        if ($array["min"] != "") $vmin = (int) $array["min"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item);
-        if ($result != 0) $invalid = TRUE;
-        }
+        if (check_textbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "check") {
-        $f = $_POST["custom-" . $array["id"]];
-        if ($f == "") $f = array();
-        if((array)$f == array() && $array["required"] == "1") $invalid = TRUE;
+        if (check_checkbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "radio" || $array["type"] == "dropdown") {
-      $item = $_POST["custom-" . $array["id"]];
-      $result = check_required($array["required"], $item);
-      if ($result != 0) $invalid = TRUE;
+        if (check_radio($array)) $invalid = TRUE;
     } else if ($array["type"] == "attach") {
-        $name = $_FILES["custom-" . $array["id"]]['name'];
-        if ($_FILES["custom-" . $array["id"]]['error'] == 4) {
-            if ($array["required"] == "1") $invalid = TRUE;
-        }
-        else if ($_FILES["custom-" . $array["id"]]['error'] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
-お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
-<p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["custom-" . $array["id"]]['error'] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
-        else {
-          $ext = $array["ext"];
-          $ext = str_replace(",", "|", $ext);
-          $ext = strtoupper($ext);
-          $reg = '/\.(' . $ext . ')$/i';
-          if (!preg_match($reg, $name)) $invalid = TRUE;
-          else {
-            $size = $_FILES["custom-" . $array["id"]]['size'];
-            if ($array["size"] != "") $oksize = (int) $array["size"];
-            else $oksize = FILE_MAX_SIZE;
-            $oksize = $oksize * 1024 * 1024;
-            if ($size > $oksize) $invalid = TRUE;
-          }
-        }
+        if (check_attach($array, array(), 0)) $invalid = TRUE;
     }
-
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
@@ -237,16 +106,20 @@ $userdata = array(
 
 //メインのファイルを保存
 if ($_POST["method"] == 'direct') {
-    $fileto = DATAROOT . 'files/' . $userid . '/';
+    $fileto = DATAROOT . 'files/' . $userid . '/' . $id . '/';
     if (!file_exists($fileto)) {
         if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
     }
-    if ($_FILES["submit"]['error'] == UPLOAD_ERR_OK) {
-        $tmp_name = $_FILES["submit"]["tmp_name"];
-        $ext = substr(basename($_FILES["submit"]["name"]), strrpos(basename($_FILES["submit"]["name"]), '.') + 1);
-        $savename = $id;
-        if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
-        $userdata["submit"] = $ext;
+    $userdata["submit"] = array();
+    for ($j=0; $j<count($_FILES["submitfile"]['name']); $j++) {
+        if ($_FILES["submitfile"]['error'][$j] == UPLOAD_ERR_OK) {
+            $tmp_name = $_FILES["submitfile"]["tmp_name"][$j];
+            $ext = $_FILES["submitfile"]['name'][$j];
+            $savename = "main_" . $id . "_$j";
+            if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
+            chmod($fileto . $savename, 0644);
+            $userdata["submit"][$id . "_$j"] = $ext;
+        }
     }
 } else {
     $userdata["url"] = $_POST["url"];
@@ -256,20 +129,24 @@ if ($_POST["method"] == 'direct') {
     $userdata["due"] = mktime($hrf, $mnf, 0, $mf, $df, $Yf);
 }
 
-//カスタムデータ格納　添付ファイルは専用フォルダに保存 別場所に拡張子
+//カスタムデータ格納
 foreach ($submitformdata as $array) {
     if ($array["type"] == "general") continue;
     if ($array["type"] == "attach") {
-        $fileto = DATAROOT . 'submit_attach/' . $userid . '/';
+        $fileto = DATAROOT . 'files/' . $userid . '/' . $id . '/';
         if (!file_exists($fileto)) {
             if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
         }
-        if ($_FILES["custom-" . $array["id"]]['error'] == UPLOAD_ERR_OK) {
-            $tmp_name = $_FILES["custom-" . $array["id"]]["tmp_name"];
-            $ext = substr(basename($_FILES["custom-" . $array["id"]]["name"]), strrpos(basename($_FILES["custom-" . $array["id"]]["name"]), '.') + 1);
-            $savename = $id . '_' . $array["id"];
-            if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
-            $userdata[$array["id"]] = $ext;
+        $userdata[$array["id"]] = array();
+        for ($j=0; $j<count($_FILES["custom-" . $array["id"]]['name']); $j++) {
+            if ($_FILES["custom-" . $array["id"]]['error'][$j] == UPLOAD_ERR_OK) {
+                $tmp_name = $_FILES["custom-" . $array["id"]]["tmp_name"][$j];
+                $ext = $_FILES["custom-" . $array["id"]]['name'][$j];
+                $savename = $array["id"] . "_" . $id . "_$j";
+                if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
+                chmod($fileto . $savename, 0644);
+                $userdata[$array["id"]][$id . "_$j"] = $ext;
+            }
         }
         continue;
     }
@@ -407,17 +284,5 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
         $_SESSION['situation'] = 'file_submitted_auto_accept';
 }
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+if ($_POST["jumptocommonpage"]) redirect("../common/index.php");
+else redirect("./index.php");

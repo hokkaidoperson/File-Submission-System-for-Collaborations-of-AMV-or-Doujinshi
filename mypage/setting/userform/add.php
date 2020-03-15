@@ -3,18 +3,7 @@ require_once('../../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../../index.php?redirto=mypage/setting/userform/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../../index.php");
 }
 
 $accessok = 'none';
@@ -22,54 +11,30 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if (!isset($_GET['number']) or !isset($_GET['type'])) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("./index.php");
 }
 
-$number = $_GET['number'];
-$type = $_GET['type'];
+$number = htmlspecialchars(basename($_GET['number']));
+$type = basename($_GET['type']);
+
+switch ($type) {
+    case "textbox": break;
+    case "textbox2": break;
+    case "textarea": break;
+    case "radio": break;
+    case "check": break;
+    case "dropdown": break;
+    case "attach": break;
+    default: die();
+}
 
 $_SESSION["userformdata"][$number] = array(
     "id" => time(),
     "type" => $type,
 );
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='<?php echo $type; ?>.php?number=<?php echo $number; ?>'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./$type.php?number=$number");

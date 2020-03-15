@@ -27,13 +27,13 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . '
 
 
 //ファイル提出者のユーザーID
-$author = $_GET["author"];
+$author = basename($_GET["author"]);
 
 //提出ID
-$id = $_GET["id"];
+$id = basename($_GET["id"]);
 
 //編集ID
-$editid = $_GET["edit"];
+$editid = basename($_GET["edit"]);
 
 if ($author == "" or $id == "" or $editid == "") die_mypage('パラメーターエラー');
 
@@ -72,7 +72,6 @@ if ($key !== FALSE) {
 
 $nopermission = FALSE;
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) $nopermission = TRUE;
-else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] == -1) $nopermission = TRUE;
 
 if ($filedata["_state"] == 1) echo '<h1>提出作品（項目変更）の確認・承認 - 議論画面</h1>
 <p>この作品への対応について、意見が分かれたため、以下の簡易チャットを用いて議論を行って下さい。</p>
@@ -96,7 +95,6 @@ else {
         "comments" => array()
     );
     foreach ($submitmem as $key) {
-        if (isset($filedata[$key]["opinion"]) and $filedata[$key]["opinion"] == -1) continue;
         $discussdata["read"][$key] = 1;
     }
     $filedatajson = json_encode($discussdata);
@@ -133,15 +131,17 @@ else echo '<h2>作品の詳細</h2>';
 <?php
 if ($filedata["_state"] == 1) {
 
-if (isset($formdata["submit"]) and $formdata["submit"] != "") echo '<tr>
-<th>提出ファイル</th><td><a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '" target="_blank">' . $formdata["submit"] . 'ファイル（クリックでダウンロード）</a></td>
-</tr>';
-else {
+if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
+    echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+    foreach ($formdata["submit"] as $filename => $title)
+    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+    echo '</td></tr>';
+} else {
     echo '<tr>
-<th>提出ファイルダウンロード先</th><td><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
+<th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
     if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . htmlspecialchars($formdata["dldpw"]) . '</code></font>';
     if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
-    echo '<br><font size="2">※<u>このファイルは、作品一覧画面の一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
+    echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
     echo '</td></tr>';
 }
 
@@ -162,7 +162,11 @@ foreach ($formsetting as $key => $array) {
     echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
     echo "<td>";
     if ($array["type"] == "attach") {
-        if ($formdata[$array["id"]] != "") echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '" target="_blank">' . htmlspecialchars($formdata[$array["id"]]) . 'ファイル（クリックでダウンロード）</a>';
+        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+            foreach ($formdata[$array["id"]] as $filename => $title)
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+        }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
@@ -172,7 +176,7 @@ foreach ($formsetting as $key => $array) {
         echo htmlspecialchars($formdata[$array["id"] . "-1"]);
         echo '<br>';
         echo htmlspecialchars($formdata[$array["id"] . "-2"]);
-    } else echo htmlspecialchars($formdata[$array["id"]]);
+    } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";
 }
@@ -189,9 +193,22 @@ if ($filedata["_state"] == 1) {
 </a></p>';
     echo '<div class="table-responsive-md collapse" id="toggle2">
 <table class="table table-hover table-bordered">';
-    if (isset($changeddata["submit"])) echo '<tr>
-<th>提出ファイル</th><td><a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain_edit&id=' . $id . '&edit=' . $editid . '" target="_blank">' . $changeddata["submit"] . 'ファイル（クリックでダウンロード）</a></td>
-</tr>';
+    if (isset($changeddata["submit_add"]) or isset($changeddata["submit_delete"])) {
+        echo '<tr>
+<th width="30%">提出ファイル</th><td width="70%">';
+        if (isset($changeddata["submit_delete"]) and $changeddata["submit_delete"] != array()) {
+            echo '以下のファイルを削除：<br>';
+            foreach ($changeddata["submit_delete"] as $filename)
+            echo $formdata["submit"][$filename] . '<br>';
+            echo '<br>';
+        }
+        if (isset($changeddata["submit_add"]) and $changeddata["submit_add"] != array()) {
+            echo '以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：<br>';
+            foreach ($changeddata["submit_add"] as $filename => $title)
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain_edit&id=' . $id . '&edit=' . $editid . '&partid=' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+        }
+        echo '</td></tr>';
+    }
     else if (isset($changeddata["url"])) {
         echo '<tr>
 <th>提出ファイルダウンロード先</th><td><a href="' . htmlspecialchars($changeddata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
@@ -201,16 +218,26 @@ if ($filedata["_state"] == 1) {
         echo '</td></tr>';
     }
     if (isset($changeddata["title"])) echo '<tr>
-<th>タイトル</th><td>' . htmlspecialchars($changeddata["title"]) . '</td>
+<th width="30%">タイトル</th><td width="70%">' . htmlspecialchars($changeddata["title"]) . '</td>
 </tr>';
     foreach ($formsetting as $key => $array) {
         if ($key === "general") continue;
-        if (isset($changeddata[$array["id"]])) {
+        if (isset($changeddata[$array["id"]]) or isset($changeddata[$array["id"] . "-1"]) or isset($changeddata[$array["id"] . "-2"]) or isset($changeddata[$array["id"] . "_add"]) or isset($changeddata[$array["id"] . "_delete"])) {
             echo "<tr>\n";
-            echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
-            echo "<td>";
+            echo "<th width=\"30%\">" . htmlspecialchars($array["title"]) . "</th>";
+            echo "<td width=\"70%\">";
             if ($array["type"] == "attach") {
-                if ($changeddata[$array["id"]] != "") echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform_edit&id=' . $id . '&partid=' . $array["id"] . '&edit=' . $editid . '" target="_blank">' . htmlspecialchars($changeddata[$array["id"]]) . 'ファイル（クリックでダウンロード）</a>';
+                if (isset($changeddata[$array["id"] . "_delete"]) and $changeddata[$array["id"] . "_delete"] != array()) {
+                    echo '以下のファイルを削除：<br>';
+                    foreach ($changeddata[$array["id"] . "_delete"] as $filename)
+                    echo $formdata[$array["id"]][$filename] . '<br>';
+                    echo '<br>';
+                }
+                if (isset($changeddata[$array["id"] . "_add"]) and $changeddata[$array["id"] . "_add"] != array()) {
+                    echo '以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：<br>';
+                    foreach ($changeddata[$array["id"] . "_add"] as $filename => $title)
+                    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform_edit&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '&edit=' . $editid . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+                }
             }
             else if ($array["type"] == "check") {
                 $dsp = implode("\n", $changeddata[$array["id"]]);
@@ -220,7 +247,7 @@ if ($filedata["_state"] == 1) {
                 echo htmlspecialchars($changeddata[$array["id"] . "-1"]);
                 echo '<br>';
                 echo htmlspecialchars($changeddata[$array["id"] . "-2"]);
-            } else echo htmlspecialchars($changeddata[$array["id"]]);
+            } else echo give_br_tag($changeddata[$array["id"]]);
             echo '</td>';
             echo "</tr>\n";
         }
@@ -234,8 +261,7 @@ if ($filedata["_state"] == 1) {
 <table class="table table-hover table-bordered">
 <tr>
 <?php
-if ($filedata["_state"] == 0) echo '<th>回答者</th><th>回答状況</th>';
-else echo '<th>回答者</th><th>回答内容</th><th>理由</th>';
+echo '<th width="30%">回答者</th><th width="30%">回答内容</th><th width="40%">理由</th>';
 ?>
 </tr>
 <?php
@@ -246,9 +272,6 @@ foreach ($filedata as $key => $data) {
     echo "<td>" . htmlspecialchars($nickname) . "</td>";
     // opinion 0...未回答　1...承認 2...拒否
     switch ($data["opinion"]) {
-        case -1:
-            echo '<td class="text-muted">一般参加者への切り替えにより回答権喪失</td>';
-        break;
         case 1:
             echo '<td>承認する</td>';
         break;
@@ -285,7 +308,7 @@ if ($discussdata["comments"] != array()) {
     foreach ($discussdata["comments"] as $key => $log) {
         list($comid, $date) = explode('_', $key);
         $log = str_replace('&amp;', '&', htmlspecialchars($log));
-        $log = preg_replace('{https?://[\w/:%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank">$0</a>', $log);
+        $log = preg_replace('{https?://[\w/:%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break">$0</a>', $log);
         $log = str_replace(array("\r\n", "\r", "\n"), "\n", $log);
         $log = str_replace("\n", "<br>", $log);
         if ($comid == "-system") $nickname = "<u>システム</u>";

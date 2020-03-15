@@ -10,50 +10,13 @@ $redirtopass = str_replace($siteurl, '', $currenturl);
 $redirtopass = urlencode($redirtopass);
 
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'' . $siteurl . 'index.php?redirto=' . $redirtopass . '\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect($siteurl . "index.php?redirto=$redirtopass");
 }
 
 //ブロックされてたら強制ログアウト
 if (blackuser($_SESSION['userid'])) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'' . $siteurl . 'mypage/logout.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect($siteurl . "mypage/logout.php");
 }
-//if (blackip($_SESSION['admin'], $_SESSION['state'])) {
-//    die('<!DOCTYPE html>
-//<html>
-//<head>
-//<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-//<meta name="viewport" content="width=device-width,initial-scale=1">
-//<meta http-equiv="refresh" content="0; URL=\'' . $siteurl . 'mypage/logout.php\'" />
-//<title>リダイレクト中…</title>
-//</head>
-//<body>
-//しばらくお待ち下さい…
-//</body>
-//</html>');
-//}
-
 
 //セッション切れ起こしてない？
 if ($_SESSION['expire'] <= time()) {

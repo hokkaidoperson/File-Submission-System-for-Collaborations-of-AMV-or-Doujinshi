@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/account/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 if (!$_SESSION["admin"]) die('<h1>権限エラー</h1>
@@ -50,17 +39,19 @@ if($_POST["systempre"] == ""){
 //文字種　どっちかかたっぽだけはNG
   if($_POST["recaptcha_sec"] == "" && $_POST["recaptcha_site"] == ""){
   } else if($_POST["recaptcha_sec"] == "" || $_POST["recaptcha_site"] == "") $invalid = TRUE;
-  else if(!preg_match('/^[0-9a-zA-Z-]*$/', $_POST["recaptcha_sec"]) || !preg_match('/^[0-9a-zA-Z-]*$/', $_POST["recaptcha_site"])) $invalid = TRUE;
+  else if(!preg_match('/^[0-9a-zA-Z-_]*$/', $_POST["recaptcha_sec"]) || !preg_match('/^[0-9a-zA-Z-_]*$/', $_POST["recaptcha_site"])) $invalid = TRUE;
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
 
-//イベント名書き込み
-$eventname = $_POST["eventname"];
-if (file_put_contents(DATAROOT . 'eventname.txt', $eventname) === FALSE) die('イベント名の書き込みに失敗しました。');
+$init = array(
+    "eventname" => $_POST["eventname"],
+    "maxsize" => $_POST["filesize"]
+);
 
-//maxサイズ
-if (file_put_contents(DATAROOT . 'maxsize.txt', $_POST["filesize"]) === FALSE) die('ファイルサイズの書き込みに失敗しました。');
+$initjson =  json_encode($init);
+
+if (file_put_contents(DATAROOT . 'init.txt', $initjson) === FALSE) die('初期設定関連のデータの書き込みに失敗しました。');
 
 $maildata = array(
     "from" => $_POST["system"],
@@ -86,16 +77,4 @@ if (file_put_contents(DATAROOT . 'rec.txt', $recdatajson) === FALSE) die('reCAPT
 
 
 $_SESSION["situation"] = "system_setting";
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

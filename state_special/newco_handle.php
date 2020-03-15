@@ -6,12 +6,12 @@ if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォ�
 $invalid = FALSE;
 
 //sectokをもっかいチェック
-if (file_exists(DATAROOT . 'mail/co_add/' . $_POST["userid"] . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/co_add/' . $_POST["userid"] . '.txt'), true);
+if (file_exists(DATAROOT . 'mail/co_add/' . basename($_POST["userid"]) . '.txt')) {
+    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/co_add/' . basename($_POST["userid"]) . '.txt'), true);
     if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
-$userid = $_POST["userid"];
+$userid = basename($_POST["userid"]);
 
 if (!file_exists(DATAROOT . 'users/' . $userid . '.txt')) $invalid = TRUE;
 else {
@@ -51,7 +51,7 @@ if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) d
 if ($oldstate == "g") $statedtp = DATAROOT . 'users/_general.txt';
 else if ($oldstate == "o") $statedtp = DATAROOT . 'users/_outsider.txt';
 $array = file($statedtp, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$key = array_search($_POST["userid"], $array);
+$key = array_search(basename($_POST["userid"]), $array);
 unset($array[$key]);
 $statedata = implode("\n", $array) . "\n";
 if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
@@ -75,12 +75,12 @@ if (file_exists(DATAROOT . 'examsetting.txt')) {
 
 
 //招待リンクを消す
-unlink(DATAROOT . 'mail/co_add/' . $_POST["userid"] . '.txt');
+unlink(DATAROOT . 'mail/co_add/' . basename($_POST["userid"]) . '.txt');
 
 //主催者に事後報告
 $date = date('Y/m/d H:i:s');
 $nicknameo = nickname(id_promoter());
-$nicknamen = nickname($_POST["userid"]);
+$nicknamen = nickname(basename($_POST["userid"]));
 
 $content = "$nicknameo 様
 

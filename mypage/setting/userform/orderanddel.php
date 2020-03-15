@@ -1,7 +1,7 @@
 <?php
 require_once('../../../set.php');
 session_start();
-$titlepart = 'ユーザー登録画面 項目の並べ替え・削除';
+$titlepart = '共通情報入力画面 項目の並べ替え・削除';
 require_once(PAGEROOT . 'mypage_header.php');
 
 $accessok = 'none';
@@ -28,18 +28,6 @@ if (!isset($_SESSION["userformdata"])) die_mypage('<h1>エラーが発生しま�
 <table class="table table-hover table-bordered">
 <tr>
 <th>上へ</th><th>下へ</th><th>項目名</th><th>入力形式</th><th>削除</th>
-</tr>
-<tr>
-<td>×</td><td>×</td><td>ユーザーID</td><td>テキストボックス</td><td>×</td>
-</tr>
-<tr>
-<td>×</td><td>×</td><td>ニックネーム</td><td>テキストボックス</td><td>×</td>
-</tr>
-<tr>
-<td>×</td><td>×</td><td>メールアドレス</td><td>テキストボックス</td><td>×</td>
-</tr>
-<tr>
-<td>×</td><td>×</td><td>パスワード</td><td>テキストボックス</td><td>×</td>
 </tr>
 <?php
 for ($i = 0; $i <= 9; $i++) {

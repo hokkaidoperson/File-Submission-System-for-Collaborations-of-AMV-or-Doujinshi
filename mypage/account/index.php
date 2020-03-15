@@ -42,7 +42,7 @@ if ($_SESSION["situation"] == 'state_switcher_admin_to_o') {
 ?>
 
 <h1>アカウント情報編集</h1>
-<p>アカウントに登録されているメールアドレスやパスワードなどを変更出来ます。</p>
+<p>アカウント登録時に入力した情報を変更出来ます。</p>
 <div class="row">
 <a href="pw_unit.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
@@ -54,7 +54,7 @@ if ($_SESSION["situation"] == 'state_switcher_admin_to_o') {
 <a href="others_unit.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-body">
-パスワード以外（ニックネーム、メールアドレスなど）を変更する
+ニックネーム・メールアドレスを変更する
 </div>
 </div>
 </a>

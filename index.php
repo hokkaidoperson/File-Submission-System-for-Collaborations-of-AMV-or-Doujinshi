@@ -3,25 +3,18 @@ require_once('set.php');
 session_start();
 //ログイン済みの場合はマイページに飛ばす
 if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'mypage/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("./mypage/index.php");
 }
 
 //recaptcha周りの参考URL https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
 
 $userec = FALSE;
-if ($recdata["site"] != "" and $recdata["sec"] != "") $userec = TRUE;
+if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) $userec = TRUE;
+
+if (isset($_GET['redirto'])) {
+    if (!preg_match('/^javascript:/i', $_GET['redirto'])) $redirto = $_GET['redirto'];
+}
 
 ?>
 
@@ -36,44 +29,76 @@ if ($recdata["site"] != "" and $recdata["sec"] != "") $userec = TRUE;
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
-// 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
-function check(){
-
-  problem = 0;
-
-  probid = 0;
-  probpw = 0;
-
-//必須の場合のパターン・文字種・文字数
-  if(document.form.userid.value === ""){
-    problem = 1;
-    probid = 1;
+function check_individual(id){
+  if (id === "userid") {
+      document.getElementById("userid-errortext").innerHTML = "";
+      if(document.form.userid.value === ""){
+        problem = 1;
+        document.getElementById("userid-errortext").innerHTML = "入力されていません。";
+        document.form.userid.classList.add("is-invalid");
+        document.form.userid.classList.remove("is-valid");
+      } else {
+        document.form.userid.classList.add("is-valid");
+        document.form.userid.classList.remove("is-invalid");
+      }
+      return;
   }
 
-//必須の場合のパターン・文字数・一致確認
-  if(document.form.password.value === ""){
-    problem = 1;
-    probpw = 1;
+  if (id === "password") {
+      document.getElementById("password-errortext").innerHTML = "";
+      if(document.form.password.value === ""){
+        problem = 1;
+        document.getElementById("password-errortext").innerHTML = "入力されていません。";
+        document.form.password.classList.add("is-invalid");
+        document.form.password.classList.remove("is-valid");
+      } else {
+        document.form.password.classList.add("is-valid");
+        document.form.password.classList.remove("is-invalid");
+      }
+      return;
   }
-
-//問題ありの場合はエラー表示　ない場合は移動　エラー状況に応じて内容を表示
-if ( problem == 1 ) {
-  if ( probid == 1 && probpw == 1) {
-    alert( "ユーザーIDとパスワードを入力して下さい。" );
-  } else if ( probid == 1) {
-    alert( "ユーザーIDを入力して下さい。" );
-  } else if ( probpw == 1) {
-    alert( "パスワードを入力して下さい。" );
-  }
-  return false;
 }
 
-return true;
+function check(){
+
+  var problem = 0;
+  document.getElementById("neterrortext").style.display = "none";
+  document.getElementById("userid-errortext").innerHTML = "";
+  if(document.form.userid.value === ""){
+    problem = 1;
+    document.getElementById("userid-errortext").innerHTML = "入力されていません。";
+    document.form.userid.classList.add("is-invalid");
+    document.form.userid.classList.remove("is-valid");
+  } else {
+    document.form.userid.classList.add("is-valid");
+    document.form.userid.classList.remove("is-invalid");
+  }
+
+  document.getElementById("password-errortext").innerHTML = "";
+  if(document.form.password.value === ""){
+    problem = 1;
+    document.getElementById("password-errortext").innerHTML = "入力されていません。";
+    document.form.password.classList.add("is-invalid");
+    document.form.password.classList.remove("is-valid");
+  } else {
+    document.form.password.classList.add("is-valid");
+    document.form.password.classList.remove("is-invalid");
+  }
+
+  if ( problem == 1 ) {
+    return false;
+  }
+
+  <?php if ($userec) echo "grecaptcha.execute(); return false;"; else echo "return true;"; ?>
 
 }
 
 function recSubmit(token) {
-  if (check() === true) document.form.submit();
+  document.form.submit();
+}
+
+function recError(token) {
+  document.getElementById("neterrortext").style.display = "block";
 }
 
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
@@ -110,29 +135,35 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1><?php echo $eventname; ?>　ファイル提出用ポータルサイト</h1>
+<?php if (isset($redirto)) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+このページの利用にはログインが必要です。
+</div>'; ?>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-当サイトではJavascript及びCookieを使用します。現在は有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
+当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
 </div>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <h2>ログイン</h2>
-<form name="form" action="login.php" method="post"<?php if ($userec == FALSE) echo 'onSubmit="return check()"'; ?>>
-<?php if (isset($_GET['redirto'])) echo '<input type="hidden" name="redirto" value="' . htmlspecialchars($_GET['redirto']) . '">'; ?>
+<form name="form" action="login.php" method="post" onSubmit="return check()">
+<?php if (isset($redirto)) echo '<input type="hidden" name="redirto" value="' . $redirto . '">'; ?>
 <div class="form-group">
 <label for="userid">ユーザーID</label>
-<input type="text" name="userid" class="form-control" id="userid">
+<input type="text" name="userid" class="form-control" id="userid" autofocus onBlur="check_individual(&quot;userid&quot;);">
+<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <div class="form-group">
 <label for="password">パスワード</label>
-<input type="password" name="password" class="form-control" id="password">
+<input type="password" name="password" class="form-control" id="password" onBlur="check_individual(&quot;password&quot;);">
+<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <?php
-if ($userec) echo '<button class="g-recaptcha btn btn-primary" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit">ログイン</button>';
+if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
+<button class="btn btn-primary" type="submit">ログイン</button><br><font size="2"><span class="text-muted">※ログインボタン押下直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></font>';
 else echo '<button type="submit" class="btn btn-primary">ログイン</button>';
 ?>
+<div id="neterrortext" style="display: none;"><font size="2"><span class="text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「ログイン」を押して下さい。</span></font></div>
 </form>
-</div>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<a href='reset_pw/index.php'>パスワードを忘れてしまった方はこちらから再発行して下さい。</a>
+<font size="2"><a href='reset_pw/index.php'><img src="images/question.svg" style="width: 1em; height: 1em;"> パスワードを忘れてしまった方はこちらから再発行して下さい。</a></font><br>
+<font size="2"><a href='search_id/index.php'><img src="images/question.svg" style="width: 1em; height: 1em;"> ユーザーID・ニックネームを忘れてしまいパスワード再発行が行えない方はこちらから再送信して下さい。</a></font>
 </div>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <a href='register/general/index.php'>ポータルサイトに未登録の参加者はこちらから登録して下さい。</a>
@@ -140,7 +171,7 @@ else echo '<button type="submit" class="btn btn-primary">ログイン</button>';
 <div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <?php echo $eventname; ?>では、<a href='https://www.hkdyukkuri.space/filesystem/' target="_blank">MAD合作・合同誌向けファイル提出システム</a>を利用しています。<br>
 また、本システムでは、ウェブデザインの調整に<a href="https://getbootstrap.jp/" target="_blank">Bootstrap4</a>を利用しています。<br>
-マイページのアイコンには<a href="https://icooon-mono.com/" target="_blank">icooon-mono</a>による素材を利用しています。
+システム内のアイコンには<a href="https://icooon-mono.com/" target="_blank">icooon-mono</a>による素材を利用しています。
 </div>
 <div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 バージョン情報：<?php echo VERSION; ?>

@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/invite/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -22,17 +11,7 @@ $accessok = 'none';
 //非参加者以外
 if ($_SESSION["state"] != 'o') $accessok = 'ok';
 
-if ($accessok == 'none') die('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>
-</div>
-</div>
-<script>document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../../js/bootstrap.bundle.js"></script>
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
@@ -40,10 +19,10 @@ if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォ�
 $IP = getenv("REMOTE_ADDR");
 
 //ファイル提出者のユーザーID
-$author = $_POST["author"];
+$author = basename($_POST["author"]);
 
 //提出ID
-$id = $_POST["id"];
+$id = basename($_POST["workid"]);
 
 if ($author == "" or $id == "") die_mypage('パラメーターエラー');
 
@@ -80,49 +59,15 @@ $invalid = FALSE;
 
 switch ($_POST["method"]) {
     case 'direct':
-        $name = $_FILES["submit"]['name'];
-        if ($_FILES["submit"]['error'] == 4) {}
-        else if ($_FILES["submit"]['error'] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
-お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
-<p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["submit"]['error'] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
-        else {
-            $ext = $submitformdata["general"]["ext"];
-            $ext = str_replace(",", "|", $ext);
-            $ext = strtoupper($ext);
-            $reg = '/\.(' . $ext . ')$/i';
-            if (!preg_match($reg, $name)) $invalid = TRUE;
-            else {
-                $size = $_FILES["general"]['size'];
-                if ($submitformdata["general"]["size"] != "") $oksize = (int) $submitformdata["general"]["size"];
-                else $oksize = FILE_MAX_SIZE;
-                $oksize = $oksize * 1024 * 1024;
-                if ($size > $oksize) $invalid = TRUE;
+        $uploadedfs = array();
+        $currentsize = 0;
+        if (isset($entereddata["submit"]) and $entereddata["submit"] != array()) {
+            foreach ($entereddata["submit"] as $key => $element){
+                $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key);
+                $uploadedfs[$key] = filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key);
             }
         }
+        if (check_submitfile($submitformdata["general"], $uploadedfs, $currentsize)) $invalid = TRUE;
     break;
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
@@ -143,95 +88,23 @@ else if(mb_strlen($_POST["title"]) > 50) $invalid = TRUE;
 //カスタム内容
 foreach ($submitformdata as $array) {
     if ($array["type"] == "textbox2") {
-      $item = $_POST["custom-" . $array["id"] . "-1"];
-      $item2 = $_POST["custom-" . $array["id"] . "-2"];
-      $result = check_required2($array["required"], $item, $item2);
-      if ($result != 0) $invalid = TRUE;
-      if ($item != "") {
-        if ($array["max"] != "") $vmax = (int) $array["max"];
-        else $vmax = 9999;
-        if ($array["min"] != "") $vmin = (int) $array["min"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item);
-        if ($result != 0) $invalid = TRUE;
-      }
-      if ($item2 != "") {
-        if ($array["max2"] != "") $vmax = (int) $array["max2"];
-        else $vmax = 9999;
-        if ($array["min2"] != "") $vmin = (int) $array["min2"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item2);
-        if ($result != 0) $invalid = TRUE;
-      }
+        if (check_textbox2($array)) $invalid = TRUE;
     } else if ($array["type"] == "textbox" || $array["type"] == "textarea") {
-      $item = $_POST["custom-" . $array["id"]];
-      $result = check_required($array["required"], $item);
-      if ($result != 0) $invalid = TRUE;
-      else {
-        if ($array["max"] != "") $vmax = (int) $array["max"];
-        else $vmax = 9999;
-        if ($array["min"] != "") $vmin = (int) $array["min"];
-        else $vmin = 0;
-        $result = check_maxmin($vmax, $vmin, $item);
-        if ($result != 0) $invalid = TRUE;
-        }
+        if (check_textbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "check") {
-        $f = $_POST["custom-" . $array["id"]];
-        if ($f == "") $f = array();
-        if((array)$f == array() && $array["required"] == "1") $invalid = TRUE;
+        if (check_checkbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "radio" || $array["type"] == "dropdown") {
-      $item = $_POST["custom-" . $array["id"]];
-      $result = check_required($array["required"], $item);
-      if ($result != 0) $invalid = TRUE;
+        if (check_radio($array)) $invalid = TRUE;
     } else if ($array["type"] == "attach") {
-        $name = $_FILES["custom-" . $array["id"]]['name'];
-        if ($_POST["custom-" . $array["id"] . "-delete"] == "1" and $array["required"] == "1") $invalid = TRUE;
-        if ($_FILES["custom-" . $array["id"]]['error'] == 4) {
-            if ($array["required"] == "1") {
-                if (isset($entereddata[$array["id"]]) and $entereddata[$array["id"]] == '') $invalid = TRUE;
+        $uploadedfs = array();
+        $currentsize = 0;
+        if (isset($entereddata[$array["id"]]) and $entereddata[$array["id"]] != array()) {
+            foreach ($entereddata[$array["id"]] as $key => $element){
+                $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
+                $uploadedfs[$key] = filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
             }
         }
-        else if ($_FILES["custom-" . $array["id"]]['error'] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
-お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
-<p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["custom-" . $array["id"]]['error'] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
-        else if ($_FILES["custom-" . $array["id"]]['error'] == 0) {
-          $ext = $array["ext"];
-          $ext = str_replace(",", "|", $ext);
-          $ext = strtoupper($ext);
-          $reg = '/\.(' . $ext . ')$/i';
-          if (!preg_match($reg, $name)) $invalid = TRUE;
-          else {
-            $size = $_FILES["custom-" . $array["id"]]['size'];
-            if ($array["size"] != "") $oksize = (int) $array["size"];
-            else $oksize = FILE_MAX_SIZE;
-            $oksize = $oksize * 1024 * 1024;
-            if ($size > $oksize) $invalid = TRUE;
-          }
-        }
+        if (check_attach($array, $uploadedfs, $currentsize)) $invalid = TRUE;
     }
 }
 
@@ -243,20 +116,33 @@ $userid = $_SESSION["userid"];
 //変更内容だけ入れる
 $changeditem = array();
 
+//ファイルアップロードの識別ID
+$uploadid = time();
+
 //承認について　0:自動　1:編集の承認メンツ　2:新規提出の承認メンツ
 $recheck = 0;
 
 if ($_POST["method"] == 'direct') {
-    $fileto = DATAROOT . 'edit_files/' . $userid . '/';
+    $fileto = DATAROOT . 'edit_files/' . $userid . '/' . $id . '/';
     if (!file_exists($fileto)) {
         if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
     }
-    if ($_FILES["submit"]['error'] == UPLOAD_ERR_OK) {
-        $tmp_name = $_FILES["submit"]["tmp_name"];
-        $ext = substr(basename($_FILES["submit"]["name"]), strrpos(basename($_FILES["submit"]["name"]), '.') + 1);
-        $savename = $id;
-        if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
-        $changeditem["submit"] = $ext;
+    for ($j=0; $j<count($_FILES["submitfile"]['name']); $j++) {
+        if ($_FILES["submitfile"]['error'][$j] == UPLOAD_ERR_OK) {
+            $tmp_name = $_FILES["submitfile"]["tmp_name"][$j];
+            $ext = $_FILES["submitfile"]['name'][$j];
+            $savename = "main_" . $uploadid . "_$j";
+            if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
+            chmod($fileto . $savename, 0644);
+            if (!isset($changeditem["submit_add"])) $changeditem["submit_add"] = array();
+            $changeditem["submit_add"][$uploadid . "_$j"] = $ext;
+            $recheck = max($recheck, 2);
+        }
+    }
+    foreach((array)$_POST["submitfile-delete"] as $key){
+        if ($key === "none") break;
+        if (!isset($changeditem["submit_delete"])) $changeditem["submit_delete"] = array();
+        $changeditem["submit_delete"][] = basename($key);
         $recheck = max($recheck, 2);
     }
 } else {
@@ -280,23 +166,29 @@ if ($entereddata["title"] != $_POST["title"]) {
     $recheck = max($recheck, 1);
 }
 
-//カスタムデータ格納　添付ファイルは専用フォルダに保存 別場所に拡張子
+//カスタムデータ格納
 foreach ($submitformdata as $array) {
     if ($array["type"] == "attach") {
-        $fileto = DATAROOT . 'edit_attach/' . $_SESSION['userid'] . '/';
+        $fileto = DATAROOT . 'edit_files/' . $userid . '/' . $id . '/';
         if (!file_exists($fileto)) {
             if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
         }
-        if ($_FILES["custom-" . $array["id"]]['error'] == UPLOAD_ERR_OK) {
-            $tmp_name = $_FILES["custom-" . $array["id"]]["tmp_name"];
-            $ext = substr(basename($_FILES["custom-" . $array["id"]]["name"]), strrpos(basename($_FILES["custom-" . $array["id"]]["name"]), '.') + 1);
-            $savename = $id . '_' . $array["id"];
-            if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
-            $changeditem[$array["id"]] = $ext;
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+        for ($j=0; $j<count($_FILES["custom-" . $array["id"]]['name']); $j++) {
+            if ($_FILES["custom-" . $array["id"]]['error'][$j] == UPLOAD_ERR_OK) {
+                $tmp_name = $_FILES["custom-" . $array["id"]]["tmp_name"][$j];
+                $ext = $_FILES["custom-" . $array["id"]]['name'][$j];
+                $savename = $array["id"] . "_" . $uploadid . "_$j";
+                if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
+                chmod($fileto . $savename, 0644);
+                if (!isset($changeditem[$array["id"] . "_add"])) $changeditem[$array["id"] . "_add"] = array();
+                $changeditem[$array["id"] . "_add"][$uploadid . "_$j"] = $ext;
+                if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+            }
         }
-        if ($_POST["custom-" . $array["id"] . "-delete"] == "1") {
-            $changeditem[$array["id"]] = "";
+        foreach((array)$_POST["custom-" . $array["id"] . "-delete"] as $key){
+            if ($key === "none") break;
+            if (!isset($changeditem[$array["id"] . "_delete"])) $changeditem[$array["id"] . "_delete"] = array();
+            $changeditem[$array["id"] . "_delete"][] = basename($key);
             if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
@@ -341,46 +233,45 @@ foreach ($submitformdata as $array) {
 
 if ($changeditem == array()) {
     $_SESSION['situation'] = 'edit_nochange';
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("./index.php");
 }
 
 //自動承認していいなら上書き
 if ($recheck == 0) {
     foreach($changeditem as $key => $data) {
+        if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
+            $fileto = DATAROOT . 'files/' . $userid . '/' . $id . '/';
+            if (!file_exists($fileto)) {
+                if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
+            }
+            $tmp = explode("_", $key);
+            $partid = $tmp[0];
+            if ($partid === "submit") $saveid = "main";
+            else $saveid = $partid;
+            if ($tmp[1] === "add") {
+                foreach ($data as $fileplace => $name) {
+                    rename(DATAROOT . 'edit_files/' . $userid . '/' . $id . '/' . $saveid . "_$fileplace", DATAROOT . 'files/' . $userid . '/' . $id . '/' . $saveid . "_$fileplace");
+                }
+                if (!is_array($entereddata[$partid])) $entereddata[$partid] = array();
+                $entereddata[$partid] = array_merge($entereddata[$partid], $data);
+            }
+            if ($tmp[1] === "delete") {
+                foreach ($data as $name) {
+                    unlink(DATAROOT . 'files/' . $userid . '/' . $id . '/' . $saveid . "_$name");
+                    unset($entereddata[$partid][$name]);
+                }
+            }
+            continue;
+        }
         $entereddata[$key] = $data;
     }
+    $entereddata["exam"] = 1;
+    $entereddata["editdate"] = $uploadid;
     $entereddatajson =  json_encode($entereddata);
     if (file_put_contents(DATAROOT . 'submit/' . $userid . '/' . $id . '.txt', $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
-    if (file_exists(DATAROOT . 'edit_files/' . $userid . '/' . $id)) rename(DATAROOT . 'edit_files/' . $userid . '/' . $id, DATAROOT . 'files/' . $userid . '/' . $id);
-    foreach(glob(DATAROOT . 'edit_attach/' . $id . '_*') as $filename) {
-        $name = basename($filename);
-        rename($filename, DATAROOT . 'submit_attach/' . $userid . '/' . $name);
-    }
     $_SESSION['situation'] = 'edit_autoaccept';
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("./index.php");
 }
 
 
@@ -485,14 +376,34 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
 if ($autoaccept) {
     $entereddata["editing"] = 0;
     foreach($changeditem as $key => $data) {
+        if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
+            $fileto = DATAROOT . 'files/' . $userid . '/' . $id . '/';
+            if (!file_exists($fileto)) {
+                if (!mkdir($fileto, 0777, true)) die('ディレクトリの作成に失敗しました。');
+            }
+            $tmp = explode("_", $key);
+            $partid = $tmp[0];
+            if ($partid === "submit") $saveid = "main";
+            else $saveid = $partid;
+            if ($tmp[1] === "add") {
+                foreach ($data as $fileplace => $name) {
+                    rename(DATAROOT . 'edit_files/' . $userid . '/' . $id . '/' . $saveid . "_$fileplace", DATAROOT . 'files/' . $userid . '/' . $id . '/' . $saveid . "_$fileplace");
+                }
+                if (!is_array($entereddata[$partid])) $entereddata[$partid] = array();
+                $entereddata[$partid] = array_merge($entereddata[$partid], $data);
+            }
+            if ($tmp[1] === "delete") {
+                foreach ($data as $name) {
+                    unlink(DATAROOT . 'files/' . $userid . '/' . $id . '/' . $saveid . "_$name");
+                    unset($entereddata[$partid][$name]);
+                }
+            }
+            continue;
+        }
         $entereddata[$key] = $data;
     }
-
-    if (file_exists(DATAROOT . 'edit_files/' . $userid . '/' . $id)) rename(DATAROOT . 'edit_files/' . $userid . '/' . $id, DATAROOT . 'files/' . $userid . '/' . $id);
-    foreach(glob(DATAROOT . 'edit_attach/' . $id . '_*') as $filename) {
-        $name = basename($filename);
-        rename($filename, DATAROOT . 'submit_attach/' . $userid . '/' . $name);
-    }
+    $entereddata["exam"] = 1;
+    $entereddata["editdate"] = $uploadid;
 }
 else {
     $exammemberjson =  json_encode($exammember);
@@ -568,17 +479,4 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
         $_SESSION['situation'] = 'edit_submitted_auto_accept';
 }
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

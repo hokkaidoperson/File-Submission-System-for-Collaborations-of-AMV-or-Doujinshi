@@ -3,18 +3,7 @@ require_once('../../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../../index.php?redirto=mypage/setting/submitform/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../../index.php");
 }
 
 $accessok = 'none';
@@ -22,24 +11,13 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
-if (!file_exists(DATAROOT . 'form/submit/draft/')) {
-    if (!mkdir(DATAROOT . 'form/submit/draft/', true)) die('ディレクトリの作成に失敗しました。');
-}
+//一瞬リセット
+if (file_exists(DATAROOT . 'form/submit/draft')) remove_directory(DATAROOT . 'form/submit/draft');
+
+if (!mkdir(DATAROOT . 'form/submit/draft/', true)) die('ディレクトリの作成に失敗しました。');
 
 for ($i = 0; $i <= 9; $i++) {
     $fileplace = DATAROOT . 'form/submit/draft/' . $i . '.txt';
@@ -54,19 +32,11 @@ for ($i = 0; $i <= 9; $i++) {
         if (file_exists($fileplace)) unlink($fileplace);
     }
 }
+//ファイル内容
+$filedata = $_SESSION["submitformdata"]["general"];
+$filedatajson = json_encode($filedata);
+if (file_put_contents(DATAROOT . 'form/submit/draft/general.txt', $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 $_SESSION['situation'] = 'submitform_saved';
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

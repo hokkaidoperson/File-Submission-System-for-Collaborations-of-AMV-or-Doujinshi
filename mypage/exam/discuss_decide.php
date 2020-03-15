@@ -3,22 +3,13 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/exam/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
-if (!file_exists(DATAROOT . 'exam_discuss/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
-$discussdata = json_decode(file_get_contents(DATAROOT . 'exam_discuss/' . $_POST["subject"] . '.txt'), true);
+$subject = basename($_POST["subject"]);
+
+if (!file_exists(DATAROOT . 'exam_discuss/' . $subject . '.txt')) die('ファイルが存在しません。');
+$discussdata = json_decode(file_get_contents(DATAROOT . 'exam_discuss/' . $subject . '.txt'), true);
 
 $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search("_promoter", $submitmem);
@@ -29,38 +20,14 @@ if ($key !== FALSE) {
 
 if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
-if ($_SESSION["state"] != 'p' and $noprom == FALSE) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
-if (!file_exists(DATAROOT . 'exam/' . $_POST["subject"] . '.txt')) die('ファイルが存在しません。');
-list($author, $id) = explode('_', $_POST["subject"]);
+if (!file_exists(DATAROOT . 'exam/' . $subject . '.txt')) die('ファイルが存在しません。');
+list($author, $id) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -75,13 +42,13 @@ switch ($_POST["ans"]) {
 
 if($_POST["reason"] == ""){
   if($_POST["ans"] == "2" || $_POST["ans"] == "3") $invalid = TRUE;
-  else if(mb_strlen($_POST["reason"]) > 500) $invalid = TRUE;
+  else if(length_with_lb($_POST["reason"]) > 500) $invalid = TRUE;
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
 //投票の回答データ
-$answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $_POST["subject"] . '.txt'), true);
+$answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $subject . '.txt'), true);
 if ($answerdata["_state"] != 1) die();
 
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) die();
@@ -97,10 +64,10 @@ $answerdata["_result"] = $_POST["ans"];
 $discussdata["comments"]["-system_" . time()] = "最終結論の入力が完了し、議論を終了しました。";
 
 $filedatajson = json_encode($answerdata);
-if (file_put_contents(DATAROOT . 'exam/' . $_POST["subject"] . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
+if (file_put_contents(DATAROOT . 'exam/' . $subject . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
 
 $filedatajson = json_encode($discussdata);
-if (file_put_contents(DATAROOT . 'exam_discuss/' . $_POST["subject"] . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
+if (file_put_contents(DATAROOT . 'exam_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 
 //入力内容を読み込んで書き換え
 $formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
@@ -223,16 +190,4 @@ switch ($_POST["ans"]){
     break;
 }
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/invite/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -22,25 +11,13 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
 
 $invalid = FALSE;
-if ($_POST["userid"] == "") $invalid = TRUE;
+if (state($_POST["userid"]) !== "c") $invalid = TRUE;
 if ($_POST["users"] != "" and !is_array($_POST["users"])) $invalid = TRUE;
 if ($_POST["files"] != "" and !is_array($_POST["files"])) $invalid = TRUE;
 
@@ -63,28 +40,15 @@ $pageurl = $siteurl . 'mypage/list/index.php';
 $content = "$nickname 様
 
 $eventname のポータルサイトにて、主催者がファイルへのアクセス権を編集しました。
-あなた以外の他者が提出したファイルや、他者のユーザー情報にアクセス可能に（あるいは不可能に）なった可能性があります。
+あなた以外の他者が提出したファイルや、他者の共通情報にアクセス可能に（あるいは不可能に）なった可能性があります。
 
 現在アクセス可能なファイルにつきましては、マイページの「提出済み作品一覧・編集」から確認出来ます。
 
 
 　提出済み作品一覧・編集：$pageurl
 ";
-        //内部関数で送信
-        sendmail(email($userid), 'ファイルへのアクセス権が変更されました', $content);
-        $_SESSION['situation'] = 'auth_fileacl';
+//内部関数で送信
+sendmail(email($userid), 'ファイルへのアクセス権が変更されました', $content);
+$_SESSION['situation'] = 'auth_fileacl';
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

@@ -52,6 +52,11 @@ else $maxsize = FILE_MAX_SIZE;
 <p><b>ファイルは、1作品ごとに送信して下さい</b>（複数作品のファイルをまとめて送信しないで下さい）。<br>
 ファイル提出後はこの画面に戻って来ますので、複数作品を送信したい場合はこの画面から改めて送信願います。</p>
 <p>ファイルの提出期間は、<b><?php echo date('Y年n月j日G時i分s秒', $general["from"]) . '～' . date('Y年n月j日G時i分s秒', $general["until"]); ?></b>です。</p>
+<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<b>【ファイルの提出・情報の編集は時間に余裕を持って行って下さい】</b><br>
+システムの仕様上、入力途中またはファイル送信中に提出締め切りを迎えた場合、締め切り後に送信しようとしたと見なされ送信が遮断されます。<br>
+提出・編集したいファイルや情報がある場合、なるべく早めに提出・編集を行って下さい。これは共通情報（ニックネームを含む）についても同様です。
+</div>
 <?php
 if ($general["from"] > time() and !$outofterm) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 提出期間前です。

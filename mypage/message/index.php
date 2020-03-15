@@ -59,7 +59,7 @@ if ($_SESSION["admin"] and $_SESSION["state"] != 'p') echo '<p><a href="write_si
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
-<th>送信者</th><th>送信日時</th><th>件名（クリックすると内容を表示します）</th>
+<th width="25%">送信者</th><th width="25%">送信日時</th><th width="50%">件名（クリックすると内容を表示します）</th>
 </tr>
 <?php
 foreach ($inbox as $id => $array) {
@@ -91,7 +91,7 @@ if ($inbox == array()) echo '<tr><td colspan="3">現在、表示出来るメッ�
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
-<th>送信相手</th><th>送信日時</th><th>件名（クリックすると内容を表示します）</th>
+<th width="25%">送信相手</th><th width="25%">送信日時</th><th width="50%">件名（クリックすると内容を表示します）</th>
 </tr>
 <?php
 foreach ($outbox as $id => $array) {
@@ -101,11 +101,15 @@ foreach ($outbox as $id => $array) {
         if ($key == "_subject") continue;
         if ($key == "_replyof") continue;
         if ($key == "_content") continue;
+        if (strpos($key, "sectok_") !== FALSE) continue;
         $to[] = $key;
     }
     $tonickname = array();
     $i = 0;
     foreach ($to as $userid) {
+        if ($i > 2) {
+            $tonickname[$i] = '他' . count($to) - 3 . '名';
+        }
         $tonickname[$i] = htmlspecialchars(nickname($userid));
         if (blackuser($userid)) $tonickname[$i] .= '<span class="text-danger">（凍結ユーザー）</span>';
         if (state($userid) == "p") $tonickname[$i] .= ' <span class="badge badge-success text-wrap">

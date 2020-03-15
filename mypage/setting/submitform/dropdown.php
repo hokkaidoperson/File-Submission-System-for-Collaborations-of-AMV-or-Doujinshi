@@ -13,7 +13,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
 <p><a href="../../index.php">マイページトップに戻る</a></p>');
 
-$number = $_GET['number'];
+$number = basename($_GET['number']);
 
 if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]) or ('dropdown' != $_SESSION["submitformdata"][$number]["type"]))
     die_mypage('<h1>エラーが発生しました</h1>

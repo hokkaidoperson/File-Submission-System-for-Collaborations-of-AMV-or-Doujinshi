@@ -2,27 +2,27 @@
 function sendmail($email, $subject, $content) {
     $sendmaildata = json_decode(file_get_contents(DATAROOT . 'mail.txt'), true);
     $sendmailurl = file_get_contents(DATAROOT . 'siteurl.txt');
-    $sendmailevn = file_get_contents(DATAROOT . 'eventname.txt');
-    if ($sendmaildata["pre"] == '') $mailpre = mb_substr($sendmailevn, 0, 15);
+    global $eventname;
+    if ($sendmaildata["pre"] == '') $mailpre = mb_substr($eventname, 0, 15);
     else $mailpre = $sendmaildata["pre"];
     if ($sendmaildata["fromname"] != '') $from = "From: " . $sendmaildata["fromname"] . " <" . $sendmaildata["from"] . ">";
     else $from = "From: " . $sendmaildata["from"];
     $subject = '【' . $mailpre . '】' . $subject;
-    if ($sendmaildata["sendonly"] == 1 ) $content = "※このメールは、$sendmailevn に関する自動送信メールです。
-　あなたが $sendmailevn に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
+    if ($sendmaildata["sendonly"] == 1 ) $content = "※このメールは、$eventname に関する自動送信メールです。
+　あなたが $eventname に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
 ※このメールアドレスは送信専用です。
 　こちらに返信頂いても受信出来ませんのでご了承下さい。
 ------------------------------
 $content
 ------------------------------
-$sendmailevn
+$eventname
 $sendmailurl";
-    else $content = "※このメールは、$sendmailevn に関する自動送信メールです。
-　あなたが $sendmailevn に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
+    else $content = "※このメールは、$eventname に関する自動送信メールです。
+　あなたが $eventname に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
 ------------------------------
 $content
 ------------------------------
-$sendmailevn
+$eventname
 $sendmailurl";
 
     if ($sendmaildata["from"] != '') {
@@ -84,7 +84,7 @@ if($_POST["systempre"] == ""){
 //文字種　どっちかかたっぽだけはNG
   if($_POST["recaptcha_sec"] == "" && $_POST["recaptcha_site"] == ""){
   } else if($_POST["recaptcha_sec"] == "" || $_POST["recaptcha_site"] == "") $invalid = TRUE;
-  else if(!preg_match('/^[0-9a-zA-Z-]*$/', $_POST["recaptcha_sec"]) || !preg_match('/^[0-9a-zA-Z-]*$/', $_POST["recaptcha_site"])) $invalid = TRUE;
+  else if(!preg_match('/^[0-9a-zA-Z-_]*$/', $_POST["recaptcha_sec"]) || !preg_match('/^[0-9a-zA-Z-_]*$/', $_POST["recaptcha_site"])) $invalid = TRUE;
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
@@ -112,12 +112,12 @@ $url = preg_replace('/initial\/handle\.php$/', '', $url);
 //サイト名を保管しとく
 if (file_put_contents(DATAROOT . 'siteurl.txt', $url) === FALSE) die('サイトURLの書き込みに失敗しました。');
 
-//イベント名書き込み
-$eventname = $_POST["eventname"];
-if (file_put_contents(DATAROOT . 'eventname.txt', $eventname) === FALSE) die('イベント名の書き込みに失敗しました。');
+$init = array(
+    "eventname" => $_POST["eventname"],
+    "maxsize" => $_POST["filesize"]
+);
 
-//maxサイズ
-if (file_put_contents(DATAROOT . 'maxsize.txt', $_POST["filesize"]) === FALSE) die('ファイルサイズの書き込みに失敗しました。');
+$initjson =  json_encode($init);
 
 $maildata = array(
     "from" => $_POST["system"],
@@ -183,6 +183,7 @@ if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデー�
 
 //メール本文形成
 $date = date('Y/m/d H:i:s');
+$eventname = $_POST["eventname"];
 $content = "$nickname 様
 
 $eventname のポータルサイトの管理者アカウントの設定が完了しました。
@@ -201,12 +202,12 @@ $eventname のポータルサイトの管理者アカウントの設定が完了
 //内部関数で送信
 sendmail($email, '管理者アカウントの設定完了通知', $content);
 
-//処理完了後、初期設定完了ファイル作成
-if (file_put_contents(DATAROOT . 'init.txt', '1') === FALSE) die('初期設定完了データの書き込みに失敗しました。');
+//最後に初期設定完了ファイル
+if (file_put_contents(DATAROOT . 'init.txt', $initjson) === FALSE) die('初期設定関連のデータの書き込みに失敗しました。');
 
 //ログイン状態に
 session_start();
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
+if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $_SESSION['userid']) {
     $_SESSION['userid'] = $userid;
     $_SESSION['nickname'] = $nickname;
     $_SESSION['email'] = $email;
@@ -215,18 +216,8 @@ if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出シ�
     $_SESSION['situation'] = 'registered';
     $_SESSION['expire'] = time() + (30 * 60);
     $_SESSION['useragent'] = $browser;
+    $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $userid;
 }
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='../mypage/index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+header("Location: ../mypage/index.php");
+exit;

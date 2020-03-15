@@ -42,12 +42,12 @@ foreach(users_array() as $author => $data) {
 
 if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 参加者</h1>
 <p>本イベントのポータルサイトに登録されているユーザーの一覧です（ファイル未提出者も含む）。<br>
-ユーザーの名前をクリックするとユーザーの情報（ユーザー登録時に入力された情報）を確認出来ます。</p>
+ユーザーの名前をクリックするとユーザーの情報（ニックネーム・共通情報）を確認出来ます。</p>
 <p><a href="index.php">提出作品の一覧はこちら</a></p>
 ';
 if ($_SESSION["state"] == 'c') echo '<h1>参加者の一覧</h1>
 <p>主催者から閲覧権限を与えられたユーザー情報の一覧です。<br>
-ユーザーの名前をクリックするとユーザーの情報（ユーザー登録時に入力された情報）を確認出来ます。</p>
+ユーザーの名前をクリックするとユーザーの情報（ニックネーム・共通情報）を確認出来ます。</p>
 <p><a href="index.php">提出作品の一覧はこちら</a></p>
 ';
 ?>
@@ -55,7 +55,7 @@ if ($_SESSION["state"] == 'c') echo '<h1>参加者の一覧</h1>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
-<th>ユーザー</th><th>立場</th>
+<th width="70%">ユーザー</th><th width="30%">立場</th>
 </tr>
 <?php
 foreach ($canshow as $author => $array) {

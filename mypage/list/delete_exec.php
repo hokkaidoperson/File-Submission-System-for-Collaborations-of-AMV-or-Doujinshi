@@ -3,18 +3,7 @@ require_once('../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../index.php?redirto=mypage/invite/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../index.php");
 }
 
 $accessok = 'none';
@@ -31,10 +20,10 @@ if ($accessok == 'none') die('<h1>権限エラー</h1>
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
 
 //ファイル提出者のユーザーID
-$author = $_POST["author"];
+$author = basename($_POST["author"]);
 
 //提出ID
-$id = $_POST["id"];
+$id = basename($_POST["id"]);
 
 if ($author == "" or $id == "") die_mypage('パラメーターエラー');
 
@@ -68,16 +57,10 @@ if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('フ�
 $filedata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 unlink(DATAROOT . "submit/" . $author . "/" . $id . ".txt");
 
-if (file_exists(DATAROOT . 'files/' . $author . '/' . $id)) unlink(DATAROOT . 'files/' . $author . '/' . $id);
-foreach(glob(DATAROOT . 'submit_attach/' . $author . '/' . $id . '_*') as $filename) {
-    unlink($filename);
-}
+if (file_exists(DATAROOT . 'files/' . $author . '/' . $id . '/')) remove_directory(DATAROOT . 'files/' . $author . '/' . $id . '/');
 
 if (file_exists(DATAROOT . "edit/" . $author . "/" . $id . ".txt")) unlink(DATAROOT . "edit/" . $author . "/" . $id . ".txt");
-if (file_exists(DATAROOT . 'edit_files/' . $author . '/' . $id)) unlink(DATAROOT . 'edit_files/' . $author . '/' . $id);
-foreach(glob(DATAROOT . 'edtt_attach/' . $author . '/' . $id . '_*') as $filename) {
-    unlink($filename);
-}
+if (file_exists(DATAROOT . 'edit_files/' . $author . '/' . $id . '/')) remove_directory(DATAROOT . 'edit_files/' . $author . '/' . $id . '/');
 
 //検査関連で通知する人
 $noticeto = array();
@@ -93,7 +76,6 @@ if (file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) {
     if ($examdata["_state"] == 0 or $examdata["_state"] == 1) {
         foreach ($submitmem as $key) {
             $data = $examdata[$key];
-            if ($data["opinion"] == -1) continue;
             $noticeto[$key] = 1;
         }
     }
@@ -112,7 +94,6 @@ foreach(glob(DATAROOT . 'exam_edit/' . $author . '_' . $id . '_*.txt') as $filen
     if ($examdata["_state"] == 0 or $examdata["_state"] == 1) {
         foreach ($submitmem as $key) {
             $data = $examdata[$key];
-            if ($data["opinion"] == -1) continue;
             $noticeto[$key] = 1;
         }
     }
@@ -138,7 +119,7 @@ $eventname のポータルサイトで、 $nickname 様が作品「" . $filedata
 ";
 
 //内部関数で送信
-sendmail(email($promoter[0]), '作品が削除されました（' . $filedata["title"] . '）', $content);
+if ($_SESSION["userid"] != $promoter[0]) sendmail(email($promoter[0]), '作品が削除されました（' . $filedata["title"] . '）', $content);
 
 
 //ファイル確認をお願いしてた人
@@ -185,17 +166,4 @@ $eventname のポータルサイトにて、作品「" . $filedata["title"] . "�
 sendmail($email, '作品を削除しました（' . $filedata["title"] . '）', $content);
 $_SESSION['situation'] = 'edit_deleted';
 
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");

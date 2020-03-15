@@ -1,7 +1,7 @@
 <?php
 require_once('../../../set.php');
 session_start();
-$titlepart = 'ユーザー登録画面 項目設定';
+$titlepart = '共通情報入力画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
 $accessok = 'none';
@@ -13,7 +13,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
 <p><a href="../../index.php">マイページトップに戻る</a></p>');
 
-$number = $_GET['number'];
+$number = basename($_GET['number']);
 
 if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) or ('attach' != $_SESSION["userformdata"][$number]["type"]))
     die_mypage('<h1>エラーが発生しました</h1>
@@ -74,6 +74,20 @@ if (isset($_SESSION["userformdata"][$number]["ext"])) echo htmlspecialchars($_SE
 </font>
 </div>
 <div class="form-group">
+<label for="filenumber">同時にアップロード可能なファイル数（1～100の間の半角数字）</label>
+<div class="input-group" style="width:8em;">
+<input type="text" name="filenumber" class="form-control" id="filenumber" value="<?php
+if (isset($_SESSION["userformdata"][$number]["filenumber"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["filenumber"]);
+?>">
+<div class="input-group-append">
+<span class="input-group-text">個</span>
+</div>
+</div>
+<font size="2">※この入力欄に添付出来るファイル数を設定します。<br>
+※入力が無い場合は、100個として設定します。
+</font>
+</div>
+<div class="form-group">
 <label for="size">アップロード可能な最大サイズ（1～<?php echo FILE_MAX_SIZE; ?>の間の半角数字）</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="size" class="form-control" id="size" value="<?php
@@ -84,8 +98,19 @@ if (isset($_SESSION["userformdata"][$number]["size"])) echo htmlspecialchars($_S
 </div>
 </div>
 <font size="2">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
+※複数個のファイルをこの入力欄に添付出来る設定にしている場合、この入力欄に添付するファイルの合計サイズが、ここで指定するサイズ以下になっている必要があります。<br>
 ※入力が無い場合は、<?php echo FILE_MAX_SIZE; ?>MBとして設定します。
 </font>
+</div>
+<div class="form-group">
+入力内容の変更の自動承認について
+<div class="form-check">
+<input id="recheck" class="form-check-input" type="checkbox" name="recheck" value="auto" <?php
+if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userformdata"][$number]["recheck"] == "auto") echo 'checked="checked"';
+?>>
+<label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
+</div>
+<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 
@@ -104,6 +129,7 @@ function check(){
   probreq = 0;
   probdtl = 0;
   probext = 0;
+  probnum = 0;
   probsiz = 0;
 
 
@@ -139,6 +165,16 @@ function check(){
   }
 
 //文字種・数字の大きさ　必須でない
+  if(document.form.filenumber.value === ""){
+  } else if(!document.form.filenumber.value.match(/^[0-9]*$/)){
+    problem = 1;
+    probnum = 1;
+  } else if(parseInt(document.form.filenumber.value) < 1 | parseInt(document.form.filenumber.value) > 100){
+    problem = 1;
+    probnum = 2;
+  }
+
+//文字種・数字の大きさ　必須でない
   if(document.form.size.value === ""){
   } else if(!document.form.size.value.match(/^[0-9]*$/)){
     problem = 1;
@@ -170,6 +206,13 @@ if ( problem == 1 ) {
   if ( probext == 2) {
     alert( "【ファイルの拡張子指定】\n半角英数字（小文字）とカンマ以外の文字が含まれています。" );
   }
+  if ( probnum == 1) {
+    alert( "【ファイル数】\n半角数字以外の文字が含まれています。" );
+  }
+  if ( probnum == 2) {
+    alert( "【ファイル数】\n数字が小さすぎるか、大きすぎます。1～100の間で指定して下さい。" );
+  }
+
   if ( probsiz == 1) {
     alert( "【アップロード可能な最大サイズ】\n半角数字以外の文字が含まれています。" );
   }

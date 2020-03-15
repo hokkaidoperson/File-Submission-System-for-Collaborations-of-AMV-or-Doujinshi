@@ -15,13 +15,13 @@ if ($_SESSION["situation"] == 'registered') {
 }
 if ($_SESSION["situation"] == 'userform_cancelled') {
     echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ユーザー登録画面の設定を中止しました。
+共通情報入力画面の設定を中止しました。
 </div>';
     $_SESSION["situation"] = '';
 }
 if ($_SESSION["situation"] == 'userform_applied') {
     echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ユーザー登録画面の設定変更が完了しました。<br>ご自身の入力内容を変更する場合は、「アカウント情報編集」から設定画面に推移して下さい。<br><br>
+共通情報入力画面の設定変更が完了しました。<br>ご自身の入力内容を変更する場合は、「共通情報の入力・編集」から設定画面に推移して下さい。<br><br>
 <b>必須項目を新たに追加したりした場合、メッセージ機能を用いて参加者にその旨を通知し、設定変更を促して下さい。</b>
 </div>';
     $_SESSION["situation"] = '';
@@ -61,7 +61,7 @@ if (!file_exists(DATAROOT . 'users/_promoter.txt') and $_SESSION["admin"]) {
 
 //フォーム登録してない場合
 if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/userinfo/done.txt')) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<b>ユーザー登録時の記入事項が登録されていません。</b><br><a href="setting/userform/index.php">こちらのリンクをクリックして、記入事項を登録して下さい。</a>
+<b>共通情報の記入事項が登録されていません。</b><br><a href="setting/userform/index.php">こちらのリンクをクリックして、記入事項を登録して下さい。</a>
 </div>';
 if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <b>ファイル提出時の記入事項や、ファイル提出期間が登録されていません。</b><br><a href="setting/submitform/index.php">こちらのリンクをクリックして、記入事項と提出期間を登録して下さい。</a>
@@ -106,26 +106,35 @@ if (file_exists(DATAROOT . 'form/submit/done.txt')) {
     }
 }
 
+$formdata = id_array($_SESSION["userid"]);
+//共通情報書いた？
+if (file_exists(DATAROOT . 'form/userinfo/0.txt') and !isset($formdata["common_acceptance"])) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+共通情報の記入が必要です。「共通情報の入力・編集」をご確認下さい。
+</div>';
+
 //ファイル確認のタスクが残ってないか
 if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') {
     $remain_p = FALSE;
     $remain_d = FALSE;
-    $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $key = array_search("_promoter", $submitmem);
-    if ($key !== FALSE) {
-        $submitmem[$key] = id_promoter();
-    }
+    if (file_exists(DATAROOT . 'exammember_submit.txt')) {
+        $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $key = array_search("_promoter", $submitmem);
+        if ($key !== FALSE) {
+            $submitmem[$key] = id_promoter();
+        }
 
-    foreach(glob(DATAROOT . 'exam/*.txt') as $filename) {
-        if (array_search($_SESSION["userid"], $submitmem) === FALSE) break;
-        $filedata = json_decode(file_get_contents($filename), true);
-        if ($filedata["_state"] == 2 or $filedata["_state"] == 3) continue;
-        else if ($filedata["_state"] == 1) $remain_d = TRUE;
-        else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] != 0) continue;
-        else $remain_p = TRUE;
-   }
+        foreach(glob(DATAROOT . 'exam/*.txt') as $filename) {
+            if (array_search($_SESSION["userid"], $submitmem) === FALSE) break;
+            $filedata = json_decode(file_get_contents($filename), true);
+            if ($filedata["_state"] == 2 or $filedata["_state"] == 3) continue;
+            else if ($filedata["_state"] == 1) $remain_d = TRUE;
+            else if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["userid"]]["opinion"] != 0) continue;
+            else $remain_p = TRUE;
+        }
+    }
     foreach(glob(DATAROOT . 'exam_edit/*.txt') as $filename) {
         $filedata = json_decode(file_get_contents($filename), true);
+        if (!isset($filedata["_membermode"])) $filedata["_membermode"] = "edit";
         $memberfile = DATAROOT . 'exammember_' . $filedata["_membermode"] . '.txt';
         $submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $key = array_search("_promoter", $submitmem);
@@ -139,13 +148,13 @@ if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') {
         else $remain_p = TRUE;
     }
     if ($remain_d and $remain_p) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認を行っていないファイルがあります。また、議論中のファイルがあります。<br>
+確認を行っていないファイル・情報があります。また、議論中のファイル・情報があります。<br>
 「提出作品の確認・承認」からご確認願います。</div>';
    else if ($remain_d) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-議論中のファイルがあります。<br>
+議論中のファイル・情報があります。<br>
 「提出作品の確認・承認」からご確認願います。</div>';
    else if ($remain_p) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認を行っていないファイルがあります。<br>
+確認を行っていないファイル・情報があります。<br>
 「提出作品の確認・承認」からご確認願います。</div>';
 }
 
@@ -174,6 +183,14 @@ if ($_SESSION["state"] == 'p') echo '<div style="width: 20rem; margin: 0.5rem;">
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </a></div>
+<div style="width: 20rem; margin: 0.5rem;"><a href="common/index.php">
+<div class="card"><div class="card-body"><div class="media">
+<img class="align-self-center mr-3" src="../images/common.svg" style="width: 70px; height: 70px;">
+<div class="media-body">
+<h5>共通情報の入力・編集</h5>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">共通情報の設定を行った場合は、こちらから入力・編集して下さい。</span></p></div></div>
+</a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/list.svg" style="width: 70px; height: 70px;">
@@ -186,9 +203,9 @@ if ($_SESSION["state"] == 'p') echo '<div style="width: 20rem; margin: 0.5rem;">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/exam.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
-<h5>提出作品の確認・承認</h5>
+<h5>提出作品・情報の確認・承認</h5>
 </div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">作品が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
+<p class="card-text"><span class="text-decoration-none text-body">作品・情報が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
 </a></div>
 ';
 if ($_SESSION["state"] == 'c') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="submit/index.php">
@@ -198,6 +215,14 @@ if ($_SESSION["state"] == 'c') echo '<div style="width: 20rem; margin: 0.5rem;">
 <h5>作品を提出する</h5>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
+</a></div>
+<div style="width: 20rem; margin: 0.5rem;"><a href="common/index.php">
+<div class="card"><div class="card-body"><div class="media">
+<img class="align-self-center mr-3" src="../images/common.svg" style="width: 70px; height: 70px;">
+<div class="media-body">
+<h5>共通情報の入力・編集</h5>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">必要に応じて、こちらの情報も入力・編集を行って下さい。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
@@ -211,9 +236,9 @@ if ($_SESSION["state"] == 'c') echo '<div style="width: 20rem; margin: 0.5rem;">
 <div class="card"><div class="card-body"><div class="media">
 <img class="align-self-center mr-3" src="../images/exam.svg" style="width: 70px; height: 70px;">
 <div class="media-body">
-<h5>提出作品の確認・承認</h5>
+<h5>提出作品・情報の確認・承認</h5>
 </div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">作品が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
+<p class="card-text"><span class="text-decoration-none text-body">作品・情報が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
 </a></div>';
 if ($_SESSION["state"] == 'g') echo '<div style="width: 20rem; margin: 0.5rem;"><a href="submit/index.php">
 <div class="card"><div class="card-body"><div class="media">
@@ -222,6 +247,14 @@ if ($_SESSION["state"] == 'g') echo '<div style="width: 20rem; margin: 0.5rem;">
 <h5>作品を提出する</h5>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
+</a></div>
+<div style="width: 20rem; margin: 0.5rem;"><a href="common/index.php">
+<div class="card"><div class="card-body"><div class="media">
+<img class="align-self-center mr-3" src="../images/common.svg" style="width: 70px; height: 70px;">
+<div class="media-body">
+<h5>共通情報の入力・編集</h5>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">必要に応じて、こちらの情報も入力・編集を行って下さい。</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="list/index.php">
 <div class="card"><div class="card-body"><div class="media">
@@ -264,7 +297,7 @@ if ($_SESSION["state"] == 'p') echo '<div style="width: 20rem; margin: 0.5rem;">
 <div class="media-body">
 <h5>イベント情報編集</h5>
 </div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>ユーザー登録時・ファイル提出時の記入事項 ／ ファイルの提出期間 ／ ファイル確認に関する設定</span></p></div></div>
+<p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>共通情報・ファイル提出時の記入事項 ／ ファイルの提出期間 ／ ファイル確認に関する設定</span></p></div></div>
 </a></div>
 <div style="width: 20rem; margin: 0.5rem;"><a href="invite/index.php">
 <div class="card"><div class="card-body"><div class="media">

@@ -3,18 +3,7 @@ require_once('../../../set.php');
 session_start();
 //ログインしてない場合はログインページへ
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'../../../index.php?redirto=mypage/setting/userform/index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>');
+    redirect("../../../index.php");
 }
 
 $accessok = 'none';
@@ -22,19 +11,7 @@ $accessok = 'none';
 //主催者だけ
 if ($_SESSION["state"] == 'p') $accessok = 'p';
 
-if ($accessok == 'none') die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL=\'index.php\'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
-');
+if ($accessok == 'none') redirect("./index.php");
 
 
 if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
@@ -69,7 +46,7 @@ else if(mb_strlen($_POST["title"]) > 50) $invalid = TRUE;
 
 //文字数 必須でない
 if($_POST["detail"] == ""){
-} else if(mb_strlen($_POST["detail"]) > 500) $invalid = TRUE;
+} else if(length_with_lb($_POST["detail"]) > 500) $invalid = TRUE;
 
 //文字種・数の範囲 必須でない
 if($_POST["max"] == ""){
@@ -121,6 +98,12 @@ if($_POST["size"] == ""){
 } else if(!preg_match('/^[0-9]*$/', $_POST["size"])) $invalid = TRUE;
 else if((int)$_POST["size"] < 1 or (int)$_POST["size"] > FILE_MAX_SIZE) $invalid = TRUE;
 
+switch ($_POST["recheck"]) {
+    case "": break;
+    case "auto": break;
+    default: $invalid = TRUE;
+}
+
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
 
@@ -138,22 +121,19 @@ $filedata = $_SESSION["userformdata"][$number];
 
 $filedatajson = json_encode($filedata);
 
+if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
+    if (!mkdir(DATAROOT . 'form/userinfo/draft/')) die_mypage('ディレクトリの作成に失敗しました。');
+    for ($i = 0; $i <= 9; $i++) {
+        if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
+        copy(DATAROOT . 'form/userinfo/' . "$i" . '.txt', DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt');
+    }
+}
+
+
 $fileplace = DATAROOT . 'form/userinfo/draft/' . $number . '.txt';
 
 if (file_put_contents($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 $_SESSION['situation'] = 'userform_saved';
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; URL='index.php'" />
-<title>リダイレクト中…</title>
-</head>
-<body>
-しばらくお待ち下さい…
-</body>
-</html>
+redirect("./index.php");
