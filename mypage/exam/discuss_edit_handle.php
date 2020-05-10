@@ -1,23 +1,15 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催・共同運営
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p", "c"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 $subject = basename($_POST["subject"]);
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
 list($author, $id, $editid) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
@@ -81,6 +73,6 @@ $authornick 様の作品「" . $formdata["title"] . "」の項目変更に関す
 $filedatajson = json_encode($discussdata);
 if (file_put_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 
-$_SESSION['situation'] = 'exam_discuss_added';
+register_alert("コメントを追加しました。", "success");
 
 redirect("./discuss_edit.php?author=$author&id=$id&edit=$editid");

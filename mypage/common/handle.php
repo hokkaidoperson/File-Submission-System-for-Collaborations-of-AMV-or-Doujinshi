@@ -1,20 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>
-');
+if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/userinfo/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、共通事項の設定を受け付け出来ません。<br>
@@ -22,7 +11,7 @@ if (!file_exists(DATAROOT . 'form/userinfo/done.txt') or !file_exists(DATAROOT .
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 $IP = getenv("REMOTE_ADDR");
 
@@ -153,9 +142,12 @@ foreach ($submitformdata as $array) {
 }
 
 if ($changeditem == array()) {
-    $_SESSION['situation'] = 'common_nochange';
+    register_alert("入力内容の変更はありませんでした。", "success");
     redirect("./index.php");
 }
+
+//IPアドレスデータ
+$entereddata["common_ip"] = $IP;
 
 //自動承認していいなら上書き
 if ($recheck == 0) {
@@ -189,7 +181,7 @@ if ($recheck == 0) {
     $entereddatajson =  json_encode($entereddata);
     if (file_put_contents(DATAROOT . "users/" . $userid . ".txt", $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
-    $_SESSION['situation'] = 'common_autoaccept';
+    register_alert("共通情報の変更が完了しました。<br>自動承認される項目のみ変更されていたため、変更は自動的に承認されました。", "success");
     redirect("./index.php");
 }
 
@@ -217,7 +209,7 @@ $editid = $uploadid;
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array("_state" => 0);
+$exammember = array("_state" => 0, "_ip" => $IP);
 $autoaccept = TRUE;
 
 $submitmem = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -247,10 +239,11 @@ $author 様が、$eventname のポータルサイトにて、共通情報を登�
 下記のURLから、登録内容を確認し、承認するか決めて下さい。
 
 　登録内容確認ページ：$pageurl
-　提出元IPアドレス　：$IP
 
-※万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が同じIPアドレスから行われる場合、
-　主催者の判断で該当IPアドレスからのアクセス制限を行う事が可能です。
+※登録もしくは編集が行われた際のIPアドレス・リモートホスト名は、上記ページもしくは参加者一覧から、
+　主催者のみ閲覧可能です。万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が
+　同じIPアドレスや似たリモートホスト名から行われる場合、主催者の判断で該当IPアドレス・
+　リモートホスト名からのアカウント作成制限を行う事が可能です。
 ";
 
     //内部関数で送信
@@ -359,7 +352,7 @@ $eventname のポータルサイトにて、共通情報の登録・編集を行
 ";
         //内部関数で送信
         sendmail($email, '共通情報の登録・変更を受け付けました', $content);
-        $_SESSION['situation'] = 'common_submitted';
+        register_alert("共通情報の変更が完了しました。<br>変更内容を運営チームが確認するまでしばらくお待ち願います。", "success");
         break;
     default:
         $nickname = $_SESSION["nickname"];
@@ -385,7 +378,7 @@ $eventname のポータルサイトにて、共通情報の登録・編集を行
 ";
         //内部関数で送信
         sendmail($email, '共通情報の登録・変更を受け付け・承認しました', $content);
-        $_SESSION['situation'] = 'common_submitted_auto_accept';
+        register_alert("共通情報の変更が完了しました。<br>共通情報確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、変更は自動的に承認されました。", "success");
 }
 
 

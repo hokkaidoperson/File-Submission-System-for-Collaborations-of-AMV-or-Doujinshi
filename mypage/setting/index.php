@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'イベント情報編集';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 ?>
 
@@ -25,7 +18,7 @@ if (!file_exists(DATAROOT . 'form/userinfo/done.txt')) echo '<p><b>共通情報�
 if (!file_exists(DATAROOT . 'form/submit/done.txt')) echo '<p><b>ファイル提出時の記入事項や、ファイル提出期間が登録されていない</b>ため、このままではファイル提出を受け付け出来ません。この画面から、登録を完了させて下さい。</p>';
 if (!file_exists(DATAROOT . 'examsetting.txt')) echo '<p><b>ファイル確認に関する設定をしていない</b>ため、このままではファイル提出・共通情報設定を受け付け出来ません。この画面から、登録を完了させて下さい。</p>';
 ?>
-<div class="row">
+<div class="row" style="padding:10px;">
 <a href="userform/index.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-body">

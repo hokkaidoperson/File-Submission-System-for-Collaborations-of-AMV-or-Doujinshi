@@ -1,12 +1,13 @@
 <?php
 require_once('set.php');
-session_start();
-//↓セッションハイジャック対策
-session_regenerate_id(true);
+setup_session();
+
 //ログイン済みの場合はマイページに飛ばす
 if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     redirect("./mypage/index.php");
 }
+
+csrf_prevention_validate();
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
@@ -62,7 +63,7 @@ else {
     $state = $userdata["state"];
     $nickname = $userdata["nickname"];
     if (!password_verify($_POST["password"], $userdata["pwhash"])) $invalid = TRUE;
-    if ($userdata["deleted"]) $invalid = TRUE;
+    if (isset($userdata["deleted"]) and $userdata["deleted"]) $invalid = TRUE;
 }
 
 //認証失敗の時
@@ -104,52 +105,36 @@ if (blackuser($userid)) {
 </html>');
 }
 
-//if (blackip($userdata["admin"], $state)) {
-//    die('<!DOCTYPE html>
-//<html>
-//<head>
-//<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-//<meta name="viewport" content="width=device-width,initial-scale=1">
-//<title>アクセスが制限されています</title>
-//</head>
-//<body>
-//<p>現在ご利用のアクセス元（IPアドレス）からのログイン等が制限されているため、ログイン出来ませんでした。<br>
-//あなた、もしくは同じアクセス元を利用する他の誰かが、イベントの運営を妨害するなどしたために主催者により制限されています。<br>
-//もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
-//<p>【ブロック情報】<br>
-//IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
-//リモートホスト：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
-//<p><a href="index.php">こちらをクリックするとログインページに戻ります。</a></p>
-//</body>
-//</html>');
-//}
-
+//↓セッションハイジャック対策
+session_regenerate_id(true);
 
 //認証成功　ログイン情報の格納
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    $_SESSION['userid'] = $userid;
-    $_SESSION['nickname'] = $nickname;
-    $_SESSION['email'] = $email;
-    $_SESSION['state'] = $state;
-    $_SESSION['admin'] = $userdata["admin"];
-    $_SESSION['situation'] = 'loggedin';
-    $_SESSION['expire'] = time() + (30 * 60);
-    $_SESSION['useragent'] = $browser;
-    $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
+$_SESSION['userid'] = $userid;
+$_SESSION['nickname'] = $nickname;
+$_SESSION['email'] = $email;
+$_SESSION['state'] = $state;
+$_SESSION['admin'] = $userdata["admin"];
+$_SESSION['expire'] = time() + (30 * 60);
+$_SESSION['useragent'] = $browser;
+$_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
+
+//ハッシュ化パスワードを更新するかどうか
+if (password_needs_rehash($userdata["pwhash"], PASSWORD_DEFAULT)) {
+    $userdata["pwhash"] = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    if (json_pack(DATAROOT . 'users/' . $userid . '.txt', $userdata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 }
 
 //セキュリティ通知するかどうか
 if (($userdata["lastip"] != $IP) or ($userdata["lastbr"] != $browser)) {
-  //メール本文形成
-  $date = date('Y/m/d H:i:s');
+    //メール本文形成
+    $date = date('Y/m/d H:i:s');
 
-  $content = "$nickname 様
+    $content = "$nickname 様
 
 $eventname のポータルサイトに、あなたのアカウントでログインがありました。
 
-この通知は、$eventname のポータルサイトで、あなたが最近ログインした際のIPアドレスとブラウザの組み合わせと、
-今回ログインした際のIPアドレスとブラウザの組み合わせが異なっている場合に、
-不正ログインにいち早く気付くためにお送りしているものです。
+この通知は、$eventname のポータルサイトで、ログイン時のIPアドレスとブラウザの組み合わせが
+前回と今回で異なっている場合に、不正ログインにいち早く気付くためにお送りしているものです。
 
 
 【あなた自身の操作でログインした場合】
@@ -166,27 +151,30 @@ $eventname のポータルサイトに、あなたのアカウントでログイ
 
 
 【今回のログイン情報】
-　ユーザーID　　　　　　　：$userid
+　ユーザーID　　　　　　：$userid
 
-　ログイン時のIPアドレス　：$IP
-　ログイン時のブラウザ情報：$browser
-　ログイン日時　　　　　　：$date
+　ログイン元IPアドレス　：$IP
+　（前回ログイン時　　　：{$userdata["lastip"]}）
+　ログイン元ブラウザ情報：$browser
+　（前回ログイン時　　　：{$userdata["lastbr"]}）
+
+　ログイン日時　　　　　：$date
 ";
 
-  //内部関数で送信
-  sendmail($email, 'セキュリティ通知', $content);
+    //内部関数で送信
+    sendmail($email, 'セキュリティ通知', $content);
 
-  //新しいログイン情報
-  $userdata["lastip"] = $IP;
-  $userdata["lastbr"] = $browser;
-  $userdatajson =  json_encode($userdata);
+    //新しいログイン情報
+    $userdata["lastip"] = $IP;
+    $userdata["lastbr"] = $browser;
 
-  if (file_put_contents(DATAROOT . 'users/' . $userid . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
-
+    if (json_pack(DATAROOT . 'users/' . $userid . '.txt', $userdata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 }
 
-if (isset($_POST['redirto']) and !preg_match('/^javascript:/i', $_POST['redirto'])) $redirto = $_POST['redirto'];
+if (isset($_SESSION['guest_redirto'])) $redirto = $_SESSION['guest_redirto'];
 else $redirto = 'mypage/index.php';
-$redirto = htmlspecialchars($redirto);
+
+register_alert("ログインしました。", "success");
+register_alert("当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
 
 redirect("./$redirto");

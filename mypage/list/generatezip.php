@@ -1,24 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '一括ダウンロード';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'zip_generated') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ZIPファイルの生成が完了しました。<br>
-<a href="generatezip_dld.php" target="_blank">こちらをクリックして、生成したZIPファイルをダウンロードして下さい。</a></div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c", "g"), TRUE);
 
 if ($_SESSION["state"] == 'p') echo '<h1>提出情報の一括ダウンロード</h1>
 <p>提出された作品や、参加者の情報を一括ダウンロード出来ます。</p>
@@ -90,7 +76,7 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 
 <form name="form" action="generatezip_exec.php" method="post" onSubmit="return check()">
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 オプション（任意）
 <div class="form-check">
@@ -105,20 +91,9 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">ZIPファイルを生成</button>
 </div>
-<!-- 送信中Modal -->
-<div class="modal fade" id="sendingmodal" tabindex="-1" role="dialog" aria-labelledby="sendingmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="sendingmodaltitle">ZIPファイル生成中…</h5>
-</div>
-<div class="modal-body">
-ZIPファイルを生成中です。<br>
-画面が自動的に推移するまでしばらくお待ち下さい。
-</div>
-</div>
-</div>
-</div>
+<?php
+echo_modal_wait("ZIPファイルを生成中です。<br>画面が自動的に推移するまでしばらくお待ち下さい。", "ZIPファイル生成中…");
+?>
 </form>
 <script type="text/javascript">
 <!--

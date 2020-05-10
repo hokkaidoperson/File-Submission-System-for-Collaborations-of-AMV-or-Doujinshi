@@ -1,17 +1,13 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
 if (!$_SESSION["admin"]) die('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>システム管理者</b>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
-//未入力の場合強制終了
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -46,7 +42,8 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 
 $init = array(
     "eventname" => $_POST["eventname"],
-    "maxsize" => $_POST["filesize"]
+    "maxsize" => $_POST["filesize"],
+    "robot" => $_POST["robot"]
 );
 
 $initjson =  json_encode($init);
@@ -76,5 +73,5 @@ $recdatajson =  json_encode($recdata);
 if (file_put_contents(DATAROOT . 'rec.txt', $recdatajson) === FALSE) die('reCAPTCHA関連のデータの書き込みに失敗しました。');
 
 
-$_SESSION["situation"] = "system_setting";
+register_alert("システム設定を変更しました。", "success");
 redirect("./index.php");

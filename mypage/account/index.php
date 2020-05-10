@@ -1,49 +1,13 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'アカウント情報編集';
 require_once(PAGEROOT . 'mypage_header.php');
-
-if ($_SESSION["situation"] == 'pw_changed') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-パスワードの変更が完了しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'others_changed') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-次の通り、登録情報を変更しました。<br>' . $_SESSION["situation2"] . '</div>';
-    $_SESSION["situation"] = '';
-    $_SESSION["situation2"] = '';
-}
-if ($_SESSION["situation"] == 'others_nochange') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-登録情報の変更はありませんでした。</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'state_switcher_mail') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-メールを送信しました。手続き完了までしばらくお待ち下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'state_switcher_admin_to_g') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-一般参加者に切り替えました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'state_switcher_admin_to_o') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-非参加者に切り替えました。
-</div>';
-    $_SESSION["situation"] = '';
-}
 ?>
 
 <h1>アカウント情報編集</h1>
 <p>アカウント登録時に入力した情報を変更出来ます。</p>
-<div class="row">
+<div class="row" style="padding:10px;">
 <a href="pw_unit.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-body">

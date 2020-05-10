@@ -1,13 +1,11 @@
 <?php
 require_once('../set.php');
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
-
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
 //必須の場合のパターン・文字数・一致確認
 if($_POST["password"] == "") $invalid = TRUE;
-else if(mb_strlen($_POST["password"]) > 30) $invalid = TRUE;
+else if(mb_strlen($_POST["password"]) > 72) $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
 else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 
@@ -24,7 +22,7 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 
 
 //パスワードハッシュ化
-$hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
+$hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 $userdata = json_decode(file_get_contents(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt'), true);
 $userdata["pwhash"] = $hash;
@@ -43,6 +41,9 @@ unlink($fileplace);
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="../css/bootstrap.css">
 <title>パスワード再発行完了 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>

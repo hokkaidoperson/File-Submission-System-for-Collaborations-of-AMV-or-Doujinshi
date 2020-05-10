@@ -1,10 +1,7 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
 $subject = basename($_POST["subject"]);
 
@@ -25,7 +22,7 @@ if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 if (!file_exists(DATAROOT . 'exam/' . $subject . '.txt')) die('ファイルが存在しません。');
 list($author, $id) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
@@ -180,13 +177,13 @@ sendmail(email($author), $authorsubject, $content);
 
 switch ($_POST["ans"]){
     case 1:
-        $_SESSION['situation'] = 'exam_discuss_closed_accept';
+        register_alert("結論を送信し、議論を終了しました。<br><br>承認しても問題無いという結論になったため、<b>この作品を承認しました</b>。<br>作品の提出者に承認の通知をしました。", "success");
     break;
     case 2:
-        $_SESSION['situation'] = 'exam_discuss_closed_reject_m';
+        register_alert("結論を送信し、議論を終了しました。<br><br>軽微な修正が必要であるという結論になったため、<b>この作品を修正待ち状態にしました</b>。<br>作品の提出者に、修正依頼の通知をしました。", "success");
     break;
     case 3:
-        $_SESSION['situation'] = 'exam_discuss_closed_reject';
+        register_alert("結論を送信し、議論を終了しました。<br><br>問題点が多いという結論になったため、<b>この作品を拒否しました</b>。<br>作品の提出者に拒否の通知をしました。", "success");
     break;
 }
 

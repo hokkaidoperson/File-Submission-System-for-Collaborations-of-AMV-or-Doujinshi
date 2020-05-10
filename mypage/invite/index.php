@@ -1,27 +1,8 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '招待リンク送信';
 require_once(PAGEROOT . 'mypage_header.php');
-
-if ($_SESSION["situation"] == 'invite_forceexpire') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-招待リンクをリセットしました。正しい送信先にリンクを送り直して下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'invite_sent') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-招待リンクを送信しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'invite_addco') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-手続用リンクを送信しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
 
 $accessok = 'none';
 
@@ -75,7 +56,7 @@ switch ($accessok) {
 ?></p>
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <input type="email" name="email" class="form-control" id="email" onBlur="check_individual()">
 <div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
@@ -83,48 +64,10 @@ switch ($accessok) {
 ※送信前に、入力内容の確認をお願い致します。<br>
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
-<!-- 接続エラーModal -->
-<div class="modal fade" id="neterrormodal" tabindex="-1" role="dialog" aria-labelledby="neterrormodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="neterrormodaltitle">ネットワーク・エラー</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容の検証中にエラーが発生しました。<br>
-お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn">OK</button>
-</div>
-</div>
-</div>
-</div>
-<!-- 送信確認Modal -->
-<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="confirmmodaltitle">送信確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力したメールアドレス宛てに招待リンクを送信します。<br>
-よろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<button type="button" class="btn btn-primary" id="submitbtn" onClick="submittohandle();">送信する</button>
-</div>
-</div>
-</div>
-</div>
+<?php
+echo_modal_alert("入力内容の検証中にエラーが発生しました。<br>お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。", "ネットワーク・エラー", null, null, "neterrormodal", "dismissbtn");
+echo_modal_confirm("入力したメールアドレス宛てに招待リンクを送信します。<br>よろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。");
+?>
 </form>
 <script type="text/javascript">
 <!--
@@ -138,16 +81,25 @@ function check_individual() {
         valid = 0;
         document.getElementById("email-errortext").innerHTML = "正しく入力されていません。入力されたメールアドレスをご確認下さい。メールアドレスは間違っていませんか？";
     } else {
-        fetch('../fnc/api_emailduplication.php?skipmyself=0&email=' + document.form.email.value)
+        const obj = {email: document.form.email.value, csrf_prevention_token: "<?php echo csrf_prevention_token(); ?>"};
+        const method = "POST";
+        const body = Object.keys(obj).map((key)=>key+"="+encodeURIComponent(obj[key])).join("&");
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        };
+        fetch('../fnc/api_emailduplication.php', {method, headers, body})
         .then((response) => {
             if(response.ok) {
                 return response.json();
             } else {
-                throw new Error();
+                throw new Error("Stopped because of a network error");
             }
         })
         .then((result) => {
-            if (result.emailresult == 0) {
+            if (result.auth_status == "NG") {
+                throw new Error("Stopped because of an API error - response: " + result.error_detail);
+            } else if (result.emailresult == 0) {
                 document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。";
                 document.form.email.classList.add("is-invalid");
                 document.form.email.classList.remove("is-valid");
@@ -178,7 +130,14 @@ function check(){
         valid = 0;
         document.getElementById("email-errortext").innerHTML = "正しく入力されていません。入力されたメールアドレスをご確認下さい。メールアドレスは間違っていませんか？";
     } else {
-        fetch('../fnc/api_emailduplication.php?skipmyself=0&email=' + document.form.email.value)
+        const obj = {email: document.form.email.value, csrf_prevention_token: "<?php echo csrf_prevention_token(); ?>"};
+        const method = "POST";
+        const body = Object.keys(obj).map((key)=>key+"="+encodeURIComponent(obj[key])).join("&");
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        };
+        fetch('../fnc/api_emailduplication.php', {method, headers, body})
         .then((response) => {
             if(response.ok) {
                 return response.json();
@@ -187,7 +146,7 @@ function check(){
                 $('#neterrormodal').on('shown.bs.modal', function () {
                     document.getElementById("dismissbtn").focus();
                 });
-                throw new Error();
+                throw new Error("Stopped because of a network error");
             }
         })
         .catch((error) => {
@@ -195,10 +154,12 @@ function check(){
             $('#neterrormodal').on('shown.bs.modal', function () {
                 document.getElementById("dismissbtn").focus();
             });
-            throw new Error();
+            throw new Error("Stopped because of a network error");
         })
         .then((result) => {
-            if (result.emailresult == 0) {
+            if (result.auth_status == "NG") {
+                throw new Error("Stopped because of an API error - response: " + result.error_detail);
+            } else if (result.emailresult == 0) {
                 document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。";
                 document.form.email.classList.add("is-invalid");
                 document.form.email.classList.remove("is-valid");
@@ -221,12 +182,6 @@ function check(){
     }
     return false;
 
-}
-
-function submittohandle() {
-    submitbtn = document.getElementById("submitbtn");
-    submitbtn.disabled = "disabled";
-    document.form.submit();
 }
 
 

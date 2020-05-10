@@ -1,7 +1,12 @@
 <?php
 require_once('../set.php');
+setup_session();
+//ログイン済みの場合はマイページに飛ばす
+if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
+    redirect("../mypage/index.php");
+}
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
@@ -137,6 +142,9 @@ sendmail($email, 'パスワード再発行用URL', $content);
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="../css/bootstrap.css">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>

@@ -1,263 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '提出作品・情報の確認・承認';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'exam_submitted') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br>
-他のメンバーが確認を終えるまでしばらくお待ち願います。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_submitted_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの作品の確認を終えました。<br>
-承認しても問題無いという意見で一致したため、<b>この作品を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_submitted_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの作品の確認を終えました。<br>
-メンバー間で意見が分かれたため、<b>この作品の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_submitted_reject_m') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの作品の確認を終えました。<br>
-軽微な修正が必要であるという意見で一致したため、<b>この作品を修正待ち状態にしました</b>。<br>
-作品の提出者に、修正依頼の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_submitted_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの作品の確認を終えました。<br>
-内容上問題があるという意見で一致したため、<b>この作品を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_forceclose_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-承認しても問題無いという意見で一致したため、<b>この作品を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_forceclose_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-メンバー間で意見が分かれたため、<b>この作品の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_forceclose_reject_m') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-軽微な修正が必要であるという意見で一致したため、<b>この作品を修正待ち状態にしました</b>。<br>
-作品の提出者に、修正依頼の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_forceclose_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-内容上問題があるという意見で一致したため、<b>この作品を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_discuss_closed_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-承認しても問題無いという結論になったため、<b>この作品を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_discuss_closed_reject_m') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-軽微な修正が必要であるという結論になったため、<b>この作品を修正待ち状態にしました</b>。<br>
-作品の提出者に、修正依頼の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_discuss_closed_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-内容上問題があるという結論になったため、<b>この作品を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-//--------------------------------------
-if ($_SESSION["situation"] == 'exam_edit_submitted_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの変更の確認を終えました。<br>
-承認しても問題無いという意見で一致したため、<b>この変更を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_submitted_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの変更の確認を終えました。<br>
-メンバー間で意見が分かれたため、<b>この変更の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_submitted_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーがこの変更の確認を終えました。<br>
-問題があるという意見で一致したため、<b>この変更を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_forceclose_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-承認しても問題無いという意見で一致したため、<b>この変更を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_forceclose_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-メンバー間で意見が分かれたため、<b>この変更の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_forceclose_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-問題があるという意見で一致したため、<b>この変更を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_discuss_closed_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-承認しても問題無いという結論になったため、<b>この変更を承認しました</b>。<br>
-作品の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_edit_discuss_closed_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-問題があるという結論になったため、<b>この変更を拒否しました</b>。<br>
-作品の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-//-----------------------------------
-if ($_SESSION["situation"] == 'exam_common_submitted_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーが共通情報の確認を終えました。<br>
-承認しても問題無いという意見で一致したため、<b>この内容を承認しました</b>。<br>
-情報の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_submitted_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーが共通情報の確認を終えました。<br>
-メンバー間で意見が分かれたため、<b>この内容の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_submitted_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-確認結果を送信しました。<br><br>
-全てのメンバーが共通情報の確認を終えました。<br>
-問題があるという意見で一致したため、<b>この内容を拒否しました</b>。<br>
-情報の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_forceclose_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-承認しても問題無いという意見で一致したため、<b>この共通情報を承認しました</b>。<br>
-情報の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_forceclose_discuss') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-メンバー間で意見が分かれたため、<b>この共通情報の承認・拒否について議論する必要があります</b>。<br>
-以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_forceclose_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-投票を強制的に締め切りました。<br><br>
-既に投票されていたデータを集計しました。<br>
-問題があるという意見で一致したため、<b>この共通情報を拒否しました</b>。<br>
-情報の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_discuss_closed_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-承認しても問題無いという結論になったため、<b>この共通情報を承認しました</b>。<br>
-情報の提出者に承認の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'exam_common_discuss_closed_reject') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-結論を送信し、議論を終了しました。<br><br>
-問題があるという結論になったため、<b>この共通情報を拒否しました</b>。<br>
-情報の提出者に拒否の通知をしました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//主催・共同運営
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>、<b>共同運営者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c"), TRUE);
 
 if (!file_exists(DATAROOT . 'examsetting.txt')) die_mypage('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、ファイル確認が出来ません。<br>
@@ -343,10 +90,10 @@ foreach ($examlist["p"] as $authorandid => $data) {
     list($author, $submitid, $edit) = explode('_', $authorandid);
     $nickname = nickname($author);
     echo "<tr>\n";
-    echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+    echo "<td>" . hsc($nickname) . "</td>";
+    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . hsc($data["title"]) . '</a></td>';
+    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . hsc($data["title"]) . '</a></td>';
+    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . hsc($data["title"]) . '</a></td>';
     if ($edit == 'new') echo "<td>新規提出</td>";
     else echo "<td>編集（" . date('Y年n月j日G時i分s秒', $edit) . "）</td>";
     echo "</tr>\n";
@@ -366,10 +113,10 @@ foreach ($examlist["d"] as $authorandid => $data) {
     list($author, $submitid, $edit) = explode('_', $authorandid);
     $nickname = nickname($author);
     echo "<tr>\n";
-    echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($submitid === 'common') echo '<td><a href="discuss_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else if ($edit == 'new') echo '<td><a href="discuss.php?author=' . $author . '&id=' . $submitid . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else echo '<td><a href="discuss_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+    echo "<td>" . hsc($nickname) . "</td>";
+    if ($submitid === 'common') echo '<td><a href="discuss_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . hsc($data["title"]) . '</a></td>';
+    else if ($edit == 'new') echo '<td><a href="discuss.php?author=' . $author . '&id=' . $submitid . '">' . hsc($data["title"]) . '</a></td>';
+    else echo '<td><a href="discuss_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . hsc($data["title"]) . '</a></td>';
     if ($edit == 'new') echo "<td>新規提出</td>";
     else echo "<td>編集（" . date('Y年n月j日G時i分s秒', $edit) . "）</td>";
     echo "</tr>\n";
@@ -392,10 +139,10 @@ foreach ($examlist["a"] as $authorandid => $data) {
     list($author, $submitid, $edit) = explode('_', $authorandid);
     $nickname = nickname($author);
     echo "<tr>\n";
-    echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+    echo "<td>" . hsc($nickname) . "</td>";
+    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . hsc($data["title"]) . '</a></td>';
+    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . hsc($data["title"]) . '</a></td>';
+    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . hsc($data["title"]) . '</a></td>';
     if ($edit == 'new') echo "<td>新規提出</td>";
     else echo "<td>編集（" . date('Y年n月j日G時i分s秒', $edit) . "）</td>";
     echo "</tr>\n";
@@ -418,10 +165,10 @@ foreach ($examlist["c"] as $authorandid => $data) {
     list($author, $submitid, $edit) = explode('_', $authorandid);
     $nickname = nickname($author);
     echo "<tr>\n";
-    echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+    echo "<td>" . hsc($nickname) . "</td>";
+    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . hsc($data["title"]) . '</a></td>';
+    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . hsc($data["title"]) . '</a></td>';
+    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . hsc($data["title"]) . '</a></td>';
     if ($edit == 'new') echo "<td>新規提出</td>";
     else echo "<td>編集（" . date('Y年n月j日G時i分s秒', $edit) . "）</td>";
     echo "</tr>\n";
@@ -444,10 +191,10 @@ foreach ($examlist["n"] as $authorandid => $data) {
     list($author, $submitid, $edit) = explode('_', $authorandid);
     $nickname = nickname($author);
     echo "<tr>\n";
-    echo "<td>" . htmlspecialchars($nickname) . "</td>";
-    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . htmlspecialchars($data["title"]) . '</a></td>';
-    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+    echo "<td>" . hsc($nickname) . "</td>";
+    if ($submitid === 'common') echo '<td><a href="do_common.php?author=' . $author . '&edit=' . $data["id"] . '">' . hsc($data["title"]) . '</a></td>';
+    else if ($edit == 'new') echo '<td><a href="do.php?author=' . $author . '&id=' . $submitid . '">' . hsc($data["title"]) . '</a></td>';
+    else echo '<td><a href="do_edit.php?author=' . $author . '&id=' . $submitid . '&edit=' . $edit . '">' . hsc($data["title"]) . '</a></td>';
     if ($edit == 'new') echo "<td>新規提出</td>";
     else echo "<td>編集（" . date('Y年n月j日G時i分s秒', $edit) . "）</td>";
     echo "</tr>\n";

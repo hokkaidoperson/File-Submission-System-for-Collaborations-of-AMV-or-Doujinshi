@@ -4,75 +4,7 @@
 //スクリプト内からの呼び出しでなければ終了
 if (!defined('DATAROOT')) die();
 
-//ログインしてない場合はログインページへ
-$currenturl = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
-$redirtopass = str_replace($siteurl, '', $currenturl);
-$redirtopass = urlencode($redirtopass);
-
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect($siteurl . "index.php?redirto=$redirtopass");
-}
-
-//ブロックされてたら強制ログアウト
-if (blackuser($_SESSION['userid'])) {
-    redirect($siteurl . "mypage/logout.php");
-}
-
-//セッション切れ起こしてない？
-if ($_SESSION['expire'] <= time()) {
-    //ログアウト処理
-    //情報をリセット
-    $_SESSION = array();
-
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
-
-    session_destroy();
-
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="10; URL=\'' . $siteurl . 'index.php?redirto=' . $redirtopass . '\'" />
-<title>セッション・エラー（タイムアウト）</title>
-</head>
-<body>
-<p>しばらくの間アクセスが無かったため、セキュリティの観点から接続を中断しました。<br>
-再度ログインして下さい。</p>
-<p>10秒後にログインページに自動的に移動します。<br>
-<a href="' . $siteurl . 'index.php?redirto=' . $redirtopass . '">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
-</body>
-</html>');
-} else $_SESSION['expire'] = time() + (30 * 60);
-
-//ブラウザがなぜか変わってたりしない？（セッションハイジャック？）
-if ($_SESSION['useragent'] != $_SERVER['HTTP_USER_AGENT']) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ユーザーエージェント認証失敗</title>
-</head>
-<body>
-<p>ログイン時のユーザーエージェントと異なるため、接続出来ません。<br>
-不正ログインしようとした可能性があります（セッション・ハイジャック　など）。</p>
-</body>
-</html>');
-}
-
-//ログイン情報更新
-$refresh_userdata = id_array($_SESSION["userid"]);
-$_SESSION['nickname'] = $refresh_userdata["nickname"];
-$_SESSION['email'] = $refresh_userdata["email"];
-$_SESSION['state'] = $refresh_userdata["state"];
-
+session_validation(TRUE);
 ?>
 
 <!DOCTYPE html>
@@ -80,6 +12,9 @@ $_SESSION['state'] = $refresh_userdata["state"];
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css">
 <title><?php
 if (isset($titlepart)) echo $titlepart . ' - ';
@@ -121,7 +56,8 @@ var val = getCookie('check_cookie');
 
 <div id="scriptok" style="display:none;">
 <nav class="navbar navbar-light bg-light">
-<a class="navbar-brand" href="<?php echo $siteurl; ?>mypage/index.php"><?php echo $eventname; ?></a>
+<a class="navbar-brand text-truncate" href="<?php echo $siteurl; ?>mypage/index.php"><?php echo $eventname; ?></a>
+<div class="d-flex flex-row-reverse">
 <div class="dropdown">
 <button type="button" id="dropdownMenuButton"
 class="btn btn-primary dropdown-toggle"
@@ -167,15 +103,11 @@ if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0r
 <a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/logout.php"><img src="<?php echo $siteurl; ?>images/logout.svg" style="width: 1em; height: 1em;"> ログアウト</a>
 </div>
 </div>
+<ul class="navbar-nav mr-3">
+<li><a class="nav-link" href='<?php echo $siteurl; ?>open/index.php' target="_blank"><img src="<?php echo $siteurl; ?>images/question.svg" style="width: 1em; height: 1em;"> ヘルプ</a></li>
+</ul>
+</div>
 </nav>
 <div class="container">
 <?php
-if ($_SESSION["situation"] == 'loggedin') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ログインしました。
-</div>';
-    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>
-特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。</div>';
-    $_SESSION["situation"] = '';
-}
+output_alert();

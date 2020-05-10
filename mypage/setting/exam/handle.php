@@ -1,19 +1,11 @@
 <?php
 require_once('../../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
+if (no_access_right(array("p"))) redirect("./index.php");
 
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
-
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -81,6 +73,6 @@ if (file_put_contents($fileplace, $savedata) === FALSE) die('設定内容の書�
 exam_totalization_new("_all", FALSE);
 exam_totalization_edit("_all", FALSE);
 
-$_SESSION['situation'] = 'examsetting_applied';
+register_alert("ファイル確認に関する設定変更が完了しました。", "success");
 
 redirect("../../index.php");

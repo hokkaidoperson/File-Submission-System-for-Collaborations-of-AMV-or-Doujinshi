@@ -1,6 +1,6 @@
 <?php
 require_once('set.php');
-session_start();
+setup_session();
 //ログイン済みの場合はマイページに飛ばす
 if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     redirect("./mypage/index.php");
@@ -12,10 +12,6 @@ $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
 $userec = FALSE;
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) $userec = TRUE;
 
-if (isset($_GET['redirto'])) {
-    if (!preg_match('/^javascript:/i', $_GET['redirto'])) $redirto = $_GET['redirto'];
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +19,9 @@ if (isset($_GET['redirto'])) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="css/bootstrap.css">
 <title><?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
@@ -125,7 +124,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
-<body>
+<body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
@@ -135,7 +134,8 @@ var val = getCookie('check_cookie');
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1><?php echo $eventname; ?>　ファイル提出用ポータルサイト</h1>
-<?php if (isset($redirto)) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<p class="text-right"><a href='open/index.php' target="_blank"><img src="images/question.svg" style="width: 1em; height: 1em;"> ヘルプ</a></p>
+<?php if (isset($_SESSION['guest_redirto']) and $_SESSION['guest_redirto'] != "") echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 このページの利用にはログインが必要です。
 </div>'; ?>
 <div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
@@ -144,7 +144,9 @@ var val = getCookie('check_cookie');
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <h2>ログイン</h2>
 <form name="form" action="login.php" method="post" onSubmit="return check()">
-<?php if (isset($redirto)) echo '<input type="hidden" name="redirto" value="' . $redirto . '">'; ?>
+<?php
+csrf_prevention_in_form();
+?>
 <div class="form-group">
 <label for="userid">ユーザーID</label>
 <input type="text" name="userid" class="form-control" id="userid" autofocus onBlur="check_individual(&quot;userid&quot;);">
@@ -169,9 +171,9 @@ else echo '<button type="submit" class="btn btn-primary">ログイン</button>';
 <a href='register/general/index.php'>ポータルサイトに未登録の参加者はこちらから登録して下さい。</a>
 </div>
 <div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<?php echo $eventname; ?>では、<a href='https://www.hkdyukkuri.space/filesystem/' target="_blank">MAD合作・合同誌向けファイル提出システム</a>を利用しています。<br>
-また、本システムでは、ウェブデザインの調整に<a href="https://getbootstrap.jp/" target="_blank">Bootstrap4</a>を利用しています。<br>
-システム内のアイコンには<a href="https://icooon-mono.com/" target="_blank">icooon-mono</a>による素材を利用しています。
+<?php echo $eventname; ?>では、<a href='https://www.hkdyukkuri.space/filesystem/' target="_blank" rel="noopener">MAD合作・合同誌向けファイル提出システム</a>を利用しています。<br>
+また、本システムでは、ウェブデザインの調整に<a href="https://getbootstrap.jp/" target="_blank" rel="noopener">Bootstrap4</a>を利用しています。<br>
+システム内のアイコンには<a href="https://icooon-mono.com/" target="_blank" rel="noopener">icooon-mono</a>による素材を利用しています。
 </div>
 <div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 バージョン情報：<?php echo VERSION; ?>

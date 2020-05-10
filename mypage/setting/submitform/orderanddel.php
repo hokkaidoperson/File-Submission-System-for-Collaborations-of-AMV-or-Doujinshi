@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル提出画面 項目の並べ替え・削除';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 
 if (!isset($_SESSION["submitformdata"])) die_mypage('<h1>エラーが発生しました</h1>
@@ -21,7 +14,7 @@ if (!isset($_SESSION["submitformdata"])) die_mypage('<h1>エラーが発生し�
 
 <h1>項目の並べ替え・削除</h1>
 <p>項目の傍にある「↑」・「↓」ボタンを押すと、当該項目が上もしくは下に移動します。また、項目の右端にある「削除」ボタンを押すと、当該項目が削除されます。<br>
-最後に、「決定」ボタンを押して、変更内容を確定して下さい。
+最後に、「決定」ボタンを押して、変更内容を確定して下さい。<br>
 項目を誤って削除してしまった場合などには、「変更内容を保存しないで戻る」ボタンを押すと、設定内容が元に戻ります。<br>
 「提出ファイル」「タイトル」は変更出来ません。</p>
 <div class="table-responsive-md">
@@ -48,7 +41,7 @@ for ($i = 0; $i <= 9; $i++) {
     } else {
         echo '<td><a href="orderanddel_handle.php?number=' . "$i" . '&do=up" class="btn btn-light" role="button">↑</a></td><td><a href="orderanddel_handle.php?number=' . "$i" . '&do=down" class="btn btn-light" role="button">↓</a></td>';
     }
-    echo '<td>' . htmlspecialchars($_SESSION["submitformdata"][$i]["title"]) . '</td>';
+    echo '<td>' . hsc($_SESSION["submitformdata"][$i]["title"]) . '</td>';
     switch ($_SESSION["submitformdata"][$i]["type"]) {
         case 'textbox':
             echo "<td>テキストボックス</td>";

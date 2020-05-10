@@ -1,24 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = '共通情報入力画面の編集';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'userform_saved') {
-    echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 if (!file_exists(DATAROOT . 'form/userinfo/')) {
     if (!mkdir(DATAROOT . 'form/userinfo/', 0777, true)) die_mypage('ディレクトリの作成に失敗しました。');
@@ -119,7 +105,7 @@ for ($i = 0; $i <= 10; $i++) {
         break;
     }
     echo "<tr>\n";
-    echo '<td><a href="' . $_SESSION["userformdata"][$i]["type"] . '.php?number=' . "$i" . '">' . htmlspecialchars($_SESSION["userformdata"][$i]["title"]) . '</a></td>';
+    echo '<td><a href="' . $_SESSION["userformdata"][$i]["type"] . '.php?number=' . "$i" . '">' . hsc($_SESSION["userformdata"][$i]["title"]) . '</a></td>';
     switch ($_SESSION["userformdata"][$i]["type"]) {
         case 'textbox':
             echo "<td>テキストボックス</td>";

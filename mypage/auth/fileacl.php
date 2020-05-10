@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '共同運営者の他者ファイル閲覧権限';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 ?>
 
@@ -26,7 +19,7 @@ if ($choices == array()) die_mypage('<div class="border border-danger" style="pa
 
 echo '<ul>';
 foreach ($choices as $choice) {
-    $disp = htmlspecialchars(nickname($choice));
+    $disp = hsc(nickname($choice));
     echo '<li>';
     echo '<a href="fileacl_selector.php?userid=' . $choice . '">' . $disp . '</a>';
     echo '</li>';

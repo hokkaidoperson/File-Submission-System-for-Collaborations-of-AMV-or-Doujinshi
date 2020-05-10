@@ -1,22 +1,14 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt')) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 if (!file_exists(DATAROOT . 'mail_schedule/')) {
     if (!mkdir(DATAROOT . 'mail_schedule/')) die_mypage('ディレクトリの作成に失敗しました。');
@@ -57,6 +49,6 @@ foreach ($roop as $value) {
 }
 
 
-$_SESSION['situation'] = 'schedule_saved';
+register_alert("自動配信設定を保存しました。", "success");
 
 redirect("./index.php");

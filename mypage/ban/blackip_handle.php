@@ -1,25 +1,17 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 $blplace = DATAROOT . 'blackip.txt';
 
 if (file_put_contents($blplace, $_POST["setting"]) === FALSE) die('リストデータの書き込みに失敗しました。');
 
-$_SESSION['situation'] = 'ban_ip';
+register_alert("アカウント作成制限の設定を変更しました。", "success");
 
 redirect("./index.php");

@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '共同運営者の追加';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 //有効期限切れのリンクを整理
 foreach (glob(DATAROOT . 'mail/co_add/*.txt') as $filename) {
@@ -30,7 +23,7 @@ foreach (glob(DATAROOT . 'mail/co_add/*.txt') as $filename) {
 <p>手続きが完了するまでは、その方は引き続き一般参加者もしくは非参加者のままです。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
 <form name="form" action="selector_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
@@ -51,7 +44,7 @@ foreach ($canshow as $author => $array) {
     echo '</div>';
     echo '</td>';
     echo '<td>';
-    echo htmlspecialchars($nickname);
+    echo hsc($nickname);
     echo '</td>';
 
     switch ($array["state"]) {

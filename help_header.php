@@ -1,0 +1,60 @@
+<?php
+//※必ず、help_footer.phpとセットで読み込む
+
+//スクリプト内からの呼び出しでなければ終了
+if (!defined('DATAROOT')) die();
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css">
+<title><?php
+if (isset($titlepart)) echo $titlepart . ' - ';
+echo 'ヘルプ - ' . $eventname;
+?>　ファイル提出用ポータルサイト</title>
+</head>
+<script type="text/javascript">
+<!--
+//Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
+var setCookie = function(cookieName, value){
+  var cookie = cookieName + "=" + value + ";";
+  document.cookie = cookie;
+}
+
+var getCookie = function(cookieName){
+  var l = cookieName.length + 1 ;
+  var cookieAry = document.cookie.split("; ") ;
+  var str = "" ;
+  for(i=0; i < cookieAry.length; i++){
+    if(cookieAry[i].substr(0, l) === cookieName + "="){
+      str = cookieAry[i].substr(l, cookieAry[i].length) ;
+      break ;
+    }
+  }
+  return str;
+}
+
+setCookie('check_cookie', true);
+var val = getCookie('check_cookie');
+
+// -->
+</script>
+<body>
+<div id="noscript">
+<p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
+ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+</div>
+<script>if (val) document.getElementById("noscript").style.display = "none";</script>
+
+<div id="scriptok" style="display:none;">
+<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+<a class="navbar-brand text-truncate" href="<?php echo $siteurl; ?>open/index.php"><img src="<?php echo $siteurl; ?>images/question.svg" style="width: 1em; height: 1em;"> ヘルプ機能（<?php echo $eventname; ?>）</a>
+</nav>
+<div class="container">

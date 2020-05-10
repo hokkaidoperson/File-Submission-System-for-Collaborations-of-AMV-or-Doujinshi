@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'データ詳細';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c", "g"), TRUE);
 
 //ファイル提出者のユーザーID
 $author = basename($_GET["author"]);
@@ -103,22 +96,22 @@ if ($id != "userform") {
 if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
     echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
     foreach ($formdata["submit"] as $filename => $title)
-    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
     echo '</td></tr>';
 } else {
     echo '<tr>
-<th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . htmlspecialchars($formdata["url"]) . '" target="_blank">クリックすると新しいウィンドウで開きます</a>';
-    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . htmlspecialchars($formdata["dldpw"]) . '</code></font>';
+<th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
+    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></font>';
     if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
     echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
     echo '</td></tr>';
 }
 ?>
 <tr>
-<th>提出者</th><td><?php echo htmlspecialchars(nickname($author)); ?></td>
+<th>提出者</th><td><?php echo hsc(nickname($author)); ?></td>
 </tr>
 <tr>
-<th>タイトル</th><td><?php echo htmlspecialchars($formdata["title"]); ?></td>
+<th>タイトル</th><td><?php echo hsc($formdata["title"]); ?></td>
 </tr>
 <tr>
 <th>提出日時</th><td><?php echo date('Y年n月j日G時i分s秒', $id); ?></td>
@@ -127,26 +120,40 @@ if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
 <th>最終更新日時</th><td><?php if (isset($formdata["editdate"])) echo date('Y年n月j日G時i分s秒', $formdata["editdate"]); else echo date('Y年n月j日G時i分s秒', $id); ?></td>
 </tr>
 <?php
+if (isset($formdata["author_ip"]) and $_SESSION["state"] == 'p') {
+    echo '<tr><th>最終更新時のIPアドレス／リモートホスト名（主催者にのみ表示されています）</th><td>';
+    echo $formdata["author_ip"] . "／";
+    $remotesearch = gethostbyaddr($formdata["author_ip"]);
+    if ($formdata["author_ip"] !== $remotesearch) echo $remotesearch;
+    else echo '（リモートホスト名の検索に失敗しました）';
+    echo '</td></tr>';
+}
+
 foreach ($formsetting as $key => $array) {
     if ($key === "general") continue;
     echo "<tr>\n";
-    echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
+    echo "<th>" . hsc($array["title"]) . "</th>";
     echo "<td>";
+    if (!isset($formdata[$array["id"]])) {
+        echo '</td>';
+        echo "</tr>\n";
+        continue;
+    }
     if ($array["type"] == "attach") {
-        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+        if ($formdata[$array["id"]] != array()) {
             echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
             foreach ($formdata[$array["id"]] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
         }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
-        $dsp = htmlspecialchars($dsp);
+        $dsp = hsc($dsp);
         echo str_replace("\n", '<br>', $dsp);
     } else if ($array["type"] == "textbox2") {
-        echo htmlspecialchars($formdata[$array["id"] . "-1"]);
+        echo hsc($formdata[$array["id"] . "-1"]);
         echo '<br>';
-        echo htmlspecialchars($formdata[$array["id"] . "-2"]);
+        echo hsc($formdata[$array["id"] . "-2"]);
     } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";
@@ -174,28 +181,51 @@ echo "</tr>";
 
 ?>
 <tr>
-<th width="30%">ニックネーム</th><td width="70%"><?php echo htmlspecialchars(nickname($author)); ?></td>
+<th width="30%">ニックネーム</th><td width="70%"><?php echo hsc(nickname($author)); ?></td>
 </tr>
 <?php
+if (isset($formdata["createip"]) and $_SESSION["state"] == 'p') {
+    echo '<tr><th>アカウント作成時のIPアドレス／リモートホスト名（主催者にのみ表示されています）</th><td>';
+    echo $formdata["createip"] . "／";
+    $remotesearch = gethostbyaddr($formdata["createip"]);
+    if ($formdata["createip"] !== $remotesearch) echo $remotesearch;
+    else echo '（リモートホスト名の検索に失敗しました）';
+    echo '</td></tr>';
+}
+
+if (isset($formdata["common_ip"]) and $_SESSION["state"] == 'p') {
+    echo '<tr><th>共通情報の最終更新時のIPアドレス／リモートホスト名（主催者にのみ表示されています）</th><td>';
+    echo $formdata["common_ip"] . "／";
+    $remotesearch = gethostbyaddr($formdata["common_ip"]);
+    if ($formdata["common_ip"] !== $remotesearch) echo $remotesearch;
+    else echo '（リモートホスト名の検索に失敗しました）';
+    echo '</td></tr>';
+}
+
 foreach ($userformdata as $key => $array) {
     echo "<tr>\n";
-    echo "<th>" . htmlspecialchars($array["title"]) . "</th>";
+    echo "<th>" . hsc($array["title"]) . "</th>";
     echo "<td>";
+    if (!isset($formdata[$array["id"]])) {
+        echo '</td>';
+        echo "</tr>\n";
+        continue;
+    }
     if ($array["type"] == "attach") {
-        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
+        if ($formdata[$array["id"]] != array()) {
             echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
             foreach ($formdata[$array["id"]] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=userform&id=' . $array["id"] . '_' . $filename . '" target="_blank">' . htmlspecialchars($title) . '</a><br>';
+            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=userform&id=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
         }
     }
     else if ($array["type"] == "check") {
         $dsp = implode("\n", $formdata[$array["id"]]);
-        $dsp = htmlspecialchars($dsp);
+        $dsp = hsc($dsp);
         echo str_replace("\n", '<br>', $dsp);
     } else if ($array["type"] == "textbox2") {
-        echo htmlspecialchars($formdata[$array["id"] . "-1"]);
+        echo hsc($formdata[$array["id"] . "-1"]);
         echo '<br>';
-        echo htmlspecialchars($formdata[$array["id"] . "-2"]);
+        echo hsc($formdata[$array["id"] . "-2"]);
     } else echo give_br_tag($formdata[$array["id"]]);
     echo '</td>';
     echo "</tr>\n";

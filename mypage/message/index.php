@@ -1,21 +1,8 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'メッセージ機能';
 require_once(PAGEROOT . 'mypage_header.php');
-
-if ($_SESSION["situation"] == 'message_sent') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-メッセージを送信しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'message_deleted') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-メッセージを削除しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
 
 //受信BOX
 $inbox = array();
@@ -64,7 +51,7 @@ if ($_SESSION["admin"] and $_SESSION["state"] != 'p') echo '<p><a href="write_si
 <?php
 foreach ($inbox as $id => $array) {
     list($from, $time) = explode('_', $id);
-    $namepart = htmlspecialchars(nickname($from));
+    $namepart = hsc(nickname($from));
     if (blackuser($from)) $namepart .= '<span class="text-danger">（凍結ユーザー）</span>';
     if (state($from) == "p") $namepart .= ' <span class="badge badge-success text-wrap">
 主催者
@@ -79,8 +66,8 @@ foreach ($inbox as $id => $array) {
     else echo "<tr>\n";
     echo "<td>" . $namepart . "</td>";
     echo "<td>" . date('Y年n月j日G時i分s秒', $time) . "</td>";
-    if ($array[$_SESSION["userid"]] == "0") echo '<td><a href="read.php?name=' . $id .'" class="text-danger">' . htmlspecialchars($array["_subject"]) . '</a></td>';
-    else echo '<td><a href="read.php?name=' . $id .'">' . htmlspecialchars($array["_subject"]) . '</a></td>';
+    if ($array[$_SESSION["userid"]] == "0") echo '<td><a href="read.php?name=' . $id .'" class="text-danger">' . hsc($array["_subject"]) . '</a></td>';
+    else echo '<td><a href="read.php?name=' . $id .'">' . hsc($array["_subject"]) . '</a></td>';
     echo "</tr>\n";
 }
 if ($inbox == array()) echo '<tr><td colspan="3">現在、表示出来るメッセージはありません。</td></tr>';
@@ -110,7 +97,7 @@ foreach ($outbox as $id => $array) {
         if ($i > 2) {
             $tonickname[$i] = '他' . count($to) - 3 . '名';
         }
-        $tonickname[$i] = htmlspecialchars(nickname($userid));
+        $tonickname[$i] = hsc(nickname($userid));
         if (blackuser($userid)) $tonickname[$i] .= '<span class="text-danger">（凍結ユーザー）</span>';
         if (state($userid) == "p") $tonickname[$i] .= ' <span class="badge badge-success text-wrap">
 主催者
@@ -126,7 +113,7 @@ foreach ($outbox as $id => $array) {
     echo "<tr>\n";
     echo "<td>" . implode("<br>", $tonickname) . "</td>";
     echo "<td>" . date('Y年n月j日G時i分s秒', $time) . "</td>";
-    echo '<td><a href="read.php?name=' . $id .'">' . htmlspecialchars($array["_subject"]) . '</a></td>';
+    echo '<td><a href="read.php?name=' . $id .'">' . hsc($array["_subject"]) . '</a></td>';
     echo "</tr>\n";
 }
 if ($outbox == array()) echo '<tr><td colspan="3">現在、表示出来るメッセージはありません。</td></tr>';

@@ -1,24 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '受付開始・締切メールの自動配信';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'schedule_saved') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-自動配信設定を保存しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt')) die_mypage('<h1>設定エラー</h1>
 <p>この機能を利用する前に、まず「イベント情報編集」から、提出期間などの設定を行って下さい。</p>
@@ -66,7 +52,7 @@ $current = time();
 実行するPHPファイル：<code><?php echo PAGEROOT; ?>mail_scheduler.php</code>
 </div>
 <form name="form" action="handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <?php
 foreach ($roop as $key => $value) {

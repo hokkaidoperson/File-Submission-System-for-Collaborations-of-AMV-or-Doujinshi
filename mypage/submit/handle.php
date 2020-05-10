@@ -1,20 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>
-');
+if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、ファイル提出を受け付け出来ません。<br>
@@ -23,7 +12,7 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . '
 ');
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 $IP = getenv("REMOTE_ADDR");
 
@@ -42,6 +31,11 @@ if ($_SESSION["state"] == 'p') $outofterm = TRUE;
 
 if ($submitformdata["general"]["from"] > time() and !$outofterm) die_mypage('提出期間外です。');
 else if ($submitformdata["general"]["until"] <= time() and !$outofterm) die_mypage('提出期間外です。');
+if (isset($submitformdata["general"]["worknumber"]) and $submitformdata["general"]["worknumber"] != "") {
+    $myworks = count_works();
+    $submitleft = (int)$submitformdata["general"]["worknumber"] - $myworks;
+    if ($submitleft <= 0) die_mypage('提出可能な作品数の上限に達しています。');
+}
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -101,7 +95,8 @@ $userfile = $id . '.txt';
 $userdata = array(
     "title" => $_POST["title"],
     "exam" => 0,
-    "editing" => 0
+    "editing" => 0,
+    "author_ip" => $IP
 );
 
 //メインのファイルを保存
@@ -175,7 +170,7 @@ foreach ($submitformdata as $array) {
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
 $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$exammember = array("_state" => 0);
+$exammember = array("_state" => 0, "_ip" => $IP);
 $autoaccept = TRUE;
 foreach ($submitmem as $key) {
     if ($key == "_promoter") $key = id_promoter();
@@ -202,10 +197,11 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
 下記のURLからファイルをダウンロードし、作品内容を確認して下さい。
 
 　ファイル内容確認ページ：$pageurl
-　提出元IPアドレス　　　：$IP
 
-※万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が同じIPアドレスから行われる場合、
-　主催者の判断で該当IPアドレスからのアクセス制限を行う事が可能です。
+※提出元のIPアドレス・リモートホスト名は、上記ページもしくは作品詳細画面から、主催者のみ
+　閲覧可能です。万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が
+　同じIPアドレスや似たリモートホスト名から行われる場合、主催者の判断で該当IPアドレス・
+　リモートホスト名からのアカウント作成制限を行う事が可能です。
 ";
 
     //内部関数で送信
@@ -255,7 +251,8 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品提出を受け付けました', $content);
-        $_SESSION['situation'] = 'file_submitted';
+        if ($_POST["jumptocommonpage"]) register_alert("ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。<br><br>続いて、共通情報の入力を行って下さい。", "success");
+        else register_alert("ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。<br><br>続けて提出する場合は、再びこの画面から提出して下さい。", "success");
         break;
     default:
         $nickname = $_SESSION["nickname"];
@@ -281,7 +278,8 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品提出を受け付け・承認しました', $content);
-        $_SESSION['situation'] = 'file_submitted_auto_accept';
+        if ($_POST["jumptocommonpage"]) register_alert("ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。<br><br>続いて、共通情報の入力を行って下さい。", "success");
+        else register_alert("ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。<br><br>続けて提出する場合は、再びこの画面から提出して下さい。", "success");
 }
 
 if ($_POST["jumptocommonpage"]) redirect("../common/index.php");

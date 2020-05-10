@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '共同運営者の他者ファイル閲覧権限';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 //ユーザーID
 $userid = basename($_GET["userid"]);
@@ -37,12 +30,12 @@ if (file_exists($aclplace)) $acldata = json_decode(file_get_contents($aclplace),
 else $acldata = array();
 
 ?>
-<h1>共同運営者の他者ファイル閲覧権限 - <?php echo htmlspecialchars(nickname($userid)); ?></h1>
+<h1>共同運営者の他者ファイル閲覧権限 - <?php echo hsc(nickname($userid)); ?></h1>
 <p>閲覧を許可したいユーザーもしくは提出作品を選択して下さい（設定済みの場合は、その内容が反映されています）。</p>
-<p>共通情報の閲覧を許可すると、該当ユーザーが共通情報として入力した内容（ニックネーム含む）や添付ファイルを閲覧・ダウンロード出来ます。<br>
+<p>共通情報の閲覧を許可すると、該当ユーザーが共通情報として入力した内容や添付ファイルを閲覧・ダウンロード出来ます。<br>
 提出作品の閲覧を許可すると、提出時に入力された内容や提出ファイル・添付ファイルを閲覧・ダウンロード出来ます。</p>
 <form name="form" action="fileacl_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>共通情報の閲覧許可</h2>
 <p>作品を1つ以上提出しているユーザーが一覧化されています。</p>
@@ -54,7 +47,7 @@ else $acldata = array();
 <?php
 foreach ($canshow as $author => $array) {
     $nickname = nickname($author);
-    $namepart = htmlspecialchars($nickname);
+    $namepart = hsc($nickname);
 
     echo '<div class="form-check">';
     echo '<input id="users-' . $author . '" class="form-check-input" type="checkbox" name="users[]" value="' . $author . '_userform" onClick="DisChecked1();"';
@@ -68,7 +61,7 @@ if ($canshow == array()) echo '現在、表示出来るユーザーはありま�
 </div>
 <h2>作品情報の閲覧許可</h2>
 <p>閲覧を許可したい作品の左側にあるチェックボックスにチェックを入れて下さい。<br>
-なお、<?php echo htmlspecialchars(nickname($userid)); ?>様自身の作品については、もともと閲覧権限があるため、この一覧に載っていません。</p>
+なお、<?php echo hsc(nickname($userid)); ?>様自身の作品については、もともと閲覧権限があるため、この一覧に載っていません。</p>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
@@ -83,7 +76,7 @@ if ($canshow == array()) echo '現在、表示出来るユーザーはありま�
 <?php
 foreach ($canshow as $author => $array) {
     $nickname = nickname($author);
-    $namepart = htmlspecialchars($nickname);
+    $namepart = hsc($nickname);
 
     foreach ($array as $id => $data) {
         echo "<tr>\n";
@@ -95,8 +88,9 @@ foreach ($canshow as $author => $array) {
         echo '</div>';
         echo '</td>';
         echo "<td>" . $namepart . "</td>";
-        echo '<td>' . htmlspecialchars($data["title"]) . '</td>';
-        switch ($data["exam"]) {
+        echo '<td>' . hsc($data["title"]) . '</td>';
+        if (isset($data["editing"]) and $data["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
+        else switch ($data["exam"]) {
             case 1:
                 echo '<td class="text-success"><b>承認</b></td>';
             break;
@@ -106,6 +100,8 @@ foreach ($canshow as $author => $array) {
             case 3:
                 echo '<td class="text-danger"><b>承認見送り</b></td>';
             break;
+            default:
+                echo '<td>承認待ち</td>';
         }
         echo "</tr>\n";
 

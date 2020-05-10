@@ -1,6 +1,10 @@
 <?php
 require_once('../../set.php');
-
+setup_session();
+//ログイン済みの場合はマイページに飛ばす
+if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
+    redirect("../../mypage/index.php");
+}
 
 if (blackip(0, "g")) {
     die('<!DOCTYPE html>
@@ -16,7 +20,7 @@ if (blackip(0, "g")) {
 もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
 <p>【ブロック情報】<br>
 IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
-リモートホスト：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
+リモートホスト名：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
 </body>
 </html>');
 }
@@ -34,6 +38,9 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="../../css/bootstrap.css">
 <title>アカウント登録 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
@@ -163,9 +170,9 @@ function check_individual(id) {
         if(document.form.password.value === ""){
             valid = 0;
             document.getElementById("password-errortext").innerHTML = "入力されていません。";
-        } else if(document.form.password.value.length > 30){
+        } else if(document.form.password.value.length > 72){
             valid = 0;
-            document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。30文字以内に抑えて下さい。";
+            document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。72文字以内に抑えて下さい。";
         } else if(document.form.password.value.length < 8){
             valid = 0;
             document.getElementById("password-errortext").innerHTML = "文字数が少なすぎます。8文字以上のパスワードにして下さい。";
@@ -284,10 +291,10 @@ function check(){
         problem = 1;
         valid = 0;
         document.getElementById("password-errortext").innerHTML = "入力されていません。";
-    } else if(document.form.password.value.length > 30){
+    } else if(document.form.password.value.length > 72){
         problem = 1;
         valid = 0;
-        document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。30文字以内に抑えて下さい。";
+        document.getElementById("password-errortext").innerHTML = "文字数が多すぎます。72文字以内に抑えて下さい。";
     } else if(document.form.password.value.length < 8){
         problem = 1;
         valid = 0;
@@ -373,8 +380,7 @@ function recError(token) {
 
 function submittohandle() {
     <?php if ($userec) echo "document.getElementById(\"neterrortext\").style.display = \"none\"; grecaptcha.execute();"; else echo <<<EOT
-    submitbtn = document.getElementById("submitbtn");
-    submitbtn.disabled = "disabled";
+    document.getElementById("submitbtn").disabled = "disabled";
     document.form.submit();
 EOT;
     ?>
@@ -409,7 +415,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
-<body>
+<body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
@@ -427,11 +433,11 @@ var val = getCookie('check_cookie');
 </div>
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="userid">ユーザーID（半角英数字のみ　20文字以内　<b>後から変更出来ません</b>）【必須】</label>
 <input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onBlur="check_individual(&quot;userid&quot;);">
-<font size="2"><div id="userid-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="userid-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="userid-duptext" class="valid-feedback" style="display: block;"></div>
 <div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※ログインの際にこのユーザーIDを使用します。</font>
@@ -439,7 +445,7 @@ var val = getCookie('check_cookie');
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
 <input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
-<font size="2"><div id="nickname-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="nickname-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</font>
 </div>
@@ -455,9 +461,9 @@ var val = getCookie('check_cookie');
 <div id="emailagn-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
 <div class="form-group">
-<label for="password">パスワード（8文字以上30文字以内）【必須】</label>
+<label for="password">パスワード（8文字以上72文字以内）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
-<font size="2"><div id="password-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="password-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</font>
 </div>
@@ -480,74 +486,18 @@ if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $
 ※送信前に、入力内容の確認をお願い致します。<br>
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
-<!-- エラーModal -->
-<div class="modal fade" id="errormodal" tabindex="-1" role="dialog" aria-labelledby="errormodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="errormodaltitle">入力内容の修正が必要です</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容に問題が見つかりました。<br>
-お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。<br><br>
-修正後、再度「送信する」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn">OK</button>
-</div>
-</div>
-</div>
-</div>
-<!-- 接続エラーModal -->
-<div class="modal fade" id="neterrormodal" tabindex="-1" role="dialog" aria-labelledby="neterrormodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="neterrormodaltitle">ネットワーク・エラー</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容の検証中にエラーが発生しました。<br>
-お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn2">OK</button>
-</div>
-</div>
-</div>
-</div>
-<!-- 送信確認Modal -->
-<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="confirmmodaltitle">送信確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容に問題は見つかりませんでした。<br><br>
+<?php
+$modaltext = "入力内容に問題は見つかりませんでした。<br><br>
 現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
 入力内容の修正を行う場合は「戻る」を押して下さい。<br><br>
-※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。
-<?php
-if ($userec) echo '<div><br><font size="2"><span class="text-muted">※「送信する」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></font></div>
+※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。";
+if ($userec) $modaltext .= '<div><br><font size="2"><span class="text-muted">※「送信する」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></font></div>
 <div id="neterrortext" style="display: none;"><br><font size="2"><span class="text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。</span></font></div>';
+
+echo_modal_alert();
+echo_modal_alert("入力内容の検証中にエラーが発生しました。<br>お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。", "ネットワーク・エラー", null, null, "neterrormodal", "dismissbtn2");
+echo_modal_confirm($modaltext, null, null, null, null, null, null, null, "submittohandle();");
 ?>
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<button type="button" class="btn btn-primary" id="submitbtn" onClick="submittohandle();">送信する</button>
-</div>
-</div>
-</div>
-</div>
 </form>
 </div>
 </div>

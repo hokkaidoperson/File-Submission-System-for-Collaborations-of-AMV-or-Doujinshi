@@ -1,14 +1,13 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$author = basename($_GET["author"]);
-$id = basename($_GET["id"]);
-$editid = basename($_GET["edit"]);
+csrf_prevention_validate();
+
+$author = basename($_POST["author"]);
+$id = basename($_POST["id"]);
+$editid = basename($_POST["edit"]);
 
 //回答データ
 $answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $author . '_' . $id . '_' . $editid . '.txt'), true);
@@ -43,13 +42,13 @@ $result = exam_totalization_edit($author . '_' . $id . '_' . $editid, TRUE);
 
 switch ($result){
     case 0:
-        $_SESSION['situation'] = 'exam_edit_forceclose_discuss';
+        register_alert("投票を強制的に締め切りました。<br><br>既に投票されていたデータを集計しました。<br>承認しても問題無いという意見で一致したため、<b>この変更を承認しました</b>。<br>作品の提出者に承認の通知をしました。", "success");
     break;
     case 1:
-        $_SESSION['situation'] = 'exam_edit_forceclose_accept';
+        register_alert("投票を強制的に締め切りました。<br><br>既に投票されていたデータを集計しました。<br>承認しても問題無いという意見で一致したため、<b>この共通情報を承認しました</b>。<br>情報の提出者に承認の通知をしました。", "success");
     break;
     case 2:
-        $_SESSION['situation'] = 'exam_edit_forceclose_reject';
+        register_alert("投票を強制的に締め切りました。<br><br>既に投票されていたデータを集計しました。<br>問題があるという意見で一致したため、<b>この変更を拒否しました</b>。<br>作品の提出者に拒否の通知をしました。", "success");
     break;
 }
 

@@ -1,5 +1,10 @@
 <?php
 require_once('../set.php');
+setup_session();
+//ログイン済みの場合はマイページに飛ばす
+if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
+    redirect("../mypage/index.php");
+}
 
 //recaptcha周りの参考URL https://webbibouroku.com/Blog/Article/invisible-recaptcha
 $recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
@@ -14,6 +19,9 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+?>
 <link rel="stylesheet" href="../css/bootstrap.css">
 <title>ユーザーID・ニックネーム再送信 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
@@ -140,7 +148,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
-<body>
+<body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
@@ -158,7 +166,7 @@ var val = getCookie('check_cookie');
 </div>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="auth.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="email">メールアドレス</label>
 <input type="email" name="email" class="form-control" id="email" onBlur="check_individual()">

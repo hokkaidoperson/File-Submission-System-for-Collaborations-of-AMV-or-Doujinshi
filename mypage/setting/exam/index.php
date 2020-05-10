@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル確認に関する設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 if (file_exists(DATAROOT . 'examsetting.txt')) $examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
 if (file_exists(DATAROOT . 'exammember_submit.txt')) $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -24,7 +17,7 @@ else $editmem = array();
 <h1>ファイル確認に関する設定</h1>
 <p>ファイル確認（提出された作品や情報を確認し、承認するかどうか決める作業）に関する設定をします。</p>
 <form name="form" action="handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <h2>ファイル確認の担当者</h2>
 <p>主催者・共同運営者のうち、誰がファイル確認を担当するか設定出来ます。</p>
 <p>最低でも1人は、ファイル確認のメンバーが必要となります。共同運営者からの辞退などでファイル確認者が誰もいなくなった場合、主催者がファイル確認担当者として自動的に追加されます。</p>
@@ -38,10 +31,10 @@ echo '<div class="form-check">';
 echo '<input id="submit_promoter" class="form-check-input" type="checkbox" name="submit[]" value="_promoter"';
 if (array_search("_promoter", $submitmem) !== FALSE) echo ' checked="checked"';
 echo '>';
-echo '<label class="form-check-label" for="submit_promoter">主催者（' . htmlspecialchars(nickname($_SESSION["userid"])) . '）</label>';
+echo '<label class="form-check-label" for="submit_promoter">主催者（' . hsc(nickname($_SESSION["userid"])) . '）</label>';
 echo '</div>';
 foreach ($choices as $choice) {
-    $disp = htmlspecialchars(nickname($choice));
+    $disp = hsc(nickname($choice));
     echo '<div class="form-check">';
     echo '<input id="submit_choice_' . $choice . '" class="form-check-input" type="checkbox" name="submit[]" value="' . $choice . '"';
     if (array_search($choice, $submitmem) !== FALSE) echo ' checked="checked"';
@@ -67,10 +60,10 @@ echo '<div class="form-check">';
 echo '<input id="edit_promoter" class="form-check-input" type="checkbox" name="edit[]" value="_promoter"';
 if (array_search("_promoter", $editmem) !== FALSE) echo ' checked="checked"';
 echo '>';
-echo '<label class="form-check-label" for="edit_promoter">主催者（' . htmlspecialchars(nickname($_SESSION["userid"])) . '）</label>';
+echo '<label class="form-check-label" for="edit_promoter">主催者（' . hsc(nickname($_SESSION["userid"])) . '）</label>';
 echo '</div>';
 foreach ($choices as $choice) {
-    $disp = htmlspecialchars(nickname($choice));
+    $disp = hsc(nickname($choice));
     echo '<div class="form-check">';
     echo '<input id="edit_choice_' . $choice . '" class="form-check-input" type="checkbox" name="edit[]" value="' . $choice . '"';
     if (array_search($choice, $editmem) !== FALSE) echo ' checked="checked"';

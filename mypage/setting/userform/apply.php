@@ -1,17 +1,9 @@
 <?php
 require_once('../../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
 if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
@@ -45,6 +37,6 @@ unset($_SESSION["userformdata"]);
 if (!file_exists(DATAROOT . 'form/userinfo/done.txt')){
     if (file_put_contents(DATAROOT . 'form/userinfo/done.txt', "1") === FALSE) die('設定内容の書き込みに失敗しました。');
 }
-$_SESSION['situation'] = 'userform_applied';
+register_alert("共通情報入力画面の設定変更が完了しました。<br>ご自身の入力内容を変更する場合は、「共通情報の入力・編集」から設定画面に推移して下さい。<br><br><b>必須項目を新たに追加したりした場合、メッセージ機能を用いて参加者にその旨を通知し、設定変更を促して下さい。</b>", "success");
 
 redirect("../../index.php");

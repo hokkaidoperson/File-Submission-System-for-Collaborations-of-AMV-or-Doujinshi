@@ -1,10 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
+
+csrf_prevention_validate();
 
 $accessok = 'none';
 
@@ -32,7 +31,7 @@ if ($userdata["state"] == "g") {
     $statedata = $_SESSION["userid"] . "\n";
     $statedtp = DATAROOT . 'users/_outsider.txt';
     if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
-    $_SESSION['situation'] = 'state_switcher_admin_to_o';
+    register_alert("非参加者に切り替えました。", "success");
 } else {
     $userdata["state"] = "g";
     $userdatajson =  json_encode($userdata);
@@ -49,7 +48,7 @@ if ($userdata["state"] == "g") {
     $statedata = $_SESSION["userid"] . "\n";
     $statedtp = DATAROOT . 'users/_general.txt';
     if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
-    $_SESSION['situation'] = 'state_switcher_admin_to_g';
+    register_alert("一般参加者に切り替えました。", "success");
 
 }
 

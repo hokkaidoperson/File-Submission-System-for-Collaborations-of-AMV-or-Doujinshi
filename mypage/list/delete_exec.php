@@ -1,23 +1,12 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>
-');
+if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //ファイル提出者のユーザーID
 $author = basename($_POST["author"]);
@@ -164,6 +153,6 @@ $eventname のポータルサイトにて、作品「" . $filedata["title"] . "�
 ";
 //内部関数で送信
 sendmail($email, '作品を削除しました（' . $filedata["title"] . '）', $content);
-$_SESSION['situation'] = 'edit_deleted';
+register_alert("作品を削除しました。", "success");
 
 redirect("./index.php");

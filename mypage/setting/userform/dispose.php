@@ -1,17 +1,9 @@
 <?php
 require_once('../../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
 if (!file_exists(DATAROOT . 'form/userinfo/draft/')) redirect("../../index.php");
@@ -21,6 +13,6 @@ remove_directory(DATAROOT . 'form/userinfo/draft');
 
 unset($_SESSION["userformdata"]);
 
-$_SESSION['situation'] = 'userform_cancelled';
+register_alert("ファイル提出に関する設定を中止しました。", "warning");
 
 redirect("../../index.php");

@@ -1,17 +1,9 @@
 <?php
 require_once('../../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
 //一瞬リセット
@@ -37,6 +29,6 @@ $filedata = $_SESSION["submitformdata"]["general"];
 $filedatajson = json_encode($filedata);
 if (file_put_contents(DATAROOT . 'form/submit/draft/general.txt', $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
-$_SESSION['situation'] = 'submitform_saved';
+register_alert("設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。");
 
 redirect("./index.php");

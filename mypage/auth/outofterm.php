@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '提出期間外の操作権限';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 if (file_exists(DATAROOT . 'form/submit/done.txt')) {
     $general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
@@ -41,7 +34,7 @@ if ($choices == array()) die_mypage('<div class="border border-danger" style="pa
 
 echo '<ul>';
 foreach ($choices as $key => $choice) {
-    $disp = htmlspecialchars($choice["nickname"]);
+    $disp = hsc($choice["nickname"]);
     echo '<li>';
     echo '<a href="outofterm_selector.php?userid=' . $key . '">' . $disp . '</a>';
     echo '</li>';

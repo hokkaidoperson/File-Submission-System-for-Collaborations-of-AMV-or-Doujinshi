@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'アカウントの凍結・凍結解除';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 $canshow = users_array();
 unset($canshow[$_SESSION["userid"]]);
@@ -25,7 +18,7 @@ unset($canshow[id_admin()]);
 ただし、凍結されたユーザーのファイルは抹消されず、作品一覧のページから閲覧出来ます（凍結されたユーザーである旨が表示されます）。また、凍結解除の操作を行えば、これまで通りファイル提出などを行えるようになります。</p>
 
 <form name="form" action="blackuser_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
@@ -41,7 +34,7 @@ foreach ($canshow as $author => $array) {
     echo '</div>';
     echo '</td>';
     echo '<td>';
-    echo htmlspecialchars($nickname);
+    echo hsc($nickname);
     echo '</td>';
 
     switch ($array["state"]) {

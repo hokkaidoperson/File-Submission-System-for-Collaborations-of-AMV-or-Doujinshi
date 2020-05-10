@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '参加者の一覧';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催共催
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>、<b>共同運営者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c"), TRUE);
 
 $canshow = array();
 
@@ -42,12 +35,12 @@ foreach(users_array() as $author => $data) {
 
 if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 参加者</h1>
 <p>本イベントのポータルサイトに登録されているユーザーの一覧です（ファイル未提出者も含む）。<br>
-ユーザーの名前をクリックするとユーザーの情報（ニックネーム・共通情報）を確認出来ます。</p>
+ユーザーの名前をクリックするとユーザーが共通情報として入力した内容を確認出来ます。</p>
 <p><a href="index.php">提出作品の一覧はこちら</a></p>
 ';
 if ($_SESSION["state"] == 'c') echo '<h1>参加者の一覧</h1>
 <p>主催者から閲覧権限を与えられたユーザー情報の一覧です。<br>
-ユーザーの名前をクリックするとユーザーの情報（ニックネーム・共通情報）を確認出来ます。</p>
+ユーザーの名前をクリックするとユーザーが共通情報として入力した内容を確認出来ます。</p>
 <p><a href="index.php">提出作品の一覧はこちら</a></p>
 ';
 ?>
@@ -62,7 +55,7 @@ foreach ($canshow as $author => $array) {
     $nickname = nickname($author);
     echo '<tr>';
     echo '<td>';
-    echo '<a href="detail.php?author=' . $author . '&id=userform">' . htmlspecialchars($nickname) . '</a>';
+    echo '<a href="detail.php?author=' . $author . '&id=userform">' . hsc($nickname) . '</a>';
     if (blackuser($author)) echo '<span class="text-danger">（凍結ユーザー）</span>';
     echo '</td>';
 

@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル提出画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 ?>
 
@@ -19,7 +12,7 @@ if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
 
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="type" value="general">
 <div class="form-group">
 ファイル提出期間（開始）【必須】
@@ -68,7 +61,7 @@ if (isset($_SESSION["submitformdata"]["general"]["until"])) echo date('H:i', $_S
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
 <textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
-if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo htmlspecialchars($_SESSION["submitformdata"]["general"]["detail"]);
+if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo hsc($_SESSION["submitformdata"]["general"]["detail"]);
 ?></textarea>
 <font size="2">※ファイル提出欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の提出画面でも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -78,7 +71,7 @@ if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo htmlspecialcha
 <div class="form-group">
 <label for="ext">ファイルの拡張子指定（半角英数字（小文字）とカンマ「,」）【必須】</label>
 <input type="text" name="ext" class="form-control" id="ext" value="<?php
-if (isset($_SESSION["submitformdata"]["general"]["ext"])) echo htmlspecialchars($_SESSION["submitformdata"]["general"]["ext"]);
+if (isset($_SESSION["submitformdata"]["general"]["ext"])) echo hsc($_SESSION["submitformdata"]["general"]["ext"]);
 ?>">
 <font size="2">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
 ※無差別に全ての種類のファイルを受け入れられるようにすると、セキュリティ的に脆弱になる恐れがあります。<br>
@@ -91,13 +84,13 @@ if (isset($_SESSION["submitformdata"]["general"]["ext"])) echo htmlspecialchars(
 <label for="filenumber">サーバーに同時にアップロード可能なファイル数（1～100の間の半角数字）</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="filenumber" class="form-control" id="filenumber" value="<?php
-if (isset($_SESSION["submitformdata"]["general"]["filenumber"])) echo htmlspecialchars($_SESSION["submitformdata"]["general"]["filenumber"]);
+if (isset($_SESSION["submitformdata"]["general"]["filenumber"])) echo hsc($_SESSION["submitformdata"]["general"]["filenumber"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">個</span>
 </div>
 </div>
-<font size="2">※この提出欄に添付出来るファイル数を設定します。<br>
+<font size="2">※サーバーに直接アップロードする際に提出欄に添付出来るファイル数を設定します。<br>
 ※入力が無い場合は、100個として設定します。
 </font>
 </div>
@@ -105,17 +98,32 @@ if (isset($_SESSION["submitformdata"]["general"]["filenumber"])) echo htmlspecia
 <label for="size">サーバーに直接アップロード可能な最大サイズ（1～<?php echo FILE_MAX_SIZE; ?>の間の半角数字）</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="size" class="form-control" id="size" value="<?php
-if (isset($_SESSION["submitformdata"]["general"]["size"])) echo htmlspecialchars($_SESSION["submitformdata"]["general"]["size"]);
+if (isset($_SESSION["submitformdata"]["general"]["size"])) echo hsc($_SESSION["submitformdata"]["general"]["size"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">MB</span>
 </div>
 </div>
 <font size="2">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
-※複数個のファイルをこの提出欄に添付出来る設定にしている場合、この提出欄に添付するファイルの合計サイズが、ここで指定するサイズ以下になっている必要があります。<br>
+※複数個のファイルを提出欄に添付出来る設定にしている場合、この提出欄に添付するファイルの合計サイズが、ここで指定するサイズ以下になっている必要があります。<br>
 ※入力が無い場合は、<?php echo FILE_MAX_SIZE; ?>MBとして設定します。
 </font>
 </div>
+<div class="form-group">
+<label for="worknumber">提出可能な作品の最大個数（1以上の半角数字）</label>
+<div class="input-group" style="width:8em;">
+<input type="text" name="worknumber" class="form-control" id="worknumber" value="<?php
+if (isset($_SESSION["submitformdata"]["general"]["worknumber"])) echo hsc($_SESSION["submitformdata"]["general"]["worknumber"]);
+?>">
+<div class="input-group-append">
+<span class="input-group-text">個</span>
+</div>
+</div>
+<font size="2">※作品数の上限を設定出来ます。ユーザーが作品数の上限を超えて作品を提出しようとすると、エラーをユーザーに表示します。<br>
+※入力が無い場合は、作品数の上限を設定しません。
+</font>
+</div>
+
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 
 <a href="reload.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を保存せず、メニューに戻ります。よろしいですか？')">変更内容を保存しないで戻る</a>
@@ -136,6 +144,7 @@ function check(){
   probext = 0;
   probnum = 0;
   probsiz = 0;
+  probwok = 0;
 
 //日付と時刻
   if(document.form.from_date.value === "" || document.form.from_time.value === ""){
@@ -151,6 +160,12 @@ function check(){
   } else if (date_check(document.form.until_date) === false || time_check(document.form.until_time) === false){
     problem = 1;
     probuntil = 2;
+  }
+  if (probfrom === 0 && probuntil === 0) {
+    if (new Date(document.form.from_date.value + "T" + document.form.from_time.value + ":00Z").getTime() >= new Date(document.form.until_date.value + "T" + document.form.until_time.value + ":00Z").getTime()) {
+        problem = 1;
+        probuntil = 3;
+    }
   }
 
 //文字数 必須でない
@@ -189,6 +204,16 @@ function check(){
     probsiz = 2;
   }
 
+//文字種・数字の大きさ　必須でない
+  if(document.form.worknumber.value === ""){
+  } else if(!document.form.worknumber.value.match(/^[0-9]*$/)){
+    problem = 1;
+    probwok = 1;
+  } else if(parseInt(document.form.worknumber.value) < 1){
+    problem = 1;
+    probwok = 2;
+  }
+
 
 //問題ありの場合はエラー表示　ない場合は確認・移動　エラー状況に応じて内容を表示
 if ( problem == 1 ) {
@@ -204,6 +229,9 @@ if ( problem == 1 ) {
   }
   if ( probuntil == 2) {
     alert( "【ファイル提出期間（締切）】\n日付もしくは時刻が正しく入力されていません。入力内容をご確認願います。" );
+  }
+  if ( probuntil == 3) {
+    alert( "【ファイル提出期間（開始）／ファイル提出期間（締切）】\n締切日時が開始日時と同じか、それより早くなっています。入力内容をご確認願います。" );
   }
   if ( probdtl == 1) {
     alert( "【項目詳細】\n文字数が多すぎます（現在" + document.form.detail.value.length + "文字）。500文字以内に抑えて下さい。" );
@@ -225,6 +253,12 @@ if ( problem == 1 ) {
   }
   if ( probsiz == 2) {
     alert( "【サーバーに直接アップロード可能な最大サイズ】\n数字が小さすぎるか、大きすぎます。1～<?php echo FILE_MAX_SIZE; ?>の間で指定して下さい。" );
+  }
+  if ( probwok == 1) {
+    alert( "【提出可能な作品の最大個数】\n半角数字以外の文字が含まれています。" );
+  }
+  if ( probwok == 2) {
+    alert( "【提出可能な作品の最大個数】\n数字が小さすぎます。1以上で指定して下さい。" );
   }
   return false;
 }

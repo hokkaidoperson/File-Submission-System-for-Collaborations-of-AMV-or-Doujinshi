@@ -1,23 +1,15 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催・共同運営
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p", "c"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 $subject = basename($_POST["subject"]);
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 if (!file_exists(DATAROOT . 'exam/' . $subject . '.txt')) die('ファイルが存在しません。');
 list($author, $id) = explode('_', $subject);
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
@@ -63,18 +55,18 @@ $result = exam_totalization_new($subject, FALSE);
 
 switch ($result){
     case 0:
-        $_SESSION['situation'] = 'exam_submitted_discuss';
+        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの作品の確認を終えました。<br>メンバー間で意見が分かれたため、<b>この作品の承認・拒否について議論する必要があります</b>。<br>以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。", "success");
     break;
     case 1:
-        $_SESSION['situation'] = 'exam_submitted_accept';
+        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの作品の確認を終えました。<br>承認しても問題無いという意見で一致したため、<b>この作品を承認しました</b>。<br>作品の提出者に承認の通知をしました。", "success");
     break;
     case 2:
-        $_SESSION['situation'] = 'exam_submitted_reject_m';
+        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの作品の確認を終えました。<br>軽微な修正が必要であるという意見で一致したため、<b>この作品を修正待ち状態にしました</b>。<br>作品の提出者に、修正依頼の通知をしました。", "success");
     break;
     case 3:
-        $_SESSION['situation'] = 'exam_submitted_reject';
+        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの作品の確認を終えました。<br>問題点が多いという意見で一致したため、<b>この作品を拒否しました</b>。<br>作品の提出者に拒否の通知をしました。", "success");
     break;
 }
-if ($result === FALSE) $_SESSION['situation'] = 'exam_submitted';
+if ($result === FALSE) register_alert("確認結果を送信しました。<br>他のメンバーが確認を終えるまでしばらくお待ち願います。", "success");
 
 redirect("./index.php");

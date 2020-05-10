@@ -1,22 +1,14 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催・共同運営
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p", "c"))) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/userinfo/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 $subject = basename($_POST["subject"]);
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
 list($author, $dummy, $editid) = explode('_', $subject);
 if (!file_exists(DATAROOT . "users/$author.txt")) die('ファイルが存在しません。');
@@ -76,6 +68,6 @@ $authornick 様の共通情報に関する議論について、コメントが�
 $filedatajson = json_encode($discussdata);
 if (file_put_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 
-$_SESSION['situation'] = 'exam_discuss_added';
+register_alert("コメントを追加しました。", "success");
 
 redirect("./discuss_common.php?author=$author&edit=$editid");

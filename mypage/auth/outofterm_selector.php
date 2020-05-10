@@ -1,17 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '提出期間外の操作権限';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 //ユーザーID
 $userid = basename($_GET["userid"]);
@@ -38,7 +31,7 @@ else {
 }
 
 ?>
-<h1>提出期間外の操作権限 - <?php echo htmlspecialchars(nickname($userid)); ?></h1>
+<h1>提出期間外の操作権限 - <?php echo hsc(nickname($userid)); ?></h1>
 <p>操作を許可したい機能もしくは提出作品を選択して下さい。</p>
 <?php
 if ($set) echo '<p>現在、一部あるいは全部の操作権限が有効になっています（操作期限：' . date('Y年n月j日G時i分s秒', $acldata["expire"]) . '）<br>
@@ -46,7 +39,7 @@ if ($set) echo '<p>現在、一部あるいは全部の操作権限が有効に�
 設定を変更すると、操作期限が更新されます。操作期限が切れるまでの時間は改めて設定して下さい。</p>';
 ?>
 <form name="form" action="outofterm_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>操作期限が切れるまでの時間</h2>
 <div class="form-group">
@@ -95,8 +88,9 @@ foreach ($canshow as $id => $data) {
     echo '>';
     echo '</div>';
     echo '</td>';
-    echo '<td>' . htmlspecialchars($data["title"]) . '</td>';
-    switch ($data["exam"]) {
+    echo '<td>' . hsc($data["title"]) . '</td>';
+    if (isset($data["editing"]) and $data["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
+    else switch ($data["exam"]) {
         case 1:
             echo '<td class="text-success"><b>承認</b></td>';
         break;
@@ -106,6 +100,8 @@ foreach ($canshow as $id => $data) {
         case 3:
             echo '<td class="text-danger"><b>承認見送り</b></td>';
         break;
+        default:
+            echo '<td>承認待ち</td>';
     }
     echo "</tr>\n";
 }

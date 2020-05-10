@@ -1,30 +1,56 @@
 <?php
 //デバッグ用　リリース時にはコメントアウト---------------------
-//ini_set("display_errors", 1);
-//error_reporting(E_ERROR | E_WARNING | E_PARSE);
-//ini_set("log_errors", "On");
+ini_set("display_errors", 1);
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
+ini_set("log_errors", "On");
 //ini_set("error_log", "******error.log.txt");
 //----------------------------------------------------------
 
+
+//各種定義・初期設定チェック----------------------------------
 if (file_exists('dataplace.php')) require_once('dataplace.php'); else define('DATAROOT', dirname(__FILE__).'/data/');
 if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいません。');
 
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-2E-0');
+define('VERSION', 'Gamma-2E-1');
 
 $initdata = json_decode(file_get_contents(DATAROOT . 'init.txt'), true);
 
-define('FILE_MAX_SIZE', $initdata["maxsize"]);
+define('FILE_MAX_SIZE', (int)$initdata["maxsize"]);
+define('META_NOFOLLOW', (isset($initdata["robot"]) and $initdata["robot"] == 1));
 
 $eventname = $initdata["eventname"];
 $siteurl = file_get_contents(DATAROOT . 'siteurl.txt');
+//----------------------------------------------------------
+
 
 //メール配信制御
 require_once('mail_scheduler.php');
 
-//ユーザー関数
+
+//不要ファイル浄化-------------------------------------------
+//バージョンアップで要らなくなった各種ファイルを自動除去
+
+//下のfile_remover変数に順次追加（定義時にPAGEROOT定数は不要）
+$file_remover = array(
+    "register/invitation/co_useridcheck.php",
+    "register/invitation/prom_useridcheck.php",
+    "state_special/"
+);
+
+foreach ($file_remover as $filename) {
+    $filename = PAGEROOT . $filename;
+    if (file_exists($filename)) {
+        if (is_dir($filename)) remove_directory($filename);
+        else unlink($filename);
+    }
+}
+//----------------------------------------------------------
+
+
+//ユーザー関数-----------------------------------------------
 
 //保存している規定値（接頭辞とか）を使ってメール送信
 function sendmail($email, $subject, $content) {
@@ -901,7 +927,7 @@ function length_with_lb($string) {
 
 //文字列をHTML出力しても大丈夫なようにし、更に改行タグを付与
 function give_br_tag($string) {
-    $string = htmlspecialchars($string);
+    $string = hsc($string);
     $string = str_replace(array("\r\n", "\r", "\n"), "\n", $string);
     return str_replace("\n", "<br>", $string);
 }
@@ -912,7 +938,272 @@ function redirect($to) {
     exit;
 }
 
-//------------------------------------
+//htmlspecialcharsのショートカット
+function hsc($string) {
+    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+}
+
+//FAQで、結果をヒット数順に並べ替える用の関数
+function faq_callback_fnc($a, $b) {
+    if ((int)$a["hits"] > (int)$b["hits"]) return -1;
+    else if ((int)$a["hits"] == (int)$b["hits"]) return 0;
+    else return 1;
+}
+
+//CSRF（クロスサイトリクエストフォージェリ）対策用
+//セッションIDからトークンを作成し、処理スクリプト（handle.php等）で照合
+//参考　https://qiita.com/mpyw/items/8f8989f8575159ce95fc
+function csrf_prevention_token() {
+    if (session_status() !== PHP_SESSION_ACTIVE) return false;
+    return hash("sha256", session_id());
+}
+
+//CSRF対策用のhiddenパーツ
+function csrf_prevention_in_form() {
+    echo '<input type="hidden" name="csrf_prevention_token" value="' . csrf_prevention_token() . '">';
+}
+
+//検証（上のcsrf_prevention_in_formとセットで）
+function csrf_prevention_validate($dont_die = FALSE) {
+    if (!isset($_POST["csrf_prevention_token"]) or $_POST["csrf_prevention_token"] !== csrf_prevention_token()) {
+        if (!$dont_die) die("フォームが入力されていないか、CSRF（クロスサイトリクエストフォージェリ）の可能性があると判定されたため、操作を停止しました。");
+        return FALSE;
+    } else return TRUE;
+}
+
+//作品数カウント（引数無しで自分）
+function count_works($userid = "") {
+    if ($userid == "") $userid = $_SESSION["userid"];
+    return count(glob(DATAROOT . "submit/$userid/*.txt"));
+}
+
+//セッションが有効期限切れたりしてないかとか
+//$booleanがTRUEだったらbooleanで返す
+function session_validation($goback = FALSE, $boolean = FALSE) {
+    global $siteurl;
+
+    //ログインしてない場合はログインページへ
+    $currenturl = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+    $redirtopass = str_replace($siteurl, '', $currenturl);
+
+    if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
+        if ($boolean) return FALSE;
+        if ($goback) $_SESSION['guest_redirto'] = $redirtopass;
+        redirect($siteurl . "index.php");
+    }
+
+    //ブロックされてたら強制ログアウト
+    if (blackuser($_SESSION['userid'])) {
+        if ($boolean) return FALSE;
+        redirect($siteurl . "mypage/logout.php");
+    }
+
+    //セッション切れ起こしてない？
+    if ($_SESSION['expire'] <= time()) {
+        //ログアウト処理
+        //情報をリセット
+        $_SESSION = array();
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
+        session_destroy();
+
+        if ($boolean) return FALSE;
+        die('<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="10; URL=\'' . $siteurl . 'index.php\'" />
+<title>セッション・エラー（タイムアウト）</title>
+</head>
+<body>
+<p>しばらくの間アクセスが無かったため、セキュリティの観点から接続を中断しました。<br>
+再度ログインして下さい。</p>
+<p>10秒後にログインページに自動的に移動します。<br>
+<a href="' . $siteurl . 'index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
+</body>
+</html>');
+    } else $_SESSION['expire'] = time() + (30 * 60);
+
+    //ブラウザがなぜか変わってたりしない？（セッションハイジャック？）
+    if ($_SESSION['useragent'] != $_SERVER['HTTP_USER_AGENT']) {
+        if ($boolean) return FALSE;
+        die('<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ユーザーエージェント認証失敗</title>
+</head>
+<body>
+<p>ログイン時のユーザーエージェントと異なるため、接続出来ません。<br>
+不正ログインしようとした可能性があります（セッション・ハイジャック　など）。</p>
+</body>
+</html>');
+    }
+
+    //ログイン情報更新
+    $refresh_userdata = id_array($_SESSION["userid"]);
+    $_SESSION['nickname'] = $refresh_userdata["nickname"];
+    $_SESSION['email'] = $refresh_userdata["email"];
+    $_SESSION['state'] = $refresh_userdata["state"];
+    if ($boolean) return TRUE;
+}
+
+//自分のアクセス権チェック（TRUEでアクセス権無し）
+//メッセージをエコーする場合はそこでdie
+function no_access_right($allowed, $echo_message = FALSE) {
+    global $siteurl;
+    if (array_search($_SESSION["state"], $allowed) === FALSE) {
+        if ($echo_message) {
+            $state_text = implode("、", $allowed);
+            $state_text = str_replace(array("p", "c", "g", "o"), array("<b>主催者</b>", "<b>共同運営者</b>", "<b>一般参加者</b>", "<b>非参加者</b>"), $state_text);
+            die_mypage('<h1>権限エラー</h1>
+<p>この機能にアクセス出来るのは、' . $state_text . 'のみです。</p>
+<p><a href="' . $siteurl . 'mypage/index.php">マイページトップに戻る</a></p>');
+        }
+        return TRUE;
+    } else return FALSE;
+}
+
+//確認modalのエコー
+function echo_modal_confirm($body = null, $title = null, $dismiss = null, $dismiss_class = null, $send = null, $send_class = null, $meta_modal_id = null, $meta_send_id = null, $meta_send_onclick = null) {
+    if (is_null($body)) $body = "入力内容に問題は見つかりませんでした。<br><br>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。";
+    if (is_null($title)) $title = "送信確認";
+    if (is_null($dismiss)) $dismiss = "戻る";
+    if (is_null($dismiss_class)) $dismiss_class = "secondary";
+    if (is_null($send)) $send = "送信する";
+    if (is_null($send_class)) $send_class = "primary";
+    if (is_null($meta_modal_id)) $meta_modal_id = "confirmmodal";
+    if (is_null($meta_send_id)) $meta_send_id = "submitbtn";
+    if (is_null($meta_send_onclick)) $meta_send_onclick = 'document.getElementById("submitbtn").disabled = "disabled"; document.form.submit();';
+    echo <<<EOT
+<div class="modal fade" id="$meta_modal_id" tabindex="-1" role="dialog" aria-labelledby="{$meta_modal_id}title" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="{$meta_modal_id}title">$title</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+$body
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-$dismiss_class" data-dismiss="modal">$dismiss</button>
+<button type="button" class="btn btn-$send_class" id="$meta_send_id" onClick='$meta_send_onclick'>$send</button>
+</div>
+</div>
+</div>
+</div>
+EOT;
+}
+
+//アラートmodalのエコー（大体フォームの内容エラーだと思われ）
+function echo_modal_alert($body = null, $title = null, $dismiss = null, $dismiss_class = null, $meta_modal_id = null, $meta_dismiss_id = null) {
+    if (is_null($body)) $body = "入力内容に問題が見つかりました。<br>お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。<br><br>修正後、再度「送信する」を押して下さい。";
+    if (is_null($title)) $title = "入力内容の修正が必要です";
+    if (is_null($dismiss)) $dismiss = "OK";
+    if (is_null($dismiss_class)) $dismiss_class = "primary";
+    if (is_null($meta_modal_id)) $meta_modal_id = "errormodal";
+    if (is_null($meta_dismiss_id)) $meta_dismiss_id = "dismissbtn";
+    echo <<<EOT
+<div class="modal fade" id="$meta_modal_id" tabindex="-1" role="dialog" aria-labelledby="{$meta_modal_id}title" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="{$meta_modal_id}title">$title</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+$body
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-$dismiss_class" data-dismiss="modal" id="$meta_dismiss_id">$dismiss</button>
+</div>
+</div>
+</div>
+</div>
+EOT;
+}
+
+//待機modal（処理に時間が掛かる時）
+//他と違い、ユーザーの操作では消失不可
+function echo_modal_wait($body = null, $title = null, $meta_modal_id = null) {
+    if (is_null($body)) $body = "入力内容・ファイルを送信中です。<br>画面が自動的に推移するまでしばらくお待ち下さい。";
+    if (is_null($title)) $title = "送信中…";
+    if (is_null($meta_modal_id)) $meta_modal_id = "sendingmodal";
+    echo <<<EOT
+<div class="modal fade" id="$meta_modal_id" tabindex="-1" role="dialog" aria-labelledby="{$meta_modal_id}title" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="{$meta_modal_id}title">$title</h5>
+</div>
+<div class="modal-body">
+$body
+</div>
+</div>
+</div>
+</div>
+EOT;
+}
+
+//上部表示用のアラートを登録（handle系のページで使う用）
+function register_alert($body, $class = "primary") {
+    if (!isset($_SESSION["alerts_holder"])) $_SESSION["alerts_holder"] = array();
+    $_SESSION["alerts_holder"][] = array("body" => $body, "class" => $class);
+}
+
+//register_alertで登録したアラートを表示
+function output_alert() {
+    if (!is_array($_SESSION["alerts_holder"])) return;
+    foreach ($_SESSION["alerts_holder"] as $contents) {
+        echo <<<EOT
+<div class="alert alert-{$contents["class"]} alert-dismissible fade show" role="alert" style="margin-top: 1em;">
+{$contents["body"]}
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+EOT;
+    }
+    unset($_SESSION["alerts_holder"]);
+}
+
+//普通にアラートを表示
+function echo_alert($body, $class = "primary", $not_dismissable = FALSE) {
+    if (!$not_dismissable) echo <<<EOT
+<div class="alert alert-$class alert-dismissible fade show" role="alert" style="margin-top: 1em;">
+$body
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+EOT;
+    else echo <<<EOT
+<div class="alert alert-$class" role="alert" style="margin-top: 1em;">
+$body
+</div>
+EOT;
+}
+
+//セッションのセットアップ・スタート（Cookie名、セキュアなど）
+function setup_session() {
+    session_name("filesystemsessid");
+    session_set_cookie_params(0, "/", null, (!empty($_SERVER['HTTPS'])), TRUE);
+    session_start();
+}
 
 //チェック系関数　問題無ければ0を、そうでなければ1を返す（ユーザーフォームの入力事項確認に使う）
 //必須・任意関連（テキストボックス、エリア）

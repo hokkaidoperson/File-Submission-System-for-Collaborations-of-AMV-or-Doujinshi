@@ -10,7 +10,7 @@ if (!defined('DATAROOT')) die();
 <nav class="navbar navbar-light bg-light justify-content-center">
 <span class="navbar-text">
 <font size="1">
-<?php echo $eventname; ?> Powered by <a href='https://www.hkdyukkuri.space/filesystem/' target="_blank">MAD合作・合同誌向けファイル提出システム</a> (Ver. <?php echo VERSION; ?>) and supported by <a href="https://getbootstrap.jp/" target="_blank">Bootstrap4<br></a>
+<?php echo $eventname; ?> Powered by <a href='https://www.hkdyukkuri.space/filesystem/' target="_blank" rel="noopener">MAD合作・合同誌向けファイル提出システム</a> (Ver. <?php echo VERSION; ?>) and supported by <a href="https://getbootstrap.jp/" target="_blank" rel="noopener">Bootstrap4<br></a>
 </font>
 </span>
 </nav>

@@ -1,20 +1,12 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 $IP = getenv("REMOTE_ADDR");
 
@@ -232,9 +224,12 @@ foreach ($submitformdata as $array) {
 }
 
 if ($changeditem == array()) {
-    $_SESSION['situation'] = 'edit_nochange';
+    register_alert("登録情報の変更はありませんでした。", "success");
     redirect("./index.php");
 }
+
+//IPアドレスデータ
+$entereddata["author_ip"] = $IP;
 
 //自動承認していいなら上書き
 if ($recheck == 0) {
@@ -270,7 +265,7 @@ if ($recheck == 0) {
     $entereddatajson =  json_encode($entereddata);
     if (file_put_contents(DATAROOT . 'submit/' . $userid . '/' . $id . '.txt', $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
-    $_SESSION['situation'] = 'edit_autoaccept';
+    register_alert("ファイルの編集が完了しました。<br>自動承認される項目のみ変更されていたため、変更は自動的に承認されました。", "success");
     redirect("./index.php");
 }
 
@@ -294,7 +289,7 @@ $editid = time();
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array("_state" => 0);
+$exammember = array("_state" => 0, "_ip" => $IP);
 $autoaccept = TRUE;
 
 if ($recheck == 2) {
@@ -325,10 +320,11 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
 下記のURLからファイルをダウンロードし、作品内容を確認して下さい。
 
 　ファイル内容確認ページ：$pageurl
-　提出元IPアドレス　　　：$IP
 
-※万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が同じIPアドレスから行われる場合、
-　主催者の判断で該当IPアドレスからのアクセス制限を行う事が可能です。
+※編集元のIPアドレス・リモートホスト名は、上記ページもしくは作品詳細画面から、主催者のみ
+　閲覧可能です。万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が
+　同じIPアドレスや似たリモートホスト名から行われる場合、主催者の判断で該当IPアドレス・
+　リモートホスト名からのアカウント作成制限を行う事が可能です。
 ";
 
         //内部関数で送信
@@ -361,10 +357,11 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
 下記のURLから、変更内容を確認し、承認するか決めて下さい。
 
 　ファイル内容確認ページ：$pageurl
-　提出元IPアドレス　　　：$IP
 
-※万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が同じIPアドレスから行われる場合、
-　主催者の判断で該当IPアドレスからのアクセス制限を行う事が可能です。
+※編集元のIPアドレス・リモートホスト名は、上記ページもしくは作品詳細画面から、主催者のみ
+　閲覧可能です。万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が
+　同じIPアドレスや似たリモートホスト名から行われる場合、主催者の判断で該当IPアドレス・
+　リモートホスト名からのアカウント作成制限を行う事が可能です。
 ";
 
         //内部関数で送信
@@ -450,7 +447,7 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品編集を受け付けました', $content);
-        $_SESSION['situation'] = 'edit_submitted';
+        register_alert("ファイルの編集が完了しました。<br>変更内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。", "success");
         break;
     default:
         $nickname = $_SESSION["nickname"];
@@ -476,7 +473,7 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品編集を受け付け・承認しました', $content);
-        $_SESSION['situation'] = 'edit_submitted_auto_accept';
+        register_alert("ファイルの編集が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、変更内容は<b>自動的に承認されました</b>。", "success");
 }
 
 redirect("./index.php");

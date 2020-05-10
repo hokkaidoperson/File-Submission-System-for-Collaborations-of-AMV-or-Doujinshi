@@ -1,6 +1,6 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'メッセージ新規送信（一斉送信）';
 require_once(PAGEROOT . 'mypage_header.php');
 
@@ -14,19 +14,19 @@ if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エ
 <p>下の入力欄にメッセージを入力し、「送信」ボタンを押して下さい。</p>
 
 <form name="form" action="write_simultaneously_handle.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
 <input type="text" name="msg_subject" class="form-control" id="msg_subject" value="" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
-<font size="2"><div id="subject-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="subject-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="subject-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</font>
 </div>
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
 <textarea id="msg_content" name="msg_content" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
-<font size="2"><div id="msg_content-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="msg_content-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="msg_content-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。</font>
@@ -34,27 +34,9 @@ if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エ
 <br>
 <button type="submit" class="btn btn-primary">送信</button>
 </div>
-<!-- 送信確認Modal -->
-<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="confirmmodaltitle">送信確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-このメッセージを送信してもよろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<button type="button" id="submitbtn" onclick="submittohandle();" class="btn btn-primary">送信する</button>
-</div>
-</div>
-</div>
-</div>
+<?php
+echo_modal_confirm("このメッセージを送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。");
+?>
 </form>
 <script language="JavaScript" type="text/javascript">
 <!--
@@ -137,12 +119,6 @@ function check(){
         });
     }
     return false;
-}
-
-function submittohandle() {
-    submitbtn = document.getElementById("submitbtn");
-    submitbtn.disabled = "disabled";
-    document.form.submit();
 }
 
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html

@@ -1,36 +1,16 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '権限コントロール';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'auth_fileacl') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-アクセス権の変更が完了しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'auth_outofterm') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-操作権の変更が完了しました。
-</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 ?>
 
 <h1>権限コントロール</h1>
 <p>ここでは、共同運営者の他者ファイル閲覧、提出期間外のファイル提出・編集許可といった、特殊な権限について操作出来ます。</p>
-<div class="row">
+<div class="row" style="padding:10px;">
 <a href="fileacl.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-body">

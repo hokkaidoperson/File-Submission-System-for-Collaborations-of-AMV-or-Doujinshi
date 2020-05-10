@@ -1,20 +1,12 @@
 <?php
 require_once('../../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -106,6 +98,10 @@ if($_POST["height"] == ""){
 if($_POST["size"] == ""){
 } else if(!preg_match('/^[0-9]*$/', $_POST["size"])) $invalid = TRUE;
 else if((int)$_POST["size"] < 1 or (int)$_POST["size"] > FILE_MAX_SIZE) $invalid = TRUE;
+if($_POST["filenumber"] == ""){
+} else if(!preg_match('/^[0-9]*$/', $_POST["filenumber"])) $invalid = TRUE;
+else if((int)$_POST["filenumber"] < 1 or (int)$_POST["filenumber"] > 100) $invalid = TRUE;
+
 
 switch ($_POST["recheck"]) {
     case "": break;
@@ -113,19 +109,29 @@ switch ($_POST["recheck"]) {
     default: $invalid = TRUE;
 }
 
-//日付・時刻
+//日付・時刻とか
 if ($_POST["type"] == "general") {
-    list($Y, $m, $d) = explode('-', $_POST["from_date"]);
-    if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
-    list($Y, $m, $d) = explode('-', $_POST["until_date"]);
-    if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
+    list($Yf, $mf, $df) = explode('-', $_POST["from_date"]);
+    list($hrf, $mnf) = explode(':', $_POST["from_time"]);
+    list($Yu, $mu, $du) = explode('-', $_POST["until_date"]);
+    list($hru, $mnu) = explode(':', $_POST["until_time"]);
+    $fromunix = mktime($hrf, $mnf, 0, $mf, $df, $Yf);
+    $untilunix = mktime($hru, $mnu, 0, $mu, $du, $Yu);
 
-    list($hr, $mn) = explode(':', $_POST["from_time"]);
-    if ($hr < 0 and $hr > 23) $invalid = TRUE;
-    if ($mn < 0 and $mn > 59) $invalid = TRUE;
-    list($hr, $mn) = explode(':', $_POST["until_time"]);
-    if ($hr < 0 and $hr > 23) $invalid = TRUE;
-    if ($mn < 0 and $mn > 59) $invalid = TRUE;
+    if (checkdate($mf, $df, $Yf) !== true) $invalid = TRUE;
+    if (checkdate($mu, $du, $Yu) !== true) $invalid = TRUE;
+
+    if ($hrf < 0 and $hrf > 23) $invalid = TRUE;
+    if ($mnf < 0 and $mnf > 59) $invalid = TRUE;
+    if ($hru < 0 and $hru > 23) $invalid = TRUE;
+    if ($mnu < 0 and $mnu > 59) $invalid = TRUE;
+
+    if ($fromunix >= $untilunix) $invalid = TRUE;
+
+    if($_POST["worknumber"] == ""){
+    } else if(!preg_match('/^[0-9]*$/', $_POST["worknumber"])) $invalid = TRUE;
+    else if((int)$_POST["worknumber"] < 1) $invalid = TRUE;
+
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
@@ -139,17 +145,13 @@ $_SESSION["submitformdata"][$number] = $_POST;
 
 //日付だけunixスタンプに変換
 if ($number == "general") {
-    list($Yf, $mf, $df) = explode('-', $_POST["from_date"]);
-    list($hrf, $mnf) = explode(':', $_POST["from_time"]);
-    list($Yu, $mu, $du) = explode('-', $_POST["until_date"]);
-    list($hru, $mnu) = explode(':', $_POST["until_time"]);
-    $_SESSION["submitformdata"][$number]["from"] = mktime($hrf, $mnf, 0, $mf, $df, $Yf);
-    $_SESSION["submitformdata"][$number]["until"] = mktime($hru, $mnu, 0, $mu, $du, $Yu);
+    $_SESSION["submitformdata"][$number]["from"] = $fromunix;
+    $_SESSION["submitformdata"][$number]["until"] = $untilunix;
 }
 
 
 //いらないやつをunset
-unset($_SESSION["submitformdata"][$number]["successfully"]);
+unset($_SESSION["submitformdata"][$number]["csrf_prevention_token"]);
 unset($_SESSION["submitformdata"][$number]["number"]);
 unset($_SESSION["submitformdata"][$number]["from_date"]);
 unset($_SESSION["submitformdata"][$number]["from_time"]);
@@ -177,6 +179,6 @@ $fileplace = DATAROOT . 'form/submit/draft/' . $number . '.txt';
 
 if (file_put_contents($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
-$_SESSION['situation'] = 'submitform_saved';
+register_alert("設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。");
 
 redirect("./index.php");

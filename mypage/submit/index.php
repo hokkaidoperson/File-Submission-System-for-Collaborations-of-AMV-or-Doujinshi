@@ -1,35 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル提出';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'file_submitted') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ファイルの提出が完了しました。<br>
-ファイル内容を運営チームが確認するまでしばらくお待ち願います。<br><br>
-ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。<br><br>
-続けて提出する場合は、再びこの画面から提出して下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'file_submitted_auto_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ファイルの提出が完了しました。<br>
-ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。<br><br>
-続けて提出する場合は、再びこの画面から提出して下さい。
-</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c", "g"), TRUE);
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) die_mypage('<h1>準備中です</h1>
 <p>必要な設定が済んでいないため、只今、ファイル提出を受け付け出来ません。<br>
@@ -71,27 +46,33 @@ else {
     else if ($outofterm) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 現在ファイル提出期間外ですが、あなたは主催者からファイル提出を許可されています（' . date('Y年n月j日G時i分s秒', outofterm('submit')) . 'まで）。
 </div>';
-    echo '<div class="row">
-<a href="direct_unit.php">
+    if (isset($general["worknumber"]) and $general["worknumber"] != "") {
+        $myworks = count_works();
+        $submitleft = (int)$general["worknumber"] - $myworks;
+        if ($submitleft <= 0) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+提出可能な作品数の上限に達しています（' . $general["worknumber"] . '作品まで提出可能）。提出済みの作品を削除しないと、新規提出を行えません。
+</div>');
+        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+あと <b>' . $submitleft . '作品</b> 提出出来ます（' . $general["worknumber"] . '作品まで提出可能）。
+</div>';
+    }
+    echo '<div class="row" style="padding:10px;">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-header">
-ファイルをサーバーに直接アップロードする
+<a href="direct_unit.php" class="stretched-link">ファイルをサーバーに直接アップロードする</a>
 </div>
 <div class="card-body">
 <span class="text-decoration-none text-body">ポータルサイトのサーバーに直接アップロード出来るファイルの最大サイズは <b>' . $maxsize  . 'MB</b> です。</span>
 </div>
 </div>
-</a>
-<a href="url_unit.php">
 <div class="card" style="width: 20rem; margin: 0.5rem;">
 <div class="card-header">
-外部のファイルアップロードサービスを利用して送信する
+<a href="url_unit.php" class="stretched-link">外部のファイルアップロードサービスを利用して送信する</a>
 </div>
 <div class="card-body">
 <span class="text-decoration-none text-body">アップロードしたいファイルのサイズが' . $maxsize  . 'MBを上回っている場合はこちらを選択して下さい。</span>
 </div>
 </div>
-</a>
 </div>';
 }
 require_once(PAGEROOT . 'mypage_footer.php');

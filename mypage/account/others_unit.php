@@ -1,6 +1,6 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'アカウント情報変更（パスワード以外）';
 require_once(PAGEROOT . 'mypage_header.php');
 
@@ -34,7 +34,7 @@ else {
 ?>
 <form name="form" action="others_handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="password">現在のパスワード（本人確認の為ご入力願います）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onBlur="check_individual(&quot;password&quot;);">
@@ -47,16 +47,16 @@ else {
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
 <input type="text" name="nickname" class="form-control" id="nickname" value="<?php
-if (isset($entereddata["nickname"])) echo htmlspecialchars($entereddata["nickname"]);
+if (isset($entereddata["nickname"])) echo hsc($entereddata["nickname"]);
 ?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
-<font size="2"><div id="nickname-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="nickname-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</font>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス【必須】</label>
 <input type="email" name="email" class="form-control" id="email" value="<?php
-if (isset($entereddata["email"])) echo htmlspecialchars($entereddata["email"]);
+if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
 ?>" onBlur="check_individual(&quot;email&quot;);">
 <div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</font>
@@ -64,7 +64,7 @@ if (isset($entereddata["email"])) echo htmlspecialchars($entereddata["email"]);
 <div class="form-group">
 <label for="emailagn">メールアドレス（確認の為再入力）【必須】</label>
 <input type="email" name="emailagn" class="form-control" id="emailagn" value="<?php
-if (isset($entereddata["email"])) echo htmlspecialchars($entereddata["email"]);
+if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
 ?>" onBlur="check_individual(&quot;emailagn&quot;);">
 <div id="emailagn-errortext" class="invalid-feedback" style="display: block;"></div>
 </div>
@@ -72,69 +72,11 @@ if (isset($entereddata["email"])) echo htmlspecialchars($entereddata["email"]);
 ※送信前に、入力内容の確認をお願い致します。<br>
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
-<!-- エラーModal -->
-<div class="modal fade" id="errormodal" tabindex="-1" role="dialog" aria-labelledby="errormodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="errormodaltitle">入力内容の修正が必要です</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容に問題が見つかりました。<br>
-お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。<br><br>
-修正後、再度「送信する」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn">OK</button>
-</div>
-</div>
-</div>
-</div>
-<!-- 接続エラーModal -->
-<div class="modal fade" id="neterrormodal" tabindex="-1" role="dialog" aria-labelledby="neterrormodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="neterrormodaltitle">ネットワーク・エラー</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容の検証中にエラーが発生しました。<br>
-お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn2">OK</button>
-</div>
-</div>
-</div>
-</div>
-<!-- 送信確認Modal -->
-<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="confirmmodaltitle">変更確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-入力内容に問題は見つかりませんでした。<br><br>
-現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<button type="button" class="btn btn-primary" id="submitbtn" onClick="submittohandle();">送信する</button>
-</div>
-</div>
-</div>
-</div>
+<?php
+echo_modal_alert();
+echo_modal_alert("入力内容の検証中にエラーが発生しました。<br>お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。", "ネットワーク・エラー", null, null, "neterrormodal", "dismissbtn2");
+echo_modal_confirm();
+?>
 </form>
 <script type="text/javascript">
 <!--
@@ -147,7 +89,7 @@ function check_individual(id){
             document.getElementById("password-errortext").innerHTML = "入力されていません。";
         } else {
             //参考　https://qiita.com/legokichi/items/801e88462eb5c84af97d
-            const obj = {password: document.form.password.value};
+            const obj = {password: document.form.password.value, csrf_prevention_token: "<?php echo csrf_prevention_token(); ?>"};
             const method = "POST";
             const body = Object.keys(obj).map((key)=>key+"="+encodeURIComponent(obj[key])).join("&");
             const headers = {
@@ -159,11 +101,13 @@ function check_individual(id){
                 if(response.ok) {
                     return response.json();
                 } else {
-                    throw new Error();
+                    throw new Error("Stopped because of a network error");
                 }
             })
             .then((result) => {
-                if (result.result == 0) {
+                if (result.auth_status == "NG") {
+                    throw new Error("Stopped because of an API error - response: " + result.error_detail);
+                } else if (result.result == 0) {
                     document.getElementById("password-errortext").innerHTML = "現在のパスワードに誤りがあります。";
                     document.form.password.classList.add("is-invalid");
                     document.form.password.classList.remove("is-valid");
@@ -210,16 +154,25 @@ function check_individual(id){
             valid = 0;
             document.getElementById("email-errortext").innerHTML = "正しく入力されていません。入力されたメールアドレスをご確認下さい。メールアドレスは間違っていませんか？";
         } else {
-            fetch('../fnc/api_emailduplication.php?skipmyself=1&email=' + document.form.email.value)
+            const obj = {email: document.form.email.value, skipmyself: "1", csrf_prevention_token: "<?php echo csrf_prevention_token(); ?>"};
+            const method = "POST";
+            const body = Object.keys(obj).map((key)=>key+"="+encodeURIComponent(obj[key])).join("&");
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+            };
+            fetch('../fnc/api_emailduplication.php', {method, headers, body})
             .then((response) => {
                 if(response.ok) {
                     return response.json();
                 } else {
-                    throw new Error();
+                    throw new Error("Stopped because of a network error");
                 }
             })
             .then((result) => {
-                if (result.emailresult == 0) {
+                if (result.auth_status == "NG") {
+                    throw new Error("Stopped because of an API error - response: " + result.error_detail);
+                } else if (result.emailresult == 0) {
                     document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。1つのメールアドレスにつき、紐づけられるアカウントは1個のみです。";
                     document.form.email.classList.add("is-invalid");
                     document.form.email.classList.remove("is-valid");
@@ -329,7 +282,7 @@ function check(){
     valid = 1;
 
     //参考　https://qiita.com/legokichi/items/801e88462eb5c84af97d
-    const obj = {password: document.form.password.value, email:document.form.email.value};
+    const obj = {password: document.form.password.value, email:document.form.email.value, csrf_prevention_token: "<?php echo csrf_prevention_token(); ?>"};
     const method = "POST";
     const body = Object.keys(obj).map((key)=>key+"="+encodeURIComponent(obj[key])).join("&");
     const headers = {
@@ -345,7 +298,7 @@ function check(){
             $('#neterrormodal').on('shown.bs.modal', function () {
                 document.getElementById("dismissbtn2").focus();
             });
-            throw new Error();
+            throw new Error("Stopped because of a network error");
         }
     })
     .catch((error) => {
@@ -353,45 +306,43 @@ function check(){
         $('#neterrormodal').on('shown.bs.modal', function () {
             document.getElementById("dismissbtn2").focus();
         });
-        throw new Error();
+        throw new Error("Stopped because of a network error");
     })
     .then((result) => {
-        if (result.result == 0 && validpw == 1) {
-            document.getElementById("password-errortext").innerHTML = "現在のパスワードに誤りがあります。";
-            document.form.password.classList.add("is-invalid");
-            document.form.password.classList.remove("is-valid");
-        } else if (validpw == 1) {
-            document.form.password.classList.add("is-valid");
-            document.form.password.classList.remove("is-invalid");
-        }
-        if (result.emailresult == 0 && validemail == 1) {
-            document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。1つのメールアドレスにつき、紐づけられるアカウントは1個のみです。";
-            document.form.email.classList.add("is-invalid");
-            document.form.email.classList.remove("is-valid");
-        } else if (validemail == 1) {
-            document.form.email.classList.add("is-valid");
-            document.form.email.classList.remove("is-invalid");
-        }
-        if (problem == 1 || result.emailresult == 0 || result.idresult == 0) {
-            $('#errormodal').modal();
-            $('#errormodal').on('shown.bs.modal', function () {
-                document.getElementById("dismissbtn").focus();
-            });
+        if (result.auth_status == "NG") {
+            throw new Error("Stopped because of an API error - response: " + result.error_detail);
         } else {
-            $('#confirmmodal').modal();
-            $('#confirmmodal').on('shown.bs.modal', function () {
-                document.getElementById("submitbtn").focus();
-            });
+            if (result.result == 0 && validpw == 1) {
+                document.getElementById("password-errortext").innerHTML = "現在のパスワードに誤りがあります。";
+                document.form.password.classList.add("is-invalid");
+                document.form.password.classList.remove("is-valid");
+            } else if (validpw == 1) {
+                document.form.password.classList.add("is-valid");
+                document.form.password.classList.remove("is-invalid");
+            }
+            if (result.emailresult == 0 && validemail == 1) {
+                document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。1つのメールアドレスにつき、紐づけられるアカウントは1個のみです。";
+                document.form.email.classList.add("is-invalid");
+                document.form.email.classList.remove("is-valid");
+            } else if (validemail == 1) {
+                document.form.email.classList.add("is-valid");
+                document.form.email.classList.remove("is-invalid");
+            }
+            if (problem == 1 || result.emailresult == 0 || result.result == 0) {
+                $('#errormodal').modal();
+                $('#errormodal').on('shown.bs.modal', function () {
+                    document.getElementById("dismissbtn").focus();
+                });
+            } else {
+                $('#confirmmodal').modal();
+                $('#confirmmodal').on('shown.bs.modal', function () {
+                    document.getElementById("submitbtn").focus();
+                });
+            }
         }
     })
     return false;
 
-}
-
-function submittohandle() {
-    submitbtn = document.getElementById("submitbtn");
-    submitbtn.disabled = "disabled";
-    document.form.submit();
 }
 
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html

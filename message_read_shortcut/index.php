@@ -35,8 +35,8 @@ if (isset($filedata[$userid]) and $filedata[$userid] == 0) {
     $filedata[$userid] = 1;
     $filedatajson = json_encode($filedata);
     if (file_put_contents(DATAROOT . 'messages/' . $name . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
-    $print = "メッセージ「" . htmlspecialchars($filedata["_subject"]) . "」に既読を付けました。<br>ブラウザを閉じても構いません。";
-} else $print = "メッセージ「" . htmlspecialchars($filedata["_subject"]) . "」には既に既読が付いています。<br>ブラウザを閉じても構いません。";
+    $print = "メッセージ「" . hsc($filedata["_subject"]) . "」に既読を付けました。<br>ブラウザを閉じても構いません。";
+} else $print = "メッセージ「" . hsc($filedata["_subject"]) . "」には既に既読が付いています。<br>ブラウザを閉じても構いません。";
 
 ?>
 

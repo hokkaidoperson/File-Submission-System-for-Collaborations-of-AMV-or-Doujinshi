@@ -1,17 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 //zipモジュールチェック
 if (!extension_loaded('zip')) die('<!DOCTYPE html>
@@ -31,7 +23,7 @@ if (!extension_loaded('zip')) die('<!DOCTYPE html>
 </html>');
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 
 //設定チェック
@@ -319,6 +311,7 @@ $zip->close();
 unlink(DATAROOT . 'zip/tmp_user_' . $_SESSION["userid"] . '.csv');
 unlink(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv');
 
-$_SESSION['situation'] = 'zip_generated';
+register_alert('ZIPファイルの生成が完了しました。<br>
+<a href="generatezip_dld.php" target="_blank">こちらをクリックして、生成したZIPファイルをダウンロードして下さい。</a>', "success");
 
 redirect("./generatezip.php");

@@ -1,12 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //今のパスワードで認証
 $userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
@@ -27,7 +24,7 @@ if (!password_verify($_POST["oldpassword"], $userdata["pwhash"])) die('<!DOCTYPE
 $invalid = FALSE;
 //必須の場合のパターン・文字数・一致確認
 if($_POST["password"] == "") $invalid = TRUE;
-else if(mb_strlen($_POST["password"]) > 30) $invalid = TRUE;
+else if(mb_strlen($_POST["password"]) > 72) $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
 else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 
@@ -35,7 +32,7 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 
 
 //パスワードハッシュ化
-$hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
+$hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 $userdata["pwhash"] = $hash;
 
@@ -74,6 +71,6 @@ $eventname のポータルサイトのマイページで、パスワードが変
 sendmail($_SESSION['email'], 'パスワード変更通知', $content);
 
 
-$_SESSION['situation'] = 'pw_changed';
+register_alert("パスワードの変更が完了しました。", "success");
 
 redirect("./index.php");

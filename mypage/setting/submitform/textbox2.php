@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル提出画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 $number = basename($_GET['number']);
 
@@ -25,14 +18,14 @@ if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]
 
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
 <input type="hidden" name="id" value="<?php echo $_SESSION["submitformdata"][$number]["id"]; ?>">
 <input type="hidden" name="type" value="textbox2">
 <div class="form-group">
 <label for="title">項目名（50文字以内）【必須】</label>
 <input type="text" name="title" class="form-control" id="title" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["title"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["title"]);
+if (isset($_SESSION["submitformdata"][$number]["title"])) echo hsc($_SESSION["submitformdata"][$number]["title"]);
 ?>">
 </div>
 <div class="form-group">
@@ -60,7 +53,7 @@ if (isset($_SESSION["submitformdata"][$number]["required"]) and $_SESSION["submi
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
 <textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
-if (isset($_SESSION["submitformdata"][$number]["detail"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["detail"]);
+if (isset($_SESSION["submitformdata"][$number]["detail"])) echo hsc($_SESSION["submitformdata"][$number]["detail"]);
 ?></textarea>
 <font size="2">※入力欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -74,7 +67,7 @@ if (isset($_SESSION["submitformdata"][$number]["detail"])) echo htmlspecialchars
 <span class="input-group-text">1つ目のテキストボックス：</span>
 </div>
 <input type="text" name="max" class="form-control" id="max" style="width:5em;" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["max"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["max"]);
+if (isset($_SESSION["submitformdata"][$number]["max"])) echo hsc($_SESSION["submitformdata"][$number]["max"]);
 ?>">
 </div>
 <div class="input-group">
@@ -82,7 +75,7 @@ if (isset($_SESSION["submitformdata"][$number]["max"])) echo htmlspecialchars($_
 <span class="input-group-text">2つ目のテキストボックス：</span>
 </div>
 <input type="text" name="max2" class="form-control" id="max2" style="width:5em;" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["max2"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["max2"]);
+if (isset($_SESSION["submitformdata"][$number]["max2"])) echo hsc($_SESSION["submitformdata"][$number]["max2"]);
 ?>">
 </div>
 <font size="2">※入力内容が、ここで指定する文字数を超えている場合に、警告を発して再入力を促します。<br>
@@ -95,7 +88,7 @@ if (isset($_SESSION["submitformdata"][$number]["max2"])) echo htmlspecialchars($
 <span class="input-group-text">1つ目のテキストボックス：</span>
 </div>
 <input type="text" name="min" class="form-control" id="min" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["min"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["min"]);
+if (isset($_SESSION["submitformdata"][$number]["min"])) echo hsc($_SESSION["submitformdata"][$number]["min"]);
 ?>">
 </div>
 <div class="input-group" style="width:19em;">
@@ -103,7 +96,7 @@ if (isset($_SESSION["submitformdata"][$number]["min"])) echo htmlspecialchars($_
 <span class="input-group-text">2つ目のテキストボックス：</span>
 </div>
 <input type="text" name="min2" class="form-control" id="min2" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["min2"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["min2"]);
+if (isset($_SESSION["submitformdata"][$number]["min2"])) echo hsc($_SESSION["submitformdata"][$number]["min2"]);
 ?>">
 </div>
 <font size="2">※入力内容が、ここで指定する文字数を下回っている場合に、警告を発して再入力を促します。<br>
@@ -116,7 +109,7 @@ if (isset($_SESSION["submitformdata"][$number]["min2"])) echo htmlspecialchars($
 <span class="input-group-text">1つ目のテキストボックス：</span>
 </div>
 <input type="text" name="width" class="form-control" id="width" style="width:5em;" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["width"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["width"]);
+if (isset($_SESSION["submitformdata"][$number]["width"])) echo hsc($_SESSION["submitformdata"][$number]["width"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">em</span>
@@ -127,7 +120,7 @@ if (isset($_SESSION["submitformdata"][$number]["width"])) echo htmlspecialchars(
 <span class="input-group-text">2つ目のテキストボックス：</span>
 </div>
 <input type="text" name="width2" class="form-control" id="width2" style="width:5em;" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["width2"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["width2"]);
+if (isset($_SESSION["submitformdata"][$number]["width2"])) echo hsc($_SESSION["submitformdata"][$number]["width2"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">em</span>
@@ -145,7 +138,7 @@ if (isset($_SESSION["submitformdata"][$number]["width2"])) echo htmlspecialchars
 <span class="input-group-text">1つ目のテキストボックス：</span>
 </div>
 <input type="text" name="prefix_a" class="form-control" id="prefix_a" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["prefix_a"]);
+if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo hsc($_SESSION["submitformdata"][$number]["prefix_a"]);
 ?>">
 </div>
 <div class="input-group">
@@ -153,7 +146,7 @@ if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo htmlspecialcha
 <span class="input-group-text">2つ目のテキストボックス：</span>
 </div>
 <input type="text" name="prefix_b" class="form-control" id="prefix_b" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["prefix_b"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["prefix_b"]);
+if (isset($_SESSION["submitformdata"][$number]["prefix_b"])) echo hsc($_SESSION["submitformdata"][$number]["prefix_b"]);
 ?>">
 </div>
 <font size="2">※例えば、「https://www.nicovideo.jp/watch/sm」と指定すると、入力欄は、<br>
@@ -167,7 +160,7 @@ if (isset($_SESSION["submitformdata"][$number]["prefix_b"])) echo htmlspecialcha
 <span class="input-group-text">1つ目のテキストボックス：</span>
 </div>
 <input type="text" name="suffix_a" class="form-control" id="suffix_a" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["suffix_a"]);
+if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo hsc($_SESSION["submitformdata"][$number]["suffix_a"]);
 ?>">
 </div>
 <div class="input-group">
@@ -175,7 +168,7 @@ if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo htmlspecialcha
 <span class="input-group-text">2つ目のテキストボックス：</span>
 </div>
 <input type="text" name="suffix_b" class="form-control" id="suffix_b" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["suffix_b"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["suffix_b"]);
+if (isset($_SESSION["submitformdata"][$number]["suffix_b"])) echo hsc($_SESSION["submitformdata"][$number]["suffix_b"]);
 ?>">
 </div>
 <font size="2">※例えば、「年」と指定すると、入力欄は、<br>

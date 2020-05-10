@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = '共通情報入力画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 $number = basename($_GET['number']);
 
@@ -25,14 +18,14 @@ if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) 
 
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
 <input type="hidden" name="id" value="<?php echo $_SESSION["userformdata"][$number]["id"]; ?>">
 <input type="hidden" name="type" value="attach">
 <div class="form-group">
 <label for="title">項目名（50文字以内）【必須】</label>
 <input type="text" name="title" class="form-control" id="title" value="<?php
-if (isset($_SESSION["userformdata"][$number]["title"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["title"]);
+if (isset($_SESSION["userformdata"][$number]["title"])) echo hsc($_SESSION["userformdata"][$number]["title"]);
 ?>">
 </div>
 <div class="form-group">
@@ -54,7 +47,7 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
 <textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
-if (isset($_SESSION["userformdata"][$number]["detail"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["detail"]);
+if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
 <font size="2">※選択欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -64,7 +57,7 @@ if (isset($_SESSION["userformdata"][$number]["detail"])) echo htmlspecialchars($
 <div class="form-group">
 <label for="ext">ファイルの拡張子指定（半角英数字（小文字）とカンマ「,」）【必須】</label>
 <input type="text" name="ext" class="form-control" id="ext" value="<?php
-if (isset($_SESSION["userformdata"][$number]["ext"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["ext"]);
+if (isset($_SESSION["userformdata"][$number]["ext"])) echo hsc($_SESSION["userformdata"][$number]["ext"]);
 ?>">
 <font size="2">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
 ※無差別に全ての種類のファイルを受け入れられるようにすると、セキュリティ的に脆弱になる恐れがあります。<br>
@@ -77,7 +70,7 @@ if (isset($_SESSION["userformdata"][$number]["ext"])) echo htmlspecialchars($_SE
 <label for="filenumber">同時にアップロード可能なファイル数（1～100の間の半角数字）</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="filenumber" class="form-control" id="filenumber" value="<?php
-if (isset($_SESSION["userformdata"][$number]["filenumber"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["filenumber"]);
+if (isset($_SESSION["userformdata"][$number]["filenumber"])) echo hsc($_SESSION["userformdata"][$number]["filenumber"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">個</span>
@@ -91,7 +84,7 @@ if (isset($_SESSION["userformdata"][$number]["filenumber"])) echo htmlspecialcha
 <label for="size">アップロード可能な最大サイズ（1～<?php echo FILE_MAX_SIZE; ?>の間の半角数字）</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="size" class="form-control" id="size" value="<?php
-if (isset($_SESSION["userformdata"][$number]["size"])) echo htmlspecialchars($_SESSION["userformdata"][$number]["size"]);
+if (isset($_SESSION["userformdata"][$number]["size"])) echo hsc($_SESSION["userformdata"][$number]["size"]);
 ?>">
 <div class="input-group-append">
 <span class="input-group-text">MB</span>

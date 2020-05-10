@@ -1,6 +1,6 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = 'メッセージ詳細';
 require_once(PAGEROOT . 'mypage_header.php');
 
@@ -43,7 +43,7 @@ if (blackuser($from)) echo '<div class="border border-danger" style="padding:10p
 <th width="20%">詳細情報</th>
 <td width="80%">
 <p><b>送信者：</b><br>
-<?php echo htmlspecialchars(nickname($from)); 
+<?php echo hsc(nickname($from)); 
 if (state($from) == "p") echo ' <span class="badge badge-success text-wrap">
 主催者
 </span>';
@@ -61,7 +61,7 @@ if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
     if ($userid == "_replyof") continue;
     if ($userid == "_content") continue;
     if (strpos($userid, "sectok_") !== FALSE) continue;
-    echo htmlspecialchars(nickname($userid));
+    echo hsc(nickname($userid));
     if (blackuser($userid)) echo '<span class="text-danger">（凍結ユーザー）</span>';
     if (state($userid) == "p") echo ' <span class="badge badge-success text-wrap">
 主催者
@@ -81,20 +81,20 @@ if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
 <p><b>送信日時：</b><br>
 <?php echo date('Y年n月j日G時i分s秒', $time); ?>
 </p>
-<p style="margin-bottom: 0;"><b>件名：</b><br><?php echo htmlspecialchars($data["_subject"]); ?></p>
+<p style="margin-bottom: 0;"><b>件名：</b><br><?php echo hsc($data["_subject"]); ?></p>
 <?php
 if (isset($data["_replyof"])) {
     if (file_exists(DATAROOT . 'messages/' . $data["_replyof"] . '.txt')) {
         $replyofdata = json_decode(file_get_contents(DATAROOT . 'messages/' . $data["_replyof"] . '.txt'), true);
-        echo '<p style="margin-top: 1em; margin-bottom: 0;">※このメッセージは、「<a href="read.php?name=' . $data["_replyof"] .'">' . htmlspecialchars($replyofdata["_subject"]) . '</a>」への返信です。</p>';
+        echo '<p style="margin-top: 1em; margin-bottom: 0;">※このメッセージは、「<a href="read.php?name=' . $data["_replyof"] .'">' . hsc($replyofdata["_subject"]) . '</a>」への返信です。</p>';
     } else echo '<p style="margin-top: 1em; margin-bottom: 0;">※このメッセージは、削除されたメッセージへの返信です。</p>';
 }
 ?>
 </td>
 </tr>
 <tr><th>本文</th><td><?php
-$log = str_replace('&amp;', '&', htmlspecialchars($data["_content"]));
-$log = preg_replace('{https?://[\w/:%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break">$0</a>', $log);
+$log = hsc($data["_content"]);
+$log = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $log);
 $log = str_replace(array("\r\n", "\r", "\n"), "\n", $log);
 echo str_replace("\n", "<br>", $log);
 ?></td></tr>
@@ -105,13 +105,13 @@ echo str_replace("\n", "<br>", $log);
 
 <h2>このメッセージへ返信する</h2>
 <form name="form" action="reply.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="replyof" value="<?php echo $id; ?>">
 <div class="border border-primary" style="padding:10px;">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
-<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="Re: <?php echo htmlspecialchars($data["_subject"]); ?>" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
-<font size="2"><div id="subject-counter" class="text-right">現在 - 文字</div></font>
+<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="Re: <?php echo hsc($data["_subject"]); ?>" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
+<font size="2"><div id="subject-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="subject-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※必要に応じて変更して下さい。<br>
 ※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</font>
@@ -119,7 +119,7 @@ echo str_replace("\n", "<br>", $log);
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
 <textarea id="msg_content" name="msg_content" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
-<font size="2"><div id="msg_content-counter" class="text-right">現在 - 文字</div></font>
+<font size="2"><div id="msg_content-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
 <div id="msg_content-errortext" class="invalid-feedback" style="display: block;"></div>
 <font size="2">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。</font>
@@ -127,27 +127,9 @@ echo str_replace("\n", "<br>", $log);
 <br>
 <button type="submit" class="btn btn-primary">送信</button>
 </div>
-<!-- 送信確認Modal -->
-<div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="confirmmodaltitle">送信確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-このメッセージを送信してもよろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<button type="button" id="submitbtn" onclick="submittohandle();" class="btn btn-primary">送信する</button>
-</div>
-</div>
-</div>
-</div>
+<?php
+echo_modal_confirm("このメッセージを送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。");
+?>
 </form>
 <script language="JavaScript" type="text/javascript">
 <!--
@@ -232,12 +214,6 @@ function check(){
     return false;
 }
 
-function submittohandle() {
-    submitbtn = document.getElementById("submitbtn");
-    submitbtn.disabled = "disabled";
-    document.form.submit();
-}
-
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
@@ -249,28 +225,13 @@ function ShowLength(str, resultid) {
 } ?>
 <h2>メッセージ削除</h2>
 <p>メッセージを削除すると、自分だけでなく、宛先のユーザーからも閲覧出来なくなります。</p>
-<p><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deletemodal">このメッセージを削除する</button></p>
-<!-- 削除確認Modal -->
-<div class="modal fade" id="deletemodal" tabindex="-1" role="dialog" aria-labelledby="deletemodaltitle" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<h5 class="modal-title" id="deletemodaltitle">削除確認</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-<span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-このメッセージを削除します。この操作は取り消せませんのでご注意下さい。<br>
-よろしければ「削除する」を押して下さい。<br>
-削除を止める場合は「戻る」を押して下さい。
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
-<a href="delete.php?name=<?php echo $id; ?>" class="btn btn-danger" role="button">削除する</a>
-</div>
-</div>
-</div>
-</div>
+<form name="form" action="delete.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<?php csrf_prevention_in_form(); ?>
+<input type="hidden" name="name" value="<?php echo $id; ?>">
+<button type="submit" class="btn btn-danger">このメッセージを削除する</button>
+<?php
+echo_modal_confirm("このメッセージを削除します。この操作は取り消せませんのでご注意下さい。<br>よろしければ「削除する」を押して下さい。<br>削除を止める場合は「戻る」を押して下さい。", "削除確認", null, null, "削除する", "danger");
+?>
+</form>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

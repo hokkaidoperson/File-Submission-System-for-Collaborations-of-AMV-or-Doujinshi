@@ -1,15 +1,15 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '立場の変更';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
+$accessok = FALSE;
 
 //主催・共同運営・システム管理者
-if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c' or $_SESSION["admin"]) $accessok = 'ok';
+if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c' or $_SESSION["admin"]) $accessok = TRUE;
 
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
+if (!$accessok) die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、<b>主催者</b>、<b>共同運営者</b>、<b>システム管理者</b>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
@@ -36,7 +36,7 @@ if ($_SESSION["state"] == 'p')  {
 手続きが完了次第、あなたは一般参加者に変更となります。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
 <form name="form" action="state_leave_promoter.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
@@ -51,11 +51,11 @@ foreach ($canshow as $author => $array) {
     echo '<tr>';
     echo '<td>';
     echo '<div class="form-check">';
-    echo '<input id="user_' . $author . '" class="form-check-input" type="radio" name="userid" value="' . $author . '">';
+    echo '<input id="user_' . $author . '" class="form-check-input" type="radio" name="userid" value="' . $author . '" onChange="check_individual();">';
     echo '</div>';
     echo '</td>';
     echo '<td>';
-    echo htmlspecialchars($nickname);
+    echo hsc($nickname);
     echo '</td>';
 
     switch ($array["state"]) {
@@ -78,49 +78,81 @@ if ($canshow == array()) die_mypage('<tr><td colspan="3">現在、表示出来�
 ?>
 </table>
 </div>
+<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
 <br>
-<button type="submit" class="btn btn-warning" id="submitbtn">選択したユーザーを主催者に任命し、主催者を辞退する</button>
+<button type="submit" class="btn btn-warning">選択したユーザーを主催者に任命し、主催者を辞退する</button>
+<?php
+echo_modal_confirm("選択したユーザーに手続用のURLを送信します。手続が完了次第、あなたは主催者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。<br><br><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。", "操作確認", null, null, "OK", "danger");
+?>
 </form>
 <script language="JavaScript" type="text/javascript">
 <!--
+function check_individual(){
+
+    var problem = 0;
+    document.getElementById("userid-errortext").innerHTML = "";
+
+    //ラジオボタンの処理　参考：http://allcreator.net/joomz20ps-294/
+    if(typeof document.form.userid.innerHTML === 'string') {
+        if(!document.form.userid.checked){
+            problem = 1;
+        }
+    } else {
+        if(document.form.userid.value === ""){
+            problem = 1;
+        }
+    }
+
+    var f = document.getElementsByName("userid");
+    if ( problem == 1 ) {
+        document.getElementById("userid-errortext").innerHTML = "いずれかを選択して下さい。";
+        for(var j = 0; j < f.length; j++ ){
+            f[j].classList.add("is-invalid");
+            f[j].classList.remove("is-valid");
+        }
+    } else {
+        for(var j = 0; j < f.length; j++ ){
+            f[j].classList.add("is-valid");
+            f[j].classList.remove("is-invalid");
+        }
+    }
+}
+
+
 function check(){
 
-  problem = 0;
+    var problem = 0;
+    document.getElementById("userid-errortext").innerHTML = "";
 
-  probsel = 0;
-
-  //ラジオボタンの処理　参考：http://allcreator.net/joomz20ps-294/
-  if(typeof document.form.userid.innerHTML === 'string') {
-    if(!document.form.userid.checked){
-      problem = 1;
-      probsel = 1;
+    //ラジオボタンの処理　参考：http://allcreator.net/joomz20ps-294/
+    if(typeof document.form.userid.innerHTML === 'string') {
+        if(!document.form.userid.checked){
+            problem = 1;
+        }
+    } else {
+        if(document.form.userid.value === ""){
+            problem = 1;
+        }
     }
-  } else {
-    if(document.form.userid.value === ""){
-      problem = 1;
-      probsel = 1;
+
+    var f = document.getElementsByName("userid");
+    if ( problem == 1 ) {
+        document.getElementById("userid-errortext").innerHTML = "いずれかを選択して下さい。";
+        for(var j = 0; j < f.length; j++ ){
+            f[j].classList.add("is-invalid");
+            f[j].classList.remove("is-valid");
+        }
+    } else {
+        for(var j = 0; j < f.length; j++ ){
+            f[j].classList.add("is-valid");
+            f[j].classList.remove("is-invalid");
+        }
+        $('#confirmmodal').modal();
     }
-  }
 
-
-//問題ありの場合はエラー表示　ない場合は確認・移動　エラー状況に応じて内容を表示
-if ( problem == 1 ) {
-  if ( probsel == 1) {
-    alert( "【新しい主催者】\nいずれかを選択して下さい。" );
-  }
-
-  return false;
-}
-
-  if(window.confirm('選択したユーザーに手続用のURLを送信します。手続が完了次第、あなたは主催者から一般参加者へ変更となります。\nこの操作は取り消せませんが、よろしいですか？')){
-  submitbtn = document.getElementById("submitbtn");
-  submitbtn.disabled = "disabled";
-
-    return true;
-  } else{
     return false;
-  }
 }
+
 // -->
 </script>
 <?php }
@@ -135,14 +167,27 @@ else if ($_SESSION["state"] == 'c')  {
 承認され次第、あなたは一般参加者に変更となります。</p>
 <p>承認されるまでは、あなたは引き続き共同運営者のままです。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
-<p><a href="state_leave_co.php" class="btn btn-warning" role="button" onclick="return window.confirm('主催者に手続用のURLを送信します。手続が完了次第、あなたは共同運営者から一般参加者へ変更となります。\nこの操作は取り消せませんが、よろしいですか？')">共同運営者を辞退する</a></p>
+<form name="form" action="state_leave_co.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<?php csrf_prevention_in_form(); ?>
+<button type="submit" class="btn btn-warning">共同運営者を辞退する</button>
+<?php
+echo_modal_confirm("主催者に手続用のURLを送信します。手続が完了次第、あなたは共同運営者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。<br><br><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。", "操作確認", null, null, "OK", "danger");
+?>
+</form>
 <?php }
 else if ($_SESSION["admin"]) {
     if ($_SESSION["state"] == 'o') { ?>
 <p>あなたの立場を「一般参加者」に変更します。<br>
 一般参加者になる事により、本イベントに対してファイルの提出が行えるようになります。</p>
 <p>よろしければ、以下の「一般参加者になる」ボタンを押して下さい。</p>
-<p><a href="state_admin_switcher.php" class="btn btn-primary" role="button" onclick="return window.confirm('一般参加者になります。よろしいですか？')">一般参加者になる</a></p>
+<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<?php csrf_prevention_in_form(); ?>
+<button type="submit" class="btn btn-primary">一般参加者になる</button>
+<?php
+echo_modal_confirm("一般参加者になります。続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。", "操作確認", null, null, "OK");
+?>
+</form>
+
 <?php }
     if ($_SESSION["state"] == 'g') { ?>
 <p>あなたの立場を「非参加者」に変更します。</p>
@@ -150,7 +195,13 @@ else if ($_SESSION["admin"]) {
 立場を再び「一般参加者」に変更すると、再び、作品の提出・編集を行えるようになります。<br>
 作品も削除したい場合は、予め、「提出済み作品一覧・編集」から、作品を削除して下さい。</p>
 <p>よろしければ、以下の「非参加者になる」ボタンを押して下さい。</p>
-<p><a href="state_admin_switcher.php" class="btn btn-warning" role="button" onclick="return window.confirm('非参加者になります。よろしいですか？')">非参加者になる</a></p>
+<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<?php csrf_prevention_in_form(); ?>
+<button type="submit" class="btn btn-warning">非参加者になる</button>
+<?php
+echo_modal_confirm("非参加者になります。続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。", "操作確認", null, null, "OK", "warning");
+?>
+</form>
 <?php }
 }
 

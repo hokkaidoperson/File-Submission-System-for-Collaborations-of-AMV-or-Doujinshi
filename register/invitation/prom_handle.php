@@ -1,16 +1,12 @@
 <?php
 require_once('../../set.php');
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
-
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
 //必須の場合のパターン・文字種・文字数
 if($_POST["userid"] == "") $invalid = TRUE;
 else if(!preg_match('/^[0-9a-zA-Z]*$/', $_POST["userid"])) $invalid = TRUE;
 else if(mb_strlen($_POST["userid"]) > 20) $invalid = TRUE;
-
-$IP = getenv("REMOTE_ADDR");
 
 $conflict = FALSE;
 $userid = basename($_POST["userid"]);
@@ -80,7 +76,7 @@ if ($conflict) $invalid = TRUE;
 
 //必須の場合のパターン・文字数・一致確認
 if($_POST["password"] == "") $invalid = TRUE;
-else if(mb_strlen($_POST["password"]) > 30) $invalid = TRUE;
+else if(mb_strlen($_POST["password"]) > 72) $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
 else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 
@@ -101,7 +97,7 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 $browser = $_SERVER['HTTP_USER_AGENT'];
 
 //パスワードハッシュ化
-$hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
+$hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 //ユーザー情報格納
 //lastipとlastbrは、最終ログイン時のIPとブラウザ情報
@@ -117,6 +113,7 @@ $userdata = array(
     "pwhash" => $hash,
     "state" => $state,
     "admin" => 0,
+    "createip" => $IP,
     "lastip" => $IP,
     "lastbr" => $browser
 );
@@ -171,17 +168,19 @@ $eventname のポータルサイトに、主催者 $nickname 様がアカウン�
 sendmail(email($admin), '主催者が登録されました', $content);
 
 //ログイン状態に
-session_start();
+setup_session();
 if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
     $_SESSION['userid'] = $userid;
     $_SESSION['nickname'] = $nickname;
     $_SESSION['email'] = $email;
     $_SESSION['state'] = $state;
     $_SESSION['admin'] = 0;
-    $_SESSION['situation'] = 'registered';
     $_SESSION['expire'] = time() + (30 * 60);
     $_SESSION['useragent'] = $browser;
     $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 }
+
+register_alert("ユーザー登録が完了しました。<br><br>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。");
+register_alert("当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
 
 redirect("../../mypage/index.php");

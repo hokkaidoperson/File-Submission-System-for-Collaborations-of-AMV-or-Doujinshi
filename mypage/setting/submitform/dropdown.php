@@ -1,17 +1,10 @@
 <?php
 require_once('../../../set.php');
-session_start();
+setup_session();
 $titlepart = 'ファイル提出画面 項目設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>のみです。</p>
-<p><a href="../../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p"), TRUE);
 
 $number = basename($_GET['number']);
 
@@ -25,14 +18,14 @@ if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]
 
 <div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
-<input type="hidden" name="successfully" value="1">
+<?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
 <input type="hidden" name="id" value="<?php echo $_SESSION["submitformdata"][$number]["id"]; ?>">
 <input type="hidden" name="type" value="dropdown">
 <div class="form-group">
 <label for="title">項目名（50文字以内）【必須】</label>
 <input type="text" name="title" class="form-control" id="title" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["title"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["title"]);
+if (isset($_SESSION["submitformdata"][$number]["title"])) echo hsc($_SESSION["submitformdata"][$number]["title"]);
 ?>">
 </div>
 <div class="form-group">
@@ -54,7 +47,7 @@ if (isset($_SESSION["submitformdata"][$number]["required"]) and $_SESSION["submi
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
 <textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
-if (isset($_SESSION["submitformdata"][$number]["detail"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["detail"]);
+if (isset($_SESSION["submitformdata"][$number]["detail"])) echo hsc($_SESSION["submitformdata"][$number]["detail"]);
 ?></textarea>
 <font size="2">※選択欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -64,7 +57,7 @@ if (isset($_SESSION["submitformdata"][$number]["detail"])) echo htmlspecialchars
 <div class="form-group">
 <label for="list">選択肢のリスト【必須】</label>
 <textarea id="list" name="list" rows="4" cols="80" class="form-control"><?php
-if (isset($_SESSION["submitformdata"][$number]["list"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["list"]);
+if (isset($_SESSION["submitformdata"][$number]["list"])) echo hsc($_SESSION["submitformdata"][$number]["list"]);
 ?></textarea>
 <font size="2">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
 　例えば、<br>
@@ -76,7 +69,7 @@ if (isset($_SESSION["submitformdata"][$number]["list"])) echo htmlspecialchars($
 <div class="form-group">
 <label for="prefix_a">選択欄の前に表示する文字（接頭辞）（50文字以内）</label>
 <input type="text" name="prefix_a" class="form-control" id="prefix_a" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["prefix_a"]);
+if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo hsc($_SESSION["submitformdata"][$number]["prefix_a"]);
 ?>">
 <font size="2">※例えば、「利用規約に」と指定すると、選択欄は、<br>
 　　利用規約に[　　　▽]<br>
@@ -85,7 +78,7 @@ if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo htmlspecialcha
 <div class="form-group">
 <label for="suffix_a">選択欄の後に表示する文字（接尾辞）（50文字以内）</label>
 <input type="text" name="suffix_a" class="form-control" id="suffix_a" value="<?php
-if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo htmlspecialchars($_SESSION["submitformdata"][$number]["suffix_a"]);
+if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo hsc($_SESSION["submitformdata"][$number]["suffix_a"]);
 ?>">
 <font size="2">※例えば、「月」と指定すると、選択欄は、<br>
 　　[　　　▽]月<br>

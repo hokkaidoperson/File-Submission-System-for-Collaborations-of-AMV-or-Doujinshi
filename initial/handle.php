@@ -33,9 +33,6 @@ $sendmailurl";
 
 }
 
-//未入力の場合強制終了
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
-
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
 //必須の場合のパターン・文字種・文字数
@@ -54,7 +51,7 @@ else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
 
 //必須の場合のパターン・文字数・一致確認
 if($_POST["password"] == "") $invalid = TRUE;
-else if(mb_strlen($_POST["password"]) > 30) $invalid = TRUE;
+else if(mb_strlen($_POST["password"]) > 72) $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
 else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 
@@ -114,7 +111,8 @@ if (file_put_contents(DATAROOT . 'siteurl.txt', $url) === FALSE) die('サイトU
 
 $init = array(
     "eventname" => $_POST["eventname"],
-    "maxsize" => $_POST["filesize"]
+    "maxsize" => $_POST["filesize"],
+    "robot" => $_POST["robot"]
 );
 
 $initjson =  json_encode($init);
@@ -143,7 +141,7 @@ if (file_put_contents(DATAROOT . 'rec.txt', $recdatajson) === FALSE) die('reCAPT
 
 
 //パスワードハッシュ化
-$hash = password_hash($_POST["password"], PASSWORD_BCRYPT);
+$hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 //ユーザー情報格納
 //lastipとlastbrは、最終ログイン時のIPとブラウザ情報
@@ -206,18 +204,19 @@ sendmail($email, '管理者アカウントの設定完了通知', $content);
 if (file_put_contents(DATAROOT . 'init.txt', $initjson) === FALSE) die('初期設定関連のデータの書き込みに失敗しました。');
 
 //ログイン状態に
+session_name("filesystemsessid");
+session_set_cookie_params(0, "/", null, (!empty($_SERVER['HTTPS'])), TRUE);
 session_start();
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $_SESSION['userid']) {
-    $_SESSION['userid'] = $userid;
-    $_SESSION['nickname'] = $nickname;
-    $_SESSION['email'] = $email;
-    $_SESSION['state'] = $state;
-    $_SESSION['admin'] = 1;
-    $_SESSION['situation'] = 'registered';
-    $_SESSION['expire'] = time() + (30 * 60);
-    $_SESSION['useragent'] = $browser;
-    $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $userid;
-}
+$_SESSION['userid'] = $userid;
+$_SESSION['nickname'] = $nickname;
+$_SESSION['email'] = $email;
+$_SESSION['state'] = $state;
+$_SESSION['admin'] = 1;
+$_SESSION['expire'] = time() + (30 * 60);
+$_SESSION['useragent'] = $browser;
+$_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $userid;
+
+$_SESSION["alerts_holder"] = array(array("body" => 'ユーザー登録が完了しました。<br><br>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。', "class" => "primary"), array("body" => '当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。', "class" => "warning"));
 
 header("Location: ../mypage/index.php");
 exit;

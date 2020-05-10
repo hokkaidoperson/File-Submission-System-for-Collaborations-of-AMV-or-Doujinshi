@@ -1,12 +1,15 @@
 <?php
 //パスワードチェックAPI
-//POSTメソッドで受け渡し
 //メルアドチェックもついでにやれる（自分のメルアドはスキップ）
 require_once('../../set.php');
-session_start();
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) die();
+setup_session();
+if (!session_validation(FALSE, TRUE)) die();
+if (!csrf_prevention_validate(TRUE)) {
+    $returnarray = array("auth_status" => "NG", "error_detail" => "Likely fraudulent access such as CSRF");
+    die(json_encode($returnarray));
+}
 
-$returnarray = array();
+$returnarray = array("auth_status" => "OK", "error_detail" => "OK");
 
 $invalid = FALSE;
 

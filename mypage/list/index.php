@@ -1,49 +1,10 @@
 <?php
 require_once('../../set.php');
-session_start();
+setup_session();
 $titlepart = '提出作品の一覧';
 require_once(PAGEROOT . 'mypage_header.php');
 
-if ($_SESSION["situation"] == 'edit_nochange') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-登録情報の変更はありませんでした。</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'edit_autoaccept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-登録情報を変更しました。<br>
-自動承認される項目のみ変更されていたため、変更は自動的に承認されました。</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'edit_submitted') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ファイルの編集が完了しました。<br>
-変更内容を運営チームが確認するまでしばらくお待ち願います。<br><br>
-ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'edit_submitted_auto_accept') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-ファイルの編集が完了しました。<br>
-ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、変更内容は<b>自動的に承認されました</b>。
-</div>';
-    $_SESSION["situation"] = '';
-}
-if ($_SESSION["situation"] == 'edit_deleted') {
-    echo '<div class="border border-success" style="padding:10px; margin-top:1em; margin-bottom:1em;">
-作品を削除しました。</div>';
-    $_SESSION["situation"] = '';
-}
-
-$accessok = 'none';
-
-//非参加者以外
-if ($_SESSION["state"] != 'o') $accessok = 'ok';
-
-if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>非参加者以外のユーザー</b>です。</p>
-<p><a href="../index.php">マイページトップに戻る</a></p>');
+no_access_right(array("p", "c", "g"), TRUE);
 
 $canshow = array();
 
@@ -81,7 +42,7 @@ foreach(glob(DATAROOT . 'submit/*', GLOB_MARK | GLOB_ONLYDIR) as $dirname) {
 
 if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 提出済み作品</h1>
 <p>本イベントに対し提出された作品の一覧です（修正待ち・拒否の作品を含む）。<br>
-提出者の名前をクリックすると提出者の情報（ニックネーム・共通情報）を確認出来ます。<br>
+提出者の名前をクリックすると、提出者が共通情報として入力した内容を確認出来ます。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。</p>
 <p>あなた自身の作品については、作品情報のページから編集を行えます。<br>
 他者および他者の作品については編集出来ません（メッセージ機能で、該当者に編集を依頼して下さい。<b>該当者のユーザーIDやパスワードを直接尋ねる行為はおやめ下さい。</b>）。</p>
@@ -90,7 +51,7 @@ if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 提出済
 ';
 if ($_SESSION["state"] == 'c') echo '<h1>提出済み作品の一覧</h1>
 <p>あなたが提出した作品、及び主催者から閲覧権限を与えられた作品の一覧です（修正待ち・拒否の作品を含む）。<br>
-提出者の情報（ニックネーム・共通情報）の閲覧権限がある場合、提出者の名前がクリック出来るようになっています。クリックすると確認出来ます。<br>
+提出者が共通情報として入力した内容の閲覧権限がある場合、提出者の名前がクリック出来るようになっています。クリックすると確認出来ます。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。</p>
 <p>あなた自身の作品については、作品情報のページから編集を行えます。<br>
 他者および他者の作品については編集出来ません（入力内容に何か懸案事項があれば、主催者にご相談下さい）。</p>
@@ -100,7 +61,7 @@ if ($_SESSION["state"] == 'c') echo '<h1>提出済み作品の一覧</h1>
 if ($_SESSION["state"] == 'g') echo '<h1>提出済み作品の一覧</h1>
 <p>あなたが提出した作品の一覧です（修正待ち・拒否の作品を含む）。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。また、そこから作品情報の編集を行えます。</p>
-<p><a href="generatezip.php">提出ファイル・ファイル情報の一括ダウンロード（ZIPファイル）はこちら</a></p>
+<p><a href="generatezip.php">提出者情報・提出ファイル・ファイル情報の一括ダウンロード（ZIPファイル）はこちら</a></p>
 ';
 
 
@@ -137,14 +98,14 @@ foreach ($canshow as $author => $array) {
             }
         break;
     }
-    if ($showlink) $namepart = '<a href="detail.php?author=' . $author . '&id=userform">' . htmlspecialchars($nickname) . '</a>';
-    else $namepart = htmlspecialchars($nickname);
+    if ($showlink) $namepart = '<a href="detail.php?author=' . $author . '&id=userform">' . hsc($nickname) . '</a>';
+    else $namepart = hsc($nickname);
     if (blackuser($author)) $namepart .= '<span class="text-danger">（凍結ユーザー）</span>';
 
     foreach ($array as $id => $data) {
         echo "<tr>\n";
         echo "<td>" . $namepart . "</td>";
-        echo '<td><a href="detail.php?author=' . $author . '&id=' . $id . '">' . htmlspecialchars($data["title"]) . '</a></td>';
+        echo '<td><a href="detail.php?author=' . $author . '&id=' . $id . '">' . hsc($data["title"]) . '</a></td>';
         if (isset($data["editing"]) and $data["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
         else switch ($data["exam"]) {
             case 0:

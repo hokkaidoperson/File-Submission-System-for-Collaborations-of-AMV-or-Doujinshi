@@ -1,12 +1,9 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 //パスワード認証
 $userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
@@ -66,18 +63,18 @@ $changed = array();
 $rejected = FALSE;
 
 if (!$disable and $userdata["nickname"] != $_POST["nickname"]) {
-    $changed[] = "【ニックネーム】" . htmlspecialchars($userdata["nickname"]) . " → " . htmlspecialchars($_POST["nickname"]);
+    $changed[] = "【ニックネーム】" . hsc($userdata["nickname"]) . " → " . hsc($_POST["nickname"]);
     $userdata["nickname"] = $_POST["nickname"];
 } else if ($userdata["nickname"] != $_POST["nickname"]) $rejected = TRUE;
 if ($userdata["email"] != $_POST["email"]) {
-    $changed[] = "【メールアドレス】" . htmlspecialchars($userdata["email"]) . " → " . htmlspecialchars($_POST["email"]);
+    $changed[] = "【メールアドレス】" . hsc($userdata["email"]) . " → " . hsc($_POST["email"]);
     $userdata["email"] = $_POST["email"];
 }
 if ($rejected) $changed[] = "※ニックネームについては、入力中もしくは送信中に提出締め切りを迎えたため、変更出来ませんでした。もし変更が必要な場合は主催者にご相談下さい。";
 
 
 if ($changed == array()) {
-    $_SESSION['situation'] = 'others_nochange';
+    register_alert("登録情報の変更はありませんでした。", "success");
     redirect("./index.php");
 }
 
@@ -119,9 +116,9 @@ $changed
 sendmail($_SESSION['email'], 'アカウント情報変更通知', $content);
 
 
-$_SESSION['situation'] = 'others_changed';
-$changed = htmlspecialchars($changed);
+$changed = hsc($changed);
 $changed = str_replace(array("\r\n", "\r", "\n"), "\n", $changed);
-$_SESSION['situation2'] = str_replace("\n", "<br>", $changed);
+$changed = str_replace("\n", "<br>", $changed);
+register_alert("次の通り、登録情報を変更しました。<br>$changed", "success");
 
 redirect("./index.php");

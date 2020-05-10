@@ -1,20 +1,12 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
-
-//主催者だけ
-if ($_SESSION["state"] == 'p') $accessok = 'p';
-
-if ($accessok == 'none') redirect("./index.php");
+if (no_access_right(array("p"))) redirect("./index.php");
 
 
-if ($_POST["successfully"] != "1") die("不正なアクセスです。\nフォームが入力されていません。");
+csrf_prevention_validate();
 
 $invalid = FALSE;
 if (state($_POST["userid"]) !== "c") $invalid = TRUE;
@@ -49,6 +41,6 @@ $eventname のポータルサイトにて、主催者がファイルへのアク
 ";
 //内部関数で送信
 sendmail(email($userid), 'ファイルへのアクセス権が変更されました', $content);
-$_SESSION['situation'] = 'auth_fileacl';
+register_alert("アクセス権の変更が完了しました。", "success");
 
 redirect("./index.php");

@@ -1,17 +1,11 @@
 <?php
 require_once('../../set.php');
-session_start();
-//ログインしてない場合はログインページへ
-if ($_SESSION['authinfo'] !== 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $_SESSION['userid']) {
-    redirect("../../index.php");
-}
+setup_session();
+session_validation();
 
-$accessok = 'none';
+if (no_access_right(array("c"))) redirect("./index.php");
 
-//共催
-if ($_SESSION["state"] == 'c') $accessok = 'ok';
-
-if ($accessok == 'none') redirect("./index.php");
+csrf_prevention_validate();
 
 $prom = id_state("p");
 
@@ -22,9 +16,6 @@ if (!file_exists(DATAROOT . 'mail/state/')) {
     if (!mkdir(DATAROOT . 'mail/state/', 0777, true)) die('ディレクトリの作成に失敗しました。');
 }
 
-//認証文字列（参考：https://qiita.com/suin/items/c958bcca90262467f2c0）
-$randomchar128 = substr(str_shuffle(str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 128)), 0, 128);
-
 $fileplace = DATAROOT . 'mail/state/co_' . $_SESSION["userid"] . '.txt';
 
 //2日後に有効期限切れ
@@ -32,7 +23,6 @@ $expire = time() + (2 * 24 * 60 * 60);
 
 //ファイル内容
 $filedata = array(
-    "sectok" => $randomchar128,
     "expire" => $expire
 );
 
@@ -43,14 +33,14 @@ if (file_put_contents($fileplace, $filedatajson) === FALSE) die('メール関連
 
 //メール本文形成
 $expireformat = date('Y年n月j日G時i分s秒', $expire);
-$pageurl = $siteurl . 'state_special/co_unit.php?id=' . $_SESSION["userid"] . '&sectok=' . $randomchar128;
+$pageurl = $siteurl . 'mypage/state_special/co_unit.php?id=' . $_SESSION["userid"];
 $nickname = $userdata["nickname"];
 $conick = nickname($_SESSION["userid"]);
 $content = "$nickname 様
 
-$conick 様から、$eventname の共同運営者を辞退するという申請がありました。
-これについて$conick 様から事情を聞いており、辞退を承認する場合は、以下の手続用URLから手続して下さい。
-もし事情を聞いていない場合は、$conick 様に直接お問い合わせ下さい。
+$conick 様から、{$eventname}の共同運営者を辞退するという申請がありました。
+これについて{$conick}様から事情を聞いており、辞退を承認する場合は、以下の手続用URLから手続して下さい。
+もし事情を聞いていない場合は、{$conick}様に直接お問い合わせ下さい。
 
 　手続用URL　　　　：$pageurl
 　上記URLの有効期限：$expireformat
@@ -63,6 +53,6 @@ $conick 様から、$eventname の共同運営者を辞退するという申請�
 //内部関数で送信
 sendmail($email, '共同運営者辞退の申請がありました', $content);
 
-$_SESSION['situation'] = 'state_switcher_mail';
+register_alert("メールを送信しました。手続き完了までしばらくお待ち下さい。", "success");
 
 redirect("./index.php");
