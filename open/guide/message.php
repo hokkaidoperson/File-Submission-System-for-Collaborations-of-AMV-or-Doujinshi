@@ -16,18 +16,18 @@ require_once(PAGEROOT . 'help_header.php');
 </ol>
 <h2 id="read">1. メッセージを読む</h2>
 <p>あなたが他ユーザーから受け取ったメッセージは「受信BOX」に、あなたが送信したメッセージは「送信BOX」に一覧表示されています。</p>
-<p><img src="images/message_topscreen.png" class="img-fluid"><br><font size="2" class="text-muted">※実際の画面と異なる場合があります。</font></p>
+<p><img src="images/message_topscreen.png" class="img-fluid"><br><span class="small text-muted">※実際の画面と異なる場合があります。</span></p>
 <p>件名をクリックすると、メッセージの詳細を閲覧出来ます。</p>
 
 <h2 id="write">2. メッセージを送信する</h2>
 <p>「主催者にメッセージを送信する」（主催者、共同運営者の場合は「宛先を選んでメッセージを送信する」）を選択すると、メッセージの新規作成画面に移ります。</p>
-<p><img src="images/message_writescreen.png" class="img-fluid"><br><font size="2" class="text-muted">※実際の画面と異なる場合があります。</font></p>
+<p><img src="images/message_writescreen.png" class="img-fluid"><br><span class="small text-muted">※実際の画面と異なる場合があります。</span></p>
 <p>メッセージの宛先を選択し、件名（省略可）とメッセージ内容を入力して、<b>最後に必ず「送信」を押下して下さい</b>（押下しないと送信されません）。</p>
 <p>「メッセージを送信しました。」と表示されれば、送信完了です。</p>
 
 <h2 id="simultaneously">3. 全ユーザーにメッセージを一斉送信する（主催者、システム管理者限定）</h2>
 <p>「全員にメッセージを一斉送信する」を選択すると、メッセージの新規作成画面に移ります。</p>
-<p><img src="images/message_writescreen.png" class="img-fluid"><br><font size="2" class="text-muted">※実際の画面と異なる場合があります。</font></p>
+<p><img src="images/message_writescreen.png" class="img-fluid"><br><span class="small text-muted">※実際の画面と異なる場合があります。</span></p>
 <p>件名（省略可）とメッセージ内容を入力し、<b>最後に必ず「送信」を押下して下さい</b>（押下しないと送信されません）。</p>
 <p>「メッセージを送信しました。」と表示されれば、送信完了です。<br>
 同じ内容のメッセージが、送信時点で登録されている全ユーザーに送られます。</p>

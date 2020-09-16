@@ -13,12 +13,13 @@ require_once(PAGEROOT . 'help_header.php');
 ?>
 
 <h1>FAQ（よくある質問） - 回答</h1>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <h3>Q：<?php echo $title; ?></h3>
-<img src="../images/tag.svg" style="width: 1em; height: 1em;">
+<span class="system-tags">
 <?php
 foreach ($tags as $tag) echo '<a href="faq_search.php?tag%5B%5D=' . urlencode($tag) . '" class="badge badge-secondary">' . hsc($tag) . '</a>' . "\n";
 ?>
+</span>
 </div>
 <?php echo $content; ?>
 <hr>

@@ -20,6 +20,10 @@ if($_POST["filesize"] == "") $invalid = TRUE;
 else if(!preg_match('/^[0-9]*$/', $_POST["filesize"])) $invalid = TRUE;
 else if((int)$_POST["filesize"] < 1) $invalid = TRUE;
 
+if($_POST["accounts"] == "") $invalid = TRUE;
+else if(!preg_match('/^[0-9]*$/', $_POST["accounts"])) $invalid = TRUE;
+else if((int)$_POST["accounts"] < 1 or (int)$_POST["accounts"] > 10) $invalid = TRUE;
+
 //メールアドレス形式確認　必須でない
 if($_POST["system"] == ""){
 } else if(!preg_match('/.+@.+\..+/', $_POST["system"])) $invalid = TRUE;
@@ -43,12 +47,13 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 $init = array(
     "eventname" => $_POST["eventname"],
     "maxsize" => $_POST["filesize"],
+    "accounts" => $_POST["accounts"],
     "robot" => $_POST["robot"]
 );
 
 $initjson =  json_encode($init);
 
-if (file_put_contents(DATAROOT . 'init.txt', $initjson) === FALSE) die('初期設定関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'init.txt', $initjson) === FALSE) die('初期設定関連のデータの書き込みに失敗しました。');
 
 $maildata = array(
     "from" => $_POST["system"],
@@ -59,7 +64,7 @@ $maildata = array(
 
 $maildatajson =  json_encode($maildata);
 
-if (file_put_contents(DATAROOT . 'mail.txt', $maildatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'mail.txt', $maildatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
 
 
 //reCAPTCHA
@@ -70,7 +75,7 @@ $recdata = array(
 
 $recdatajson =  json_encode($recdata);
 
-if (file_put_contents(DATAROOT . 'rec.txt', $recdatajson) === FALSE) die('reCAPTCHA関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'rec.txt', $recdatajson) === FALSE) die('reCAPTCHA関連のデータの書き込みに失敗しました。');
 
 
 register_alert("システム設定を変更しました。", "success");

@@ -437,6 +437,7 @@ function closesubmit() {
     keyboard: false,
     backdrop: "static"
   });
+  changed = false;
   document.form.submit();
 }
 

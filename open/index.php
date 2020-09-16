@@ -25,7 +25,7 @@ foreach (glob('faq/*.php') as $filename) {
 </ul>
 <h2>FAQ（よくある質問）</h2>
 <p>※キーワードで絞り込まずに全件見る場合は、検索欄に何も入力せず「検索」を押下して下さい。</p>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
     <form name="form" action="faq_search.php" method="get">
         <div class="form-group">
             <label for="query">検索キーワード</label>
@@ -58,7 +58,7 @@ foreach (glob('faq/*.php') as $filename) {
             <div class="btn-group-toggle" data-toggle="buttons">
 <?php
 foreach ($tagcloud as $tag => $dummy) {
-    echo '<label class="btn btn-outline-secondary btn-sm" style="margin:0.1em;">
+    echo '<label class="btn btn-outline-secondary btn-sm system-tagbtn">
     <input class="form-check-input" type="checkbox" name="tag[]" id="tag_' . urlencode($tag) . '" value="' . hsc($tag) . '" autocomplete="off">' . hsc($tag) . '</label>';
 }
 ?>

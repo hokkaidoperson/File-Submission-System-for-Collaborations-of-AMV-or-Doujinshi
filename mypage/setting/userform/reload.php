@@ -10,12 +10,12 @@ $_SESSION["userformdata"] = array();
 if (file_exists(DATAROOT . 'form/userinfo/draft/')) {
     for ($i = 0; $i <= 9; $i++) {
         if (!file_exists(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt')) break;
-        $_SESSION["userformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt'), true);
+        $_SESSION["userformdata"][$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt'), true);
     }
 } else {
     for ($i = 0; $i <= 9; $i++) {
         if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-        $_SESSION["userformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
+        $_SESSION["userformdata"][$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
     }
 }
 

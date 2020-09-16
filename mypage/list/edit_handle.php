@@ -16,35 +16,35 @@ $author = basename($_POST["author"]);
 //提出ID
 $id = basename($_POST["workid"]);
 
-if ($author == "" or $id == "") die_mypage('パラメーターエラー');
+if ($author == "" or $id == "") die('パラメーターエラー');
 
 
 //自分のファイルのみ編集可
-if ($author != $_SESSION['userid']) die_mypage('ご自身のファイルのみ、編集が可能です。');
+if ($author != $_SESSION['userid']) die('ご自身のファイルのみ、編集が可能です。');
 
 if (outofterm($id) != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
-if (!in_term() and !$outofterm) die_mypage('現在、ファイル提出期間外のため、ファイル操作は行えません。');
+if (!in_term() and !$outofterm) die('現在、ファイル提出期間外のため、ファイル操作は行えません。');
 
 
 //入力済み情報を読み込む
-$entereddata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
-if ($entereddata["exam"] == 0 or $entereddata["editing"] == 1) die_mypage('現在、ファイルの確認待ちです。確認が完了するまでは、ファイルの編集が出来ません。');
+$entereddata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+if ($entereddata["exam"] == 0 or $entereddata["editing"] == 1) die('現在、ファイルの確認待ちです。確認が完了するまでは、ファイルの編集が出来ません。');
 
 //フォーム設定ファイル読み込み
 $submitformdata = array();
 
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $submitformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $submitformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
-$submitformdata["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$submitformdata["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 if (outofterm($id) != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
-if (!in_term() and !$outofterm) die_mypage('現在、ファイル提出期間外のため、ファイル操作は行えません。');
+if (!in_term() and !$outofterm) die('現在、ファイル提出期間外のため、ファイル操作は行えません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -186,22 +186,26 @@ foreach ($submitformdata as $array) {
         continue;
     }
     if ($array["type"] == "radio" or $array["type"] == "dropdown") {
-        $decode = htmlspecialchars_decode($_POST["custom-" . $array["id"]]);
-        if ($entereddata[$array["id"]] != $decode) {
-            $changeditem[$array["id"]] = $decode;
+        $choices = choices_array($array["list"]);
+        $selected = $choices[$_POST["custom-" . $array["id"]]];
+        if ($entereddata[$array["id"]] != $selected) {
+            $changeditem[$array["id"]] = $selected;
             if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
     if ($array["type"] == "check") {
-        $oldcompare = implode("、", (array)$entereddata[$array["id"]]);
-        $newcompare = implode("、", (array)$_POST["custom-" . $array["id"]]);
-        $newdecode = htmlspecialchars_decode($newcompare);
-        if ($oldcompare != $newdecode) {
-            $changeditem[$array["id"]] = array();
+        $selected = [];
+        if ($_POST["custom-" . $array["id"]] !== "") {
+            $choices = choices_array($array["list"]);
             foreach ((array)$_POST["custom-" . $array["id"]] as $key => $value) {
-                $changeditem[$array["id"]][$key] = htmlspecialchars_decode($value);
+                $selected[$key] = $choices[$value];
             }
+        }
+        $oldcompare = implode("\n", (array)$entereddata[$array["id"]]);
+        $newcompare = implode("\n", $selected);
+        if ($oldcompare != $newcompare) {
+            $changeditem[$array["id"]] = $selected;
             if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
@@ -263,7 +267,7 @@ if ($recheck == 0) {
     $entereddata["exam"] = 1;
     $entereddata["editdate"] = $uploadid;
     $entereddatajson =  json_encode($entereddata);
-    if (file_put_contents(DATAROOT . 'submit/' . $userid . '/' . $id . '.txt', $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'submit/' . $userid . '/' . $id . '.txt', $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
     register_alert("ファイルの編集が完了しました。<br>自動承認される項目のみ変更されていたため、変更は自動的に承認されました。", "success");
     redirect("./index.php");
@@ -289,14 +293,15 @@ $editid = time();
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array("_state" => 0, "_ip" => $IP);
+$exammember = array("_state" => 0, "_ip" => $IP, "_realid" => $userid . '/' . $id . '/' . $editid);
+$fileid = time() . "_" . md5(microtime() . $userid);
 $autoaccept = TRUE;
 
 if ($recheck == 2) {
     $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $exammember["_membermode"] = "submit";
     foreach ($submitmem as $key) {
-        if ($key == "_promoter") $key = id_promoter();
+        if ((string)$key === "_promoter") $key = id_promoter();
         if (!user_exists($key)) continue;
         $data = id_array($key);
         if ($data["state"] == 'g') continue;
@@ -311,11 +316,10 @@ if ($recheck == 2) {
         $autoaccept = FALSE;
         //通知メール
         $nickname = $data["nickname"];
-        $author = $_SESSION["nickname"];
-        $pageurl = $siteurl . 'mypage/exam/do_edit.php?author=' . $userid . '&id=' . $id . '&edit=' . $editid;
+        $pageurl = $siteurl . 'mypage/exam/do_edit.php?examname=' . $fileid;
         $content = "$nickname 様
 
-$author 様が、$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報を編集しました。
+$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報が編集されました。
 その際、メインとなる提出ファイルに変更がありました。
 下記のURLからファイルをダウンロードし、作品内容を確認して下さい。
 
@@ -334,7 +338,7 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
     $submitmem = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $exammember["_membermode"] = "edit";
     foreach ($submitmem as $key) {
-        if ($key == "_promoter") $key = id_promoter();
+        if ((string)$key === "_promoter") $key = id_promoter();
         if (!user_exists($key)) continue;
         $data = id_array($key);
         if ($data["state"] == 'g') continue;
@@ -349,11 +353,10 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
         $autoaccept = FALSE;
         //通知メール
         $nickname = $data["nickname"];
-        $author = $_SESSION["nickname"];
-        $pageurl = $siteurl . 'mypage/exam/do_edit.php?author=' . $userid . '&id=' . $id . '&edit=' . $editid;
+        $pageurl = $siteurl . 'mypage/exam/do_edit.php?examname=' . $fileid;
         $content = "$nickname 様
 
-$author 様が、$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報を編集しました。
+$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の情報が編集されました。
 下記のURLから、変更内容を確認し、承認するか決めて下さい。
 
 　ファイル内容確認ページ：$pageurl
@@ -404,7 +407,7 @@ if ($autoaccept) {
 }
 else {
     $exammemberjson =  json_encode($exammember);
-    if (file_put_contents(DATAROOT . 'exam_edit/' . $userid . '_' . $id . '_' . $editid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exam_edit/' . $fileid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
 }
 
 
@@ -412,10 +415,10 @@ $editdatajson =  json_encode($changeditem);
 if (!file_exists(DATAROOT . 'edit/' . $userid . '/')) {
     if (!mkdir(DATAROOT . 'edit/' . $userid . '/')) die('ディレクトリの作成に失敗しました。');
 }
-if (file_put_contents(DATAROOT . 'edit/' . $userid . '/' . $userfile, $editdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'edit/' . $userid . '/' . $userfile, $editdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
 $userdatajson =  json_encode($entereddata);
-if (file_put_contents(DATAROOT . 'submit/' . $userid . '/' . $userfile, $userdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'submit/' . $userid . '/' . $userfile, $userdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
 
 $email = $_SESSION["email"];

@@ -10,7 +10,7 @@ $deny = FALSE;
 $id = $_SESSION["userid"];
 
 if (file_exists(DATAROOT . 'mail/co_add/' . $id . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/co_add/' . $id . '.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'mail/co_add/' . $id . '.txt'), true);
     if ($filedata["expire"] <= time()) {
         unlink(DATAROOT . 'mail/co_add/' . $id . '.txt');
         $deny = TRUE;
@@ -24,12 +24,12 @@ $userdata = id_array($id);
 $oldstate = $userdata["state"];
 $userdata["state"] = "c";
 $userdatajson =  json_encode($userdata);
-if (file_put_contents(DATAROOT . 'users/' . $id . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $id . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //立場別一覧の書き換え
 $statedata = "$id\n";
 $statedtp = DATAROOT . 'users/_co.txt';
-if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 if ($oldstate == "g") $statedtp = DATAROOT . 'users/_general.txt';
 else if ($oldstate == "o") $statedtp = DATAROOT . 'users/_outsider.txt';
@@ -37,22 +37,22 @@ $array = file($statedtp, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search($id, $array);
 unset($array[$key]);
 $statedata = implode("\n", $array) . "\n";
-if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 
 //この人をファイル確認メンバーに入れる？
 if (file_exists(DATAROOT . 'examsetting.txt')) {
-    $examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+    $examsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
 
     if ($examsetting["submit_add"] == "1") {
         $statedata = "$id\n";
         $statedtp = DATAROOT . 'exammember_submit.txt';
-        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+        if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     }
     if ($examsetting["edit_add"] == "1") {
         $statedata = "$id\n";
         $statedtp = DATAROOT . 'exammember_edit.txt';
-        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+        if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     }
 }
 

@@ -16,7 +16,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]
 
 <h1>項目設定 - テキストエリア</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -42,33 +42,33 @@ if (isset($_SESSION["submitformdata"][$number]["required"]) and $_SESSION["submi
 ?>>
 <label class="form-check-label" for="required-1">必須</label>
 </div>
-<font size="2">※必須項目には「必須」と付記されます。</font>
+<small class="form-text">※必須項目には「必須」と付記されます。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["submitformdata"][$number]["detail"])) echo hsc($_SESSION["submitformdata"][$number]["detail"]);
 ?></textarea>
-<font size="2">※入力欄の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※入力欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、入力欄の下に何も表示されません。</font>
+※入力が無い場合は、入力欄の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 <label for="max">最大文字数（1～9999の間の半角数字）</label>
 <input type="text" name="max" class="form-control" id="max" style="width:5em;" value="<?php
 if (isset($_SESSION["submitformdata"][$number]["max"])) echo hsc($_SESSION["submitformdata"][$number]["max"]);
 ?>">
-<font size="2">※入力内容が、ここで指定する文字数を超えている場合に、警告を発して再入力を促します。<br>
-　入力が無い場合は、9999文字が最大となります。</font>
+<small class="form-text">※入力内容が、ここで指定する文字数を超えている場合に、警告を発して再入力を促します。<br>
+　入力が無い場合は、9999文字が最大となります。</small>
 </div>
 <div class="form-group">
 <label for="min">最小文字数（1～9999の間の半角数字）</label>
 <input type="text" name="min" class="form-control" id="min" style="width:5em;" value="<?php
 if (isset($_SESSION["submitformdata"][$number]["min"])) echo hsc($_SESSION["submitformdata"][$number]["min"]);
 ?>">
-<font size="2">※入力内容が、ここで指定する文字数を下回っている場合に、警告を発して再入力を促します。<br>
-　入力が無い場合は、最小文字数を設けません。</font>
+<small class="form-text">※入力内容が、ここで指定する文字数を下回っている場合に、警告を発して再入力を促します。<br>
+　入力が無い場合は、最小文字数を設けません。</small>
 </div>
 <div class="form-group">
 <label for="width">入力欄の幅（半角数字）</label>
@@ -80,10 +80,10 @@ if (isset($_SESSION["submitformdata"][$number]["width"])) echo hsc($_SESSION["su
 <span class="input-group-text">em</span>
 </div>
 </div>
-<font size="2">※指定が無い場合は、入力欄は画面の端から端まで表示されます。<br>
+<small class="form-text">※指定が無い場合は、入力欄は画面の端から端まで表示されます。<br>
 　数文字を入力するだけの欄など、入力欄が短くてもよい場合は、ここで調節して下さい。<br>
 ※「em」はフォントサイズを基準とした単位です（1em＝大体1文字分　と認識してよいと思います）。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="height">入力欄の高さ（半角数字）</label>
@@ -95,8 +95,8 @@ if (isset($_SESSION["submitformdata"][$number]["height"])) echo hsc($_SESSION["s
 <span class="input-group-text">行</span>
 </div>
 </div>
-<font size="2">※指定が無い場合は、入力欄の高さは4行となります。
-</font>
+<small class="form-text">※指定が無い場合は、入力欄の高さは4行となります。
+</small>
 </div>
 <div class="form-group">
 入力内容の変更の自動承認について
@@ -106,7 +106,7 @@ if (isset($_SESSION["submitformdata"][$number]["recheck"]) and $_SESSION["submit
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
+<small class="form-text">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

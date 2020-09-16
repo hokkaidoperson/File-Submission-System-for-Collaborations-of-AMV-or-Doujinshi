@@ -14,7 +14,8 @@ if (!defined('DATAROOT')) die();
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/style.css?<?php echo urlencode(VERSION); ?>">
 <title><?php
 if (isset($titlepart)) echo $titlepart . ' - ';
 echo 'ヘルプ - ' . $eventname;
@@ -50,11 +51,12 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
-<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
-<a class="navbar-brand text-truncate" href="<?php echo $siteurl; ?>open/index.php"><img src="<?php echo $siteurl; ?>images/question.svg" style="width: 1em; height: 1em;"> ヘルプ機能（<?php echo $eventname; ?>）</a>
+<nav class="navbar navbar-light system-help-navcolor">
+<a class="navbar-brand text-truncate d-flex align-items-center system-link-helpicon" href="<?php echo $siteurl; ?>open/index.php">ヘルプ機能（<?php echo $eventname; ?>）</a>
 </nav>
 <div class="container">

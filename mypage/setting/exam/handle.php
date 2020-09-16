@@ -10,7 +10,7 @@ csrf_prevention_validate();
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
 
-$f = $_POST["submit"];
+$f = $_POST["submitmem"];
 if ($f == "") $f = array();
 if((array)$f == array()) $invalid = TRUE;
 foreach($f as $value) {
@@ -24,6 +24,7 @@ foreach($f as $value) {
         break;
     }
 }
+if (!isset($_POST["submit_leader"]) or (array_search($_POST["submit_leader"], $f) === FALSE and $_POST["submit_leader"] !== "")) $invalid = TRUE;
 
 $f = $_POST["edit"];
 if ($f == "") $f = array();
@@ -39,6 +40,7 @@ foreach($f as $value) {
         break;
     }
 }
+if (!isset($_POST["edit_leader"]) or (array_search($_POST["edit_leader"], $f) === FALSE and $_POST["edit_leader"] !== "")) $invalid = TRUE;
 
 switch ($_POST["reason"]) {
     case "notice": break;
@@ -51,22 +53,25 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 
 
 //設定内容保存
-$savedata = implode("\n", (array)$_POST["submit"]) . "\n";
+$savedata = implode("\n", (array)$_POST["submitmem"]) . "\n";
 $fileplace = DATAROOT . 'exammember_submit.txt';
-if (file_put_contents($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 $savedata = implode("\n", (array)$_POST["edit"]) . "\n";
 $fileplace = DATAROOT . 'exammember_edit.txt';
-if (file_put_contents($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 $savedata = array(
+    "submit_leader" => $_POST["submit_leader"],
+    "edit_leader" => $_POST["edit_leader"],
     "submit_add" => $_POST["submit_add"],
     "edit_add" => $_POST["edit_add"],
-    "reason" => $_POST["reason"]
+    "reason" => $_POST["reason"],
+    "anonymous" => $_POST["anonymous"]
 );
 $savedata = json_encode($savedata);
 $fileplace = DATAROOT . 'examsetting.txt';
-if (file_put_contents($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 
 //ファイル確認関連ファイルも書き換え

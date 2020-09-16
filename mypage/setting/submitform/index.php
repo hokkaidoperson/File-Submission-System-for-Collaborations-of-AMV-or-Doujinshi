@@ -16,19 +16,19 @@ if (!isset($_SESSION["submitformdata"])) {
     if (file_exists(DATAROOT . 'form/submit/draft/')) {
         for ($i = 0; $i <= 9; $i++) {
             if (!file_exists(DATAROOT . 'form/submit/draft/' . "$i" . '.txt')) break;
-            $_SESSION["submitformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/draft/' . "$i" . '.txt'), true);
+            $_SESSION["submitformdata"][$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/draft/' . "$i" . '.txt'), true);
         }
-        if (file_exists(DATAROOT . 'form/submit/draft/general.txt')) $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/draft/general.txt'), true);
-        echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+        if (file_exists(DATAROOT . 'form/submit/draft/general.txt')) $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/draft/general.txt'), true);
+        echo '<div class="border border-primary system-border-spacer">
 一時ファイルを読み込みました。作業が完了したら、その内容を反映させるために「変更内容を保存し適用する」ボタンを必ず押して下さい。
 </div>';
     } else {
         for ($i = 0; $i <= 9; $i++) {
             if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-            $_SESSION["submitformdata"][$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+            $_SESSION["submitformdata"][$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
         }
         if (file_exists(DATAROOT . 'form/submit/general.txt')) {
-            $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+            $_SESSION["submitformdata"]["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
         }
     }
 }
@@ -52,10 +52,10 @@ if (isset($_SESSION["submitformdata"]["general"])) {
 <p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
 <p>※求める入力事項が特に無い場合は、何も設定せずに下の「変更内容を保存し適用する」ボタンを押して下さい。</p>
 <?php
-if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-warning system-border-spacer">
 ファイル提出時の入力項目は既に保存・公開されています。設定内容を変更する事は出来ますが、変更は最小限にとどめる事をお勧め致します。
 </div>';
-else echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+else echo '<div class="border border-warning system-border-spacer">
 ファイル提出時の入力項目は後から変更出来ますが、変更は最小限にとどめる事をお勧め致します。
 </div>';
 ?>
@@ -81,7 +81,7 @@ else echo '<div class="border border-warning" style="padding:10px; margin-top:1e
 </ul>
 </div>
 </div>
-<p><font size="2">※公開前の設定内容は一時ファイルに保存されます。途中でブラウザを閉じてしまってもその一時ファイルを基に作業を再開出来ますが、<b>最終的に「変更内容を保存し適用する」ボタンを押さないと実際の入力画面に反映されません。</font></b></p>
+<p class="small">※公開前の設定内容は一時ファイルに保存されます。途中でブラウザを閉じてしまってもその一時ファイルを基に作業を再開出来ますが、<b>最終的に「変更内容を保存し適用する」ボタンを押さないと実際の入力画面に反映されません。</b></p>
 <h2>ファイル提出画面の項目一覧</h2>
 <p>変更したい項目の項目名をクリックして下さい（「タイトル」は変更出来ません）。</p>
 <p>実際のファイル提出画面では、下表の順番で項目が並びます。</p>

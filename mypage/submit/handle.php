@@ -21,20 +21,20 @@ $submitformdata = array();
 
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $submitformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $submitformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
-$submitformdata["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$submitformdata["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 if (outofterm('submit') != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
 
-if ($submitformdata["general"]["from"] > time() and !$outofterm) die_mypage('提出期間外です。');
-else if ($submitformdata["general"]["until"] <= time() and !$outofterm) die_mypage('提出期間外です。');
+if ($submitformdata["general"]["from"] > time() and !$outofterm) die('提出期間外です。');
+else if ($submitformdata["general"]["until"] <= time() and !$outofterm) die('提出期間外です。');
 if (isset($submitformdata["general"]["worknumber"]) and $submitformdata["general"]["worknumber"] != "") {
     $myworks = count_works();
     $submitleft = (int)$submitformdata["general"]["worknumber"] - $myworks;
-    if ($submitleft <= 0) die_mypage('提出可能な作品数の上限に達しています。');
+    if ($submitleft <= 0) die('提出可能な作品数の上限に達しています。');
 }
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -146,7 +146,8 @@ foreach ($submitformdata as $array) {
         continue;
     }
     if ($array["type"] == "radio" or $array["type"] == "dropdown") {
-        $userdata[$array["id"]] = htmlspecialchars_decode($_POST["custom-" . $array["id"]]);
+        $choices = choices_array($array["list"]);
+        $userdata[$array["id"]] = $choices[$_POST["custom-" . $array["id"]]];
         continue;
     }
     if ($array["type"] == "check") {
@@ -154,8 +155,9 @@ foreach ($submitformdata as $array) {
             $userdata[$array["id"]] = array();
             continue;
         }
+        $choices = choices_array($array["list"]);
         foreach ((array)$_POST["custom-" . $array["id"]] as $key => $value) {
-            $userdata[$array["id"]][$key] = htmlspecialchars_decode($value);
+            $userdata[$array["id"]][$key] = $choices[$value];
         }
         continue;
     }
@@ -170,10 +172,11 @@ foreach ($submitformdata as $array) {
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
 $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$exammember = array("_state" => 0, "_ip" => $IP);
+$exammember = array("_state" => 0, "_ip" => $IP, "_realid" => $userid . '/' . $id);
+$fileid = time() . "_" . md5(microtime() . $userid);
 $autoaccept = TRUE;
 foreach ($submitmem as $key) {
-    if ($key == "_promoter") $key = id_promoter();
+    if ((string)$key === "_promoter") $key = id_promoter();
     if (!user_exists($key)) continue;
     $data = id_array($key);
     if ($data["state"] == 'g') continue;
@@ -189,11 +192,10 @@ foreach ($submitmem as $key) {
     $autoaccept = FALSE;
     //通知メール
     $nickname = $data["nickname"];
-    $author = $_SESSION["nickname"];
-    $pageurl = $siteurl . 'mypage/exam/do.php?author=' . $userid . '&id=' . $id;
+    $pageurl = $siteurl . 'mypage/exam/do.php?examname=' . $fileid;
     $content = "$nickname 様
 
-$author 様が、$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」を提出しました。
+$eventname のポータルサイトにて、作品「" . $_POST["title"] . "」が提出されました。
 下記のURLからファイルをダウンロードし、作品内容を確認して下さい。
 
 　ファイル内容確認ページ：$pageurl
@@ -212,7 +214,7 @@ $author 様が、$eventname のポータルサイトにて、作品「" . $_POST
 if ($autoaccept) $userdata["exam"] = 1;
 else {
     $exammemberjson =  json_encode($exammember);
-    if (file_put_contents(DATAROOT . 'exam/' . $userid . '_' . $userfile, $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exam/' . $fileid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
 }
 
 
@@ -220,7 +222,7 @@ $userdatajson =  json_encode($userdata);
 if (!file_exists(DATAROOT . 'submit/' . $userid . '/')) {
     if (!mkdir(DATAROOT . 'submit/' . $userid . '/')) die('ディレクトリの作成に失敗しました。');
 }
-if (file_put_contents(DATAROOT . 'submit/' . $userid . '/' . $userfile, $userdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'submit/' . $userid . '/' . $userfile, $userdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
 $email = $_SESSION["email"];
 

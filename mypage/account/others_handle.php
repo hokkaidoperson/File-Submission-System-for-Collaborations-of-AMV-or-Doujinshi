@@ -6,7 +6,7 @@ session_validation();
 csrf_prevention_validate();
 
 //パスワード認証
-$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
+$userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
 if (!password_verify($_POST["password"], $userdata["pwhash"])) die('<!DOCTYPE html>
 <html>
 <head>
@@ -42,17 +42,16 @@ else if(!preg_match('/.+@.+\..+/', $_POST["email"])) $invalid = TRUE;
 else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
 //重複確認
 $email = $_POST["email"];
-$conflict = FALSE;
+$conflict = 0;
 //登録済みの中から探す
 foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["email"] == $email) {
         if (basename($filename, ".txt") == $_SESSION["userid"]) continue;
-        $conflict = TRUE;
-        break;
+        $conflict++;
     }
 }
-if ($conflict) $invalid = TRUE;
+if ($conflict >= ACCOUNTS_PER_ADDRESS) $invalid = TRUE;
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
@@ -80,7 +79,7 @@ if ($changed == array()) {
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 $_SESSION['nickname'] = $userdata["nickname"];
 $_SESSION['email'] = $userdata["email"];

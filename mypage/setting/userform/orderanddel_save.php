@@ -18,7 +18,7 @@ for ($i = 0; $i <= 9; $i++) {
 
         $filedatajson = json_encode($filedata);
 
-        if (file_put_contents($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
+        if (file_put_contents_repeat($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
     } else {
         if (file_exists($fileplace)) unlink($fileplace);
     }

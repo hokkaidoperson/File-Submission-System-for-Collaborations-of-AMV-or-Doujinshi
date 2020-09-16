@@ -16,7 +16,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) 
 
 <h1>項目設定 - ラジオボタン</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -42,30 +42,30 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 ?>>
 <label class="form-check-label" for="required-1">必須</label>
 </div>
-<font size="2">※必須項目には「必須」と付記されます。</font>
+<small class="form-text">※必須項目には「必須」と付記されます。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
-<font size="2">※選択肢の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※選択肢の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、選択肢の下に何も表示されません。</font>
+※入力が無い場合は、選択肢の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 <label for="list">選択肢のリスト【必須】</label>
-<textarea id="list" name="list" rows="4" cols="80" class="form-control"><?php
+<textarea id="list" name="list" rows="4" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["list"])) echo hsc($_SESSION["userformdata"][$number]["list"]);
 ?></textarea>
-<font size="2">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
+<small class="form-text">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
 　例えば、<br>
 　　　りんご<br>
 　　　みかん<br>
 　　　ぶどう<br>
 　と入力した場合、「りんご」「みかん」「ぶどう」の中から1つ選ぶ項目になります。<br>
-※ラジオボタンは、「●●●●の場合左にチェックして下さい」のような使い方は出来ません（チェックボックスをご利用下さい）。</font>
+※ラジオボタンは、「●●●●の場合左にチェックして下さい」のような使い方は出来ません（チェックボックスをご利用下さい）。</small>
 </div>
 <div class="form-group">
 選択肢の並べ方
@@ -75,7 +75,7 @@ if (isset($_SESSION["userformdata"][$number]["arrangement"]) and $_SESSION["user
 ?>>
 <label class="form-check-label" for="arrangement">選択肢を横に並べる場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※チェックが無い場合は、選択肢を縦に並べます。</font>
+<small class="form-text">※チェックが無い場合は、選択肢を縦に並べます。</small>
 </div>
 <div class="form-group">
 入力内容の変更の自動承認について
@@ -85,7 +85,7 @@ if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userform
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
+<small class="form-text">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

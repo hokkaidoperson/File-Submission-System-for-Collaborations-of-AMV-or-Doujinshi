@@ -1,8 +1,8 @@
 <?php
 //デバッグ用　リリース時にはコメントアウト---------------------
-ini_set("display_errors", 1);
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-ini_set("log_errors", "On");
+//ini_set("display_errors", 1);
+//error_reporting(E_ERROR | E_WARNING | E_PARSE);
+//ini_set("log_errors", "On");
 //ini_set("error_log", "******error.log.txt");
 //----------------------------------------------------------
 
@@ -14,15 +14,16 @@ if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいませ�
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-2E-1');
+define('VERSION', 'Gamma-3E-0');
 
-$initdata = json_decode(file_get_contents(DATAROOT . 'init.txt'), true);
-
+$initdata = json_decode(file_get_contents_repeat(DATAROOT . 'init.txt'), true);
 define('FILE_MAX_SIZE', (int)$initdata["maxsize"]);
+if (isset($initdata["accounts"])) define('ACCOUNTS_PER_ADDRESS', (int)$initdata["accounts"]);
+else define('ACCOUNTS_PER_ADDRESS', 1);
 define('META_NOFOLLOW', (isset($initdata["robot"]) and $initdata["robot"] == 1));
 
 $eventname = $initdata["eventname"];
-$siteurl = file_get_contents(DATAROOT . 'siteurl.txt');
+$siteurl = file_get_contents_repeat(DATAROOT . 'siteurl.txt');
 //----------------------------------------------------------
 
 
@@ -54,7 +55,7 @@ foreach ($file_remover as $filename) {
 
 //保存している規定値（接頭辞とか）を使ってメール送信
 function sendmail($email, $subject, $content) {
-    $sendmaildata = json_decode(file_get_contents(DATAROOT . 'mail.txt'), true);
+    $sendmaildata = json_decode(file_get_contents_repeat(DATAROOT . 'mail.txt'), true);
     global $eventname;
     global $siteurl;
     if ($sendmaildata["pre"] == '') $mailpre = mb_substr($eventname, 0, 15);
@@ -87,13 +88,12 @@ $siteurl";
 
 }
 
-
 //全ユーザーの情報を配列に収める　$array["userid"]["nickname"など]
 function users_array() {
     $array = array();
     foreach (glob(DATAROOT . 'users/[!_]*.txt') as $filename) {
         $key = basename($filename, ".txt");
-        $array[$key] = json_decode(file_get_contents($filename), true);
+        $array[$key] = json_decode(file_get_contents_repeat($filename), true);
     }
     return $array;
 }
@@ -125,7 +125,7 @@ function id_state($state) {
 function id_admin() {
     foreach (glob(DATAROOT . 'users/[!_]*.txt') as $filename) {
         $key = basename($filename, ".txt");
-        $array = json_decode(file_get_contents($filename), true);
+        $array = json_decode(file_get_contents_repeat($filename), true);
         if ($array["admin"]) return $key;
     }
 }
@@ -135,7 +135,6 @@ function id_promoter() {
     $array = id_state("p");
     return $array[0];
 }
-
 
 //ユーザーが存在するかどうか
 function user_exists($id) {
@@ -149,7 +148,7 @@ function id_array($id) {
     if ($id !== basename($id)) return FALSE;
     $id = basename($id);
     if (!file_exists(DATAROOT . 'users/' . $id . '.txt')) return FALSE;
-    $array = json_decode(file_get_contents(DATAROOT . 'users/' . $id . '.txt'), true);
+    $array = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $id . '.txt'), true);
     return $array;
 }
 
@@ -158,7 +157,7 @@ function nickname($id) {
     if ($id !== basename($id)) return FALSE;
     $id = basename($id);
     if (!file_exists(DATAROOT . 'users/' . $id . '.txt')) return FALSE;
-    $array = json_decode(file_get_contents(DATAROOT . 'users/' . $id . '.txt'), true);
+    $array = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $id . '.txt'), true);
     return $array["nickname"];
 }
 
@@ -167,7 +166,7 @@ function email($id) {
     if ($id !== basename($id)) return FALSE;
     $id = basename($id);
     if (!file_exists(DATAROOT . 'users/' . $id . '.txt')) return FALSE;
-    $array = json_decode(file_get_contents(DATAROOT . 'users/' . $id . '.txt'), true);
+    $array = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $id . '.txt'), true);
     return $array["email"];
 }
 
@@ -176,7 +175,7 @@ function state($id) {
     if ($id !== basename($id)) return FALSE;
     $id = basename($id);
     if (!file_exists(DATAROOT . 'users/' . $id . '.txt')) return FALSE;
-    $array = json_decode(file_get_contents(DATAROOT . 'users/' . $id . '.txt'), true);
+    $array = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $id . '.txt'), true);
     return $array["state"];
 }
 
@@ -199,7 +198,7 @@ function outofterm($subject, $id = "") {
     $id = basename($id);
     $aclplace = DATAROOT . 'outofterm/' . $id . '.txt';
     if (file_exists($aclplace)) {
-        $acldata = json_decode(file_get_contents($aclplace), true);
+        $acldata = json_decode(file_get_contents_repeat($aclplace), true);
         if ($acldata["expire"] <= time()) return FALSE;
         if (array_search($subject, $acldata) !== FALSE) return $acldata["expire"];
         else return FALSE;
@@ -209,7 +208,7 @@ function outofterm($subject, $id = "") {
 //提出期間中かどうか調べる（FALSE:そもそも設定してないor期間外　TRUE:期間中）
 function in_term() {
     if (!file_exists(DATAROOT . 'form/submit/general.txt')) return FALSE;
-    $generaldata = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+    $generaldata = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
     if ($generaldata["from"] > time()) return FALSE;
     else if ($generaldata["until"] <= time()) return FALSE;
     else return TRUE;
@@ -218,7 +217,7 @@ function in_term() {
 //締め切り前かどうか調べる（FALSE:期間外　TRUE:期間中or未設定）
 function before_deadline() {
     if (!file_exists(DATAROOT . 'form/submit/general.txt')) return TRUE;
-    $generaldata = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+    $generaldata = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
     if ($generaldata["until"] <= time()) return FALSE;
     else return TRUE;
 }
@@ -226,7 +225,7 @@ function before_deadline() {
 //ユーザーブラックリスト
 function blackuser($id) {
     $blplace = DATAROOT . 'blackuser.txt';
-    if (file_exists($blplace)) $bldata = json_decode(file_get_contents($blplace), true);
+    if (file_exists($blplace)) $bldata = json_decode(file_get_contents_repeat($blplace), true);
     else $bldata = array();
     if (array_search($id, $bldata) !== FALSE) return TRUE;
     else return FALSE;
@@ -238,7 +237,7 @@ function blackip($admin, $state) {
     if ($state == "p" or $state == "c") return FALSE;
     $blplace = DATAROOT . 'blackip.txt';
     if (file_exists($blplace)) {
-        $exlist = str_replace(array("\r\n", "\r", "\n"), "\n", file_get_contents($blplace));
+        $exlist = str_replace(array("\r\n", "\r", "\n"), "\n", file_get_contents_repeat($blplace));
         $exlist = preg_quote($exlist, '/');
         $exlist = str_replace('\*', '[0-9A-Za-z.-]+', $exlist);
         $exlist = str_replace('\?', '[0-9A-Za-z.-]', $exlist);
@@ -246,7 +245,6 @@ function blackip($admin, $state) {
         $exlist = str_replace('\!', '[0-9]', $exlist);
         $exlist = explode("\n", $exlist);
         $remotehost = gethostbyaddr(getenv("REMOTE_ADDR"));
-        $excluded = FALSE;
         foreach ($exlist as $checking) {
             $prefix = '/^' . $checking . '$/';
             if (preg_match($prefix, getenv("REMOTE_ADDR"))) return TRUE;
@@ -286,14 +284,14 @@ function remove_directory($dir) {
 //file_put_contentsの結果をリターン
 function json_pack($filename, $array) {
     $arrayjson =  json_encode($array);
-    return file_put_contents($filename, $arrayjson);
+    return file_put_contents_repeat($filename, $arrayjson);
 }
 
 //jsonのファイルをほどいた配列を返す
 //ファイルが無い場合はFALSE
 function json_unpack($filename) {
     if (!file_exists($filename)) return FALSE;
-    return json_decode(file_get_contents($filename), true);
+    return json_decode(file_get_contents_repeat($filename), true);
 }
 
 //ファイル確認メンバー？
@@ -309,6 +307,23 @@ function is_exammember($userid, $membermode) {
     else return TRUE;
 }
 
+//リーダー（設定無しの場合NULL）
+function id_leader($membermode) {
+    $settingfile = json_unpack(DATAROOT . 'examsetting.txt');
+    if ($settingfile[$membermode . "_leader"] == "") return NULL;
+    if ($settingfile[$membermode . "_leader"] === "_promoter") {
+        $settingfile[$membermode . "_leader"] = id_promoter();
+    }
+    return $settingfile[$membermode . "_leader"];
+}
+
+//匿名モード？
+function exam_anonymous() {
+    $settingfile = json_unpack(DATAROOT . 'examsetting.txt');
+    if ($settingfile["anonymous"] == "1") return TRUE;
+    return FALSE;
+}
+
 //ファイル確認集計処理ショートカット（新規提出）
 //意見の書き込み後、もしくは確認者リストの更新後に呼び出す
 //現在の確認者リストに基づき意見を集計、回答が出揃っていれば〆処理
@@ -320,21 +335,23 @@ function exam_totalization_new($subject, $forceclose) {
     global $eventname;
     if ($subject === "_all") $subjectarray = glob(DATAROOT . 'exam/*.txt');
     else $subjectarray = array("exam/$subject.txt");
-    $formsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+    $formsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
+
+    $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $key = array_search("_promoter", $submitmem);
+    if ($key !== FALSE) {
+        $submitmem[$key] = id_promoter();
+    }
 
     foreach($subjectarray as $filename) {
         $subject = basename($filename, '.txt');
-        list($author, $id) = explode('_', $subject);
+        $answerdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam/' . $subject . '.txt'), true);
+        list($author, $id) = explode("/", $answerdata["_realid"]);
         if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) continue;
-        //回答データ
-        $answerdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $subject . '.txt'), true);
-        $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $key = array_search("_promoter", $submitmem);
-        if ($key !== FALSE) {
-            $submitmem[$key] = id_promoter();
-        }
 
-        if ($answerdata["_state"] != 0) continue;
+        if ($answerdata["_state"] != 0 and $answerdata["_state"] != 4) continue;
+        if ($answerdata["_state"] == 4) $dontnotice = TRUE;
+        else $dontnotice = FALSE;
 
         //メンバーにいない人をファイルから外す
         foreach ($answerdata as $key => $data) {
@@ -393,30 +410,37 @@ function exam_totalization_new($subject, $forceclose) {
         else if ($op3 == $count) $result = 3;
 
         //計測結果を保存
+        $frame = FALSE;
         if ($result == 0) $answerdata["_state"] = 1;
         else {
-            $answerdata["_state"] = 3;
-            $answerdata["_result"] = $result;
+            //理由取りまとめの必要不要
+            if (id_leader("submit") != NULL and $count >= 2 and $result != 1 and $formsetting["reason"] == "notice") {
+                $frame = TRUE;
+                $answerdata["_state"] = 4;
+            } else $answerdata["_state"] = 3;
+            $answerdata["_result"] = ["opinion" => $result, "reason" => ""];
         }
 
         if (json_pack(DATAROOT . 'exam/' . $subject . '.txt', $answerdata) === FALSE) die('回答データの書き込みに失敗しました。');
 
         //入力内容を読み込んで書き換え
-        $formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
-        $formdata["exam"] = $result;
-        if (json_pack(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $formdata) === FALSE) die('作品データの書き込みに失敗しました。');
+        $formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+        if (!$frame) {
+            $formdata["exam"] = $result;
+            if (json_pack(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $formdata) === FALSE) die('作品データの書き込みに失敗しました。');
+        }
 
         $authornick = nickname($author);
 
         if ($result == 0) {
-            $pageurl = $siteurl . 'mypage/exam/discuss.php?author=' . $author . '&id=' . $id;
+            $pageurl = $siteurl . 'mypage/exam/discuss.php?examname=' . $subject;
             //内部関数で送信
             foreach ($submitmem as $key) {
                 $data = $answerdata[$key];
                 $nickname = nickname($key);
                 if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」について、全てのメンバーが確認を終えました。
+作品「" . $formdata["title"] . "」について、全てのメンバーが確認を終えました。
 メンバー間で意見が分かれたため、この作品の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
@@ -424,7 +448,7 @@ $authornick 様の作品「" . $formdata["title"] . "」について、全ての
 ";
                 else $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」について、ファイル確認を締め切りました。
+作品「" . $formdata["title"] . "」について、ファイル確認を締め切りました。
 メンバー間で意見が分かれたため、この作品の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
@@ -437,43 +461,49 @@ $authornick 様の作品「" . $formdata["title"] . "」について、ファイ
                 case 1:
                     $contentpart = '承認しても問題無いという意見で一致したため、この作品を承認しました。
 作品の提出者に承認の通知をしました。';
-                    $subject = 'ファイル確認の結果（承認・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（承認・' . $formdata["title"] . '）';
                     $authorsubject = '作品を承認しました（' . $formdata["title"] . '）';
                 break;
                 case 2:
-                    $contentpart = '軽微な修正が必要であるという意見で一致したため、この作品を修正待ち状態にしました。
+                    if ($frame) $contentpart = '軽微な修正が必要であるという意見で一致したため、この作品を修正待ち状態にしました。
+作品の提出者への通知につきましては、メンバーの意見をファイル確認のリーダーが取りまとめ、修正待ちとなった理由を添えて修正依頼の通知をします。';
+                    else $contentpart = '軽微な修正が必要であるという意見で一致したため、この作品を修正待ち状態にしました。
 作品の提出者に、修正依頼の通知をしました。';
-                    $subject = 'ファイル確認の結果（修正待ち・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（修正待ち・' . $formdata["title"] . '）';
                     $authorsubject = '作品を修正して下さい（' . $formdata["title"] . '）';
                 break;
                 case 3:
-                    $contentpart = '内容上問題があるという意見で一致したため、この作品を拒否しました。
+                    if ($frame) $contentpart = '内容上の問題が多い、もしくは重大な問題があるという意見で一致したため、この作品を拒否しました。
+作品の提出者への通知につきましては、メンバーの意見をファイル確認のリーダーが取りまとめ、拒否となった理由を添えて拒否の通知をします。';
+                    else $contentpart = '内容上の問題が多い、もしくは重大な問題があるという意見で一致したため、この作品を拒否しました。
 作品の提出者に拒否の通知をしました。';
-                    $subject = 'ファイル確認の結果（拒否・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（拒否・' . $formdata["title"] . '）';
                     $authorsubject = '作品の承認が見送られました（' . $formdata["title"] . '）';
                 break;
             }
 
             //内部関数で送信
-            foreach ($submitmem as $key) {
+            if (!$dontnotice) foreach ($submitmem as $key) {
                 $data = $answerdata[$key];
-                if ($author == $key) continue;
+                if ($author === (string)$key) continue;
                 $nickname = nickname($key);
+                if ($frame and (string)id_leader("submit") === (string)$key) $ps = "\n\n※ファイル確認のリーダーの方は、ファイル提出者への通知のため、以下のURLから、メンバーの意見を取りまとめる画面に進んで下さい。\n\n　理由入力ページ：" . $siteurl . 'mypage/exam/frame.php?examname=' . $subject;
+                else $ps = "";
                 if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」について、全てのメンバーが確認を終えました。
+作品「" . $formdata["title"] . "」について、全てのメンバーが確認を終えました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
                 else $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」について、ファイル確認を締め切りました。
+作品「" . $formdata["title"] . "」について、ファイル確認を締め切りました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
-                sendmail(email($key), $subject, $content);
+                sendmail(email($key), $mailsubject, $content);
             }
 
             //提出者向け
@@ -543,7 +573,7 @@ $reasons
 ";
                 break;
             }
-            sendmail(email($author), $authorsubject, $content);
+            if (!$frame) sendmail(email($author), $authorsubject, $content);
         }
     }
     if (isset($result)) return $result;
@@ -558,25 +588,39 @@ function exam_totalization_edit($subject, $forceclose) {
     global $eventname;
     if ($subject === "_all") $subjectarray = glob(DATAROOT . 'exam_edit/*.txt');
     else $subjectarray = array("exam_edit/$subject.txt");
-    $formsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+    $formsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
 
+    $mode1file = DATAROOT . 'exammember_submit.txt';
+    $mode1mem = file($mode1file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $key = array_search("_promoter", $mode1mem);
+    if ($key !== FALSE) {
+        $mode1mem[$key] = id_promoter();
+    }
+    $mode2file = DATAROOT . 'exammember_edit.txt';
+    $mode2mem = file($mode2file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $key = array_search("_promoter", $mode2mem);
+    if ($key !== FALSE) {
+        $mode2mem[$key] = id_promoter();
+    }
     foreach($subjectarray as $filename) {
         $subject = basename($filename, '.txt');
-        list($author, $id, $editid) = explode('_', $subject);
+        $answerdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
+        list($author, $id, $editid) = explode("/", $answerdata["_realid"]);
         if ($id !== "common" and !file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) continue;
 
-        //回答データ
-        $answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
-        if ($id === "common") $membermode = "edit";
-        else $membermode = $answerdata["_membermode"];
-        $memberfile = DATAROOT . 'exammember_' . $membermode . '.txt';
-        $submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $key = array_search("_promoter", $submitmem);
-        if ($key !== FALSE) {
-            $submitmem[$key] = id_promoter();
+        if ($id === "common") {
+            $submitmem = $mode2mem;
+            $membermode = "edit";
+        }
+        else {
+            $membermode = $answerdata["_membermode"];
+            if ($answerdata["_membermode"] === "submit") $submitmem = $mode1mem;
+            else $submitmem = $mode2mem;
         }
 
-        if ($answerdata["_state"] != 0) continue;
+        if ($answerdata["_state"] != 0 and $answerdata["_state"] != 4) continue;
+        if ($answerdata["_state"] == 4) $dontnotice = TRUE;
+        else $dontnotice = FALSE;
 
         //メンバーにいない人をファイルから外す
         foreach ($answerdata as $key => $data) {
@@ -630,24 +674,29 @@ function exam_totalization_edit($subject, $forceclose) {
         else if ($op2 == $count) $result = 2;
 
         //計測結果を保存
+        $frame = FALSE;
         if ($result == 0) $answerdata["_state"] = 1;
         else {
-            $answerdata["_state"] = 3;
-            $answerdata["_result"] = $result;
+            //理由取りまとめの必要不要
+            if (id_leader($membermode) != NULL and $count >= 2 and $result != 1 and $formsetting["reason"] == "notice") {
+                $frame = TRUE;
+                $answerdata["_state"] = 4;
+            } else $answerdata["_state"] = 3;
+            $answerdata["_result"] = ["opinion" => $result, "reason" => ""];
         }
 
         if (json_pack(DATAROOT . 'exam_edit/' . $subject . '.txt', $answerdata) === FALSE) die('回答データの書き込みに失敗しました。');
 
-        if ($id !== "common") $formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
-        else $formdata = json_decode(file_get_contents(DATAROOT . "users/" . $author . ".txt"), true);
+        if ($id !== "common") $formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+        else $formdata = json_decode(file_get_contents_repeat(DATAROOT . "users/" . $author . ".txt"), true);
 
         //議論入りしないなら入力内容を読み込んで書き換え
-        if ($result != 0 and $id !== "common") {
+        if ($result != 0 and $id !== "common" and !$frame) {
             $formdata["editing"] = 0;
             if ($result == 1) {
                 $formdata["exam"] = 1;
                 $formdata["editdate"] = $editid;
-                $changeddata = json_decode(file_get_contents(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
+                $changeddata = json_decode(file_get_contents_repeat(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
                 foreach($changeddata as $key => $data) {
                     if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
                         $fileto = DATAROOT . 'files/' . $author . '/' . $id . '/';
@@ -679,12 +728,12 @@ function exam_totalization_edit($subject, $forceclose) {
             if (json_pack(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $formdata) === FALSE) die('作品データの書き込みに失敗しました。');
         }
 
-        if ($result != 0 and $id === "common") {
+        if ($result != 0 and $id === "common" and !$frame) {
             $formdata["common_editing"] = 0;
             if ($answerdata["_commonmode"] === "new") $formdata["common_acceptance"] = $result;
             else if ($result == 1) {
                 $formdata["common_acceptance"] = 1;
-                $changeddata = json_decode(file_get_contents(DATAROOT . "edit/" . $author . "/common.txt"), true);
+                $changeddata = json_decode(file_get_contents_repeat(DATAROOT . "edit/" . $author . "/common.txt"), true);
                 foreach($changeddata as $key => $data) {
                     if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
                         $fileto = DATAROOT . 'files/' . $author . '/common/';
@@ -717,17 +766,17 @@ function exam_totalization_edit($subject, $forceclose) {
         $authornick = nickname($author);
 
         if ($result == 0) {
-            if ($id !== "common") $pageurl = $siteurl . 'mypage/exam/discuss_edit.php?author=' . $author . '&id=' . $id . '&edit=' . $editid;
-            else $pageurl = $siteurl . 'mypage/exam/discuss_common.php?author=' . $author . '&edit=' . $editid;
+            if ($id !== "common") $pageurl = $siteurl . 'mypage/exam/discuss_edit.php?examname=' . $subject;
+            else $pageurl = $siteurl . 'mypage/exam/discuss_common.php?examname=' . $subject;
             //内部関数で送信
             foreach ($submitmem as $key) {
                 $data = $answerdata[$key];
                 $nickname = nickname($key);
                 if ($id !== "common") {
-                    $subject = 'ファイル確認の結果（議論の必要あり・内容変更・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（議論の必要あり・内容変更・' . $formdata["title"] . '）';
                     if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」の項目変更について、全てのメンバーが確認を終えました。
+作品「" . $formdata["title"] . "」の項目変更について、全てのメンバーが確認を終えました。
 メンバー間で意見が分かれたため、この変更の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
@@ -735,17 +784,17 @@ $authornick 様の作品「" . $formdata["title"] . "」の項目変更につい
 ";
                     else $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」の項目変更について、ファイル確認を締め切りました。
+作品「" . $formdata["title"] . "」の項目変更について、ファイル確認を締め切りました。
 メンバー間で意見が分かれたため、この変更の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
 　簡易チャットページ：$pageurl
 ";
                 } else {
-                    $subject = '内容確認の結果（議論の必要あり・共通情報）';
+                    $mailsubject = '内容確認の結果（議論の必要あり・共通情報）';
                     if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の共通情報について、全てのメンバーが確認を終えました。
+提出された共通情報について、全てのメンバーが確認を終えました。
 メンバー間で意見が分かれたため、この内容の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
@@ -753,27 +802,29 @@ $authornick 様の共通情報について、全てのメンバーが確認を�
 ";
                     else $content = "$nickname 様
 
-$authornick 様の共通情報について、確認を締め切りました。
+提出された共通情報について、確認を締め切りました。
 メンバー間で意見が分かれたため、この内容の承認・拒否について議論する必要があります。
 以下のURLから、簡易チャット画面に移って下さい。
 
 　簡易チャットページ：$pageurl
 ";
                 }
-                sendmail(email($key), $subject, $content);
+                sendmail(email($key), $mailsubject, $content);
             }
         } else {
             if ($id !== "common") switch ($result){
                 case 1:
                     $contentpart = '承認しても問題無いという意見で一致したため、この変更を承認しました。
 作品の提出者に承認の通知をしました。';
-                    $subject = 'ファイル確認の結果（承認・内容変更・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（承認・内容変更・' . $formdata["title"] . '）';
                     $authorsubject = '内容変更を承認しました（' . $formdata["title"] . '）';
                 break;
                 case 2:
-                    $contentpart = '問題があるという意見で一致したため、この変更を拒否しました。
+                    if ($frame) $contentpart = '問題があるという意見で一致したため、この変更を拒否しました。
+作品の提出者への通知につきましては、メンバーの意見をファイル確認のリーダーが取りまとめ、拒否となった理由を添えて拒否の通知をします。';
+                    else $contentpart = '問題があるという意見で一致したため、この変更を拒否しました。
 作品の提出者に拒否の通知をしました。';
-                    $subject = 'ファイル確認の結果（拒否・内容変更・' . $formdata["title"] . '）';
+                    $mailsubject = 'ファイル確認の結果（拒否・内容変更・' . $formdata["title"] . '）';
                     $authorsubject = '内容変更の承認が見送られました（' . $formdata["title"] . '）';
                 break;
             }
@@ -781,54 +832,60 @@ $authornick 様の共通情報について、確認を締め切りました。
                 case 1:
                     $contentpart = '承認しても問題無いという意見で一致したため、この内容を承認しました。
 情報の提出者に承認の通知をしました。';
-                    $subject = '内容確認の結果（承認・共通情報）';
+                    $mailsubject = '内容確認の結果（承認・共通情報）';
                     $authorsubject = '内容を承認しました（共通情報）';
                 break;
                 case 2:
-                    $contentpart = '問題があるという意見で一致したため、この内容を拒否しました。
+                    if ($frame) $contentpart = '問題があるという意見で一致したため、この内容を拒否しました。
+情報の提出者への通知につきましては、メンバーの意見をファイル確認のリーダーが取りまとめ、拒否となった理由を添えて拒否の通知をします。';
+                    else $contentpart = '問題があるという意見で一致したため、この内容を拒否しました。
 情報の提出者に拒否の通知をしました。';
-                    $subject = '内容確認の結果（拒否・共通情報）';
+                    $mailsubject = '内容確認の結果（拒否・共通情報）';
                     $authorsubject = '内容の承認が見送られました（共通情報）';
                 break;
             }
 
             //内部関数で送信
-            foreach ($submitmem as $key) {
+            if (!$dontnotice) foreach ($submitmem as $key) {
                 $data = $answerdata[$key];
                 if ($author == $key) continue;
                 $nickname = nickname($key);
                 if ($id !== "common") {
+                    if ($frame and (string)id_leader($membermode) === (string)$key) $ps = "\n\n※ファイル確認のリーダーの方は、ファイル提出者への通知のため、以下のURLから、メンバーの意見を取りまとめる画面に進んで下さい。\n\n　理由入力ページ：" . $siteurl . 'mypage/exam/frame_edit.php?examname=' . $subject;
+                    else $ps = "";
                     if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」の項目変更について、全てのメンバーが確認を終えました。
+作品「" . $formdata["title"] . "」の項目変更について、全てのメンバーが確認を終えました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
                     else $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」の項目変更について、ファイル確認を締め切りました。
+作品「" . $formdata["title"] . "」の項目変更について、ファイル確認を締め切りました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
                 } else {
+                    if ($frame and (string)id_leader($membermode) === (string)$key) $ps = "\n\n※ファイル確認のリーダーの方は、情報の提出者への通知のため、以下のURLから、メンバーの意見を取りまとめる画面に進んで下さい。\n\n　理由入力ページ：" . $siteurl . 'mypage/exam/frame_common.php?examname=' . $subject;
+                    else $ps = "";
                     if (!$forceclose) $content = "$nickname 様
 
-$authornick 様の共通情報について、全てのメンバーが確認を終えました。
+提出された共通情報について、全てのメンバーが確認を終えました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
                     else $content = "$nickname 様
 
-$authornick 様の共通情報について、確認を締め切りました。
+提出された共通情報について、確認を締め切りました。
 $contentpart
 
-ファイル確認へのご協力、ありがとうございます。
+ファイル確認へのご協力、ありがとうございます。$ps
 ";
                 }
-                sendmail(email($key), $subject, $content);
+                sendmail(email($key), $mailsubject, $content);
             }
 
             //提出者向け
@@ -911,8 +968,10 @@ $reasons
 ";
                 break;
             }
-            sendmail(email($author), $authorsubject, $content);
-            unlink(DATAROOT . "edit/" . $author . "/" . $id . ".txt");
+            if (!$frame) {
+                sendmail(email($author), $authorsubject, $content);
+                unlink(DATAROOT . "edit/" . $author . "/" . $id . ".txt");
+            }
         }
     }
     if (isset($result)) return $result;
@@ -1065,6 +1124,7 @@ function no_access_right($allowed, $echo_message = FALSE) {
         if ($echo_message) {
             $state_text = implode("、", $allowed);
             $state_text = str_replace(array("p", "c", "g", "o"), array("<b>主催者</b>", "<b>共同運営者</b>", "<b>一般参加者</b>", "<b>非参加者</b>"), $state_text);
+            http_response_code(403);
             die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、' . $state_text . 'のみです。</p>
 <p><a href="' . $siteurl . 'mypage/index.php">マイページトップに戻る</a></p>');
@@ -1170,7 +1230,7 @@ function output_alert() {
     if (!is_array($_SESSION["alerts_holder"])) return;
     foreach ($_SESSION["alerts_holder"] as $contents) {
         echo <<<EOT
-<div class="alert alert-{$contents["class"]} alert-dismissible fade show" role="alert" style="margin-top: 1em;">
+<div class="alert alert-{$contents["class"]} alert-dismissible fade show system-alert-spacer" role="alert">
 {$contents["body"]}
 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
 <span aria-hidden="true">&times;</span>
@@ -1184,7 +1244,7 @@ EOT;
 //普通にアラートを表示
 function echo_alert($body, $class = "primary", $not_dismissable = FALSE) {
     if (!$not_dismissable) echo <<<EOT
-<div class="alert alert-$class alert-dismissible fade show" role="alert" style="margin-top: 1em;">
+<div class="alert alert-$class alert-dismissible fade show system-alert-spacer" role="alert">
 $body
 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
 <span aria-hidden="true">&times;</span>
@@ -1192,7 +1252,7 @@ $body
 </div>
 EOT;
     else echo <<<EOT
-<div class="alert alert-$class" role="alert" style="margin-top: 1em;">
+<div class="alert alert-$class system-alert-spacer" role="alert">
 $body
 </div>
 EOT;
@@ -1282,6 +1342,11 @@ function check_checkbox($array) {
     $f = $_POST["custom-" . $array["id"]];
     if ($f == "") $f = array();
     if((array)$f == array() && $array["required"] == "1") return TRUE;
+    $choices = choices_array($array["list"]);
+    $compare = count($choices);
+    foreach ($f as $value) {
+        if ((int)$value >= $compare) return TRUE;
+    }
     return FALSE;
 }
 
@@ -1289,6 +1354,9 @@ function check_radio($array) {
     $item = $_POST["custom-" . $array["id"]];
     $result = check_required($array["required"], $item);
     if ($result != 0) return TRUE;
+    $choices = choices_array($array["list"]);
+    $compare = count($choices);
+    if ((int)$item >= $compare) return TRUE;
     return FALSE;
 }
 
@@ -1416,4 +1484,172 @@ php.ini の設定を見直して下さい。</b></p>
     if($filenumber > $filemax) return TRUE;
     if ($sizesum > $oksize) return TRUE;
     return FALSE;
+}
+
+//タイトルと接頭・接尾辞、詳細はHTMLタグ使える（呼び出す側でエスケープ）
+function echo_textbox($title, $name, $id, $prefill = "", $showcounter = FALSE, $detail = "", $jspart = "", $prefix = "", $suffix = "", $width = "", $disabled = FALSE) {
+    echo '<div class="form-group"><label for="' . hsc($id) . '">' . $title . '</label>';
+    if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
+    else echo '<div class="input-group">';
+    if ($prefix != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix . '</span></div>';
+    echo '<input type="text" name="' . hsc($name) . '" class="form-control" id="' . hsc($id) . '" value="' . hsc($prefill) . '"';
+    if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-counter&quot;);"';
+    if ($disabled) echo ' disabled="disabled"';
+    if ($jspart != "") echo ' ' . $jspart;
+    echo ">";
+    if ($suffix != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix . '</span></div>';
+    echo '</div>';
+    if ($showcounter) echo '<div id="' . hsc($id) . '-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+function echo_textbox2($title, $name, $id, $prefill = "", $prefill2 = "", $showcounter = FALSE, $horizontally = FALSE, $detail = "", $jspart = "", $prefix = "", $suffix = "", $width = "", $prefix2 = "", $suffix2 = "", $width2 = "", $disabled = FALSE) {
+    echo '<div class="form-group">' . $title;
+    if ($horizontally) echo '<div class="form-row"><div class="col">';
+    if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
+    else echo '<div class="input-group">';
+    if ($prefix != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix . '</span></div>';
+    echo '<input type="text" name="' . hsc($name) . '-1" class="form-control" id="' . hsc($id) . '-1" value="' . hsc($prefill) . '"';
+    if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-1-counter&quot;);"';
+    if ($disabled) echo ' disabled="disabled"';
+    if ($jspart != "") echo ' ' . $jspart;
+    echo ">";
+    if ($suffix != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix . '</span></div>';
+    echo '</div>';
+    if ($showcounter) echo '<div id="' . hsc($id) . '-1-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
+    if ($horizontally) echo '</div><div class="col">';
+    if ($width2 != "") echo '<div class="input-group" style="width:' . hsc($width2) . 'em;">';
+    else echo '<div class="input-group">';
+    if ($prefix2 != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix2 . '</span></div>';
+    echo '<input type="text" name="' . hsc($name) . '-2" class="form-control" id="' . hsc($id) . '-2" value="' . hsc($prefill2) . '"';
+    if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-2-counter&quot;);"';
+    if ($disabled) echo ' disabled="disabled"';
+    if ($jspart != "") echo ' ' . $jspart;
+    echo ">";
+    if ($suffix2 != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix2 . '</span></div>';
+    echo '</div>';
+    if ($showcounter) echo '<div id="' . hsc($id) . '-2-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
+    if ($horizontally) echo '</div></div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+function echo_textarea($title, $name, $id, $prefill, $showcounter = FALSE, $detail = "", $jspart = "", $width = "", $height = "", $disabled = FALSE) {
+    echo '<div class="form-group"><label for="' . hsc($id) . '">' . $title . '</label>';
+    if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
+    else echo '<div class="input-group">';
+    if ($height == "") $height = "4";
+    echo '<textarea id="' . hsc($id) . '" name="' . hsc($name) . '" rows="' . hsc($height) . '" class="form-control"';
+    if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-counter&quot;);"';
+    if ($disabled) echo ' disabled="disabled"';
+    if ($jspart != "") echo ' ' . $jspart;
+    echo ">";
+    echo hsc($prefill) . '</textarea>';
+    echo '</div>';
+    if ($showcounter) echo '<div id="' . hsc($id) . '-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+//$choicesは配列、HTMLタグ可　valueは指定無しの場合選択肢番号0から　prefillはvaluesと照らし合わせ
+function echo_radio($title, $name, $id, $choices, $values = [], $prefill = "", $horizontally = FALSE, $detail = "", $jspart = "", $disabled = FALSE) {
+    echo '<div class="form-group">' . $title;
+    if ($horizontally) echo '<div>';
+    foreach ($choices as $num => $choice) {
+        if ($horizontally) echo '<div class="form-check form-check-inline">';
+        else echo '<div class="form-check">';
+        if ($values !== []) $value = $values[$num];
+        else $value = $num;
+        echo '<input id="' . hsc($id) . '-' . hsc($num) . '" class="form-check-input" type="radio" name="' . hsc($name) . '" value="' . hsc($value) . '"';
+        if ($prefill !== "" and $value == $prefill) echo ' checked="checked"';
+        if ($disabled) echo ' disabled="disabled"';
+        if ($jspart != "") echo ' ' . $jspart;
+        echo ">";
+        echo '<label class="form-check-label" for="' . hsc($id) . '-' . hsc($num) . '">' . $choice . '</label>';
+        echo '</div>';
+    }
+    if ($horizontally) echo '</div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+function echo_check($title, $name, $id, $choices, $values = [], $prefill = [], $horizontally = FALSE, $detail = "", $jspart = "", $disabled = FALSE) {
+    echo '<div class="form-group">' . $title;
+    if ($horizontally) echo '<div>';
+    foreach ($choices as $num => $choice) {
+        if ($horizontally) echo '<div class="form-check form-check-inline">';
+        else echo '<div class="form-check">';
+        if ($values !== []) $value = $values[$num];
+        else $value = $num;
+        echo '<input id="' . hsc($id) . '-' . hsc($num) . '" class="form-check-input" type="checkbox" name="' . hsc($name) . '[]" value="' . hsc($value) . '"';
+        if (array_search($value, $prefill) !== FALSE) echo ' checked="checked"';
+        if ($disabled) echo ' disabled="disabled"';
+        if ($jspart != "") echo ' ' . $jspart;
+        echo ">";
+        echo '<label class="form-check-label" for="' . hsc($id) . '-' . hsc($num) . '">' . $choice . '</label>';
+        echo '</div>';
+    }
+    if ($horizontally) echo '</div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+//この$choiceはHTML不可
+function echo_dropdown($title, $name, $id, $choices, $values = [], $prefill = "", $detail = "", $jspart = "", $prefix = "", $suffix = "", $disabled = FALSE) {
+    echo '<div class="form-group"><label for="' . hsc($id) . '">' . $title . '</label>';
+    echo '<div class="input-group">';
+    if ($prefix != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix . '</span></div>';
+    echo '<select id="' . hsc($id) . '" class="form-control" name="' . hsc($name) . '"';
+    if ($disabled) echo ' disabled="disabled"';
+    if ($jspart != "") echo ' ' . $jspart;
+    echo ">";
+    echo '<option value="">【選択して下さい】</option>';
+    foreach ($choices as $num => $choice) {
+        if ($values !== []) $value = $values[$num];
+        else $value = $num;
+        echo '<option value="' . hsc($value) . '"';
+        if ($prefill !== "" and $prefill == $value) echo ' selected';
+        echo '>' . hsc($choice) . '</option>';
+    }
+    echo '</select>';
+    if ($suffix != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix . '</span></div>';
+    echo '</div>';
+    echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
+    if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
+    echo '</div>';
+}
+
+function file_get_contents_repeat($filename) {
+    for ($i=0; $i<10; $i++) {
+        $result = file_get_contents($filename);
+        if ($result !== FALSE) return $result;
+        sleep(1);
+    }
+    return FALSE;
+}
+
+function file_put_contents_repeat($filename, $data, $flags = 0) {
+    for ($i=0; $i<10; $i++) {
+        $result = file_put_contents($filename, $data, $flags);
+        if ($result !== FALSE) return $result;
+        sleep(1);
+    }
+    return FALSE;
+}
+
+function choices_array($choices_string, $escape = FALSE) {
+    $choices = str_replace(array("\r\n", "\r", "\n"), "\n", $choices_string);
+    $choices = explode("\n", $choices);
+    $choices = array_map('trim', $choices);
+    if ($escape) $choices = array_map('hsc', $choices);
+    //参考　https://www.hachi-log.com/php-arrayfilter-arrayvalue/
+    $choices = array_filter($choices);
+    $choices = array_values($choices);
+    return $choices;
 }

@@ -18,7 +18,7 @@ $userdata = id_array($_SESSION["userid"]);
 if ($userdata["state"] == "g") {
     $userdata["state"] = "o";
     $userdatajson =  json_encode($userdata);
-    if (file_put_contents(DATAROOT . 'users/' . $_SESSION["userid"] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'users/' . $_SESSION["userid"] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
     //立場別一覧の書き換え
     $statedtp = DATAROOT . 'users/_general.txt';
@@ -26,16 +26,16 @@ if ($userdata["state"] == "g") {
     $key = array_search($_SESSION["userid"], $array);
     unset($array[$key]);
     $statedata = implode("\n", $array) . "\n";
-    if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
     $statedata = $_SESSION["userid"] . "\n";
     $statedtp = DATAROOT . 'users/_outsider.txt';
-    if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     register_alert("非参加者に切り替えました。", "success");
 } else {
     $userdata["state"] = "g";
     $userdatajson =  json_encode($userdata);
-    if (file_put_contents(DATAROOT . 'users/' . $_SESSION["userid"] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'users/' . $_SESSION["userid"] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
     //立場別一覧の書き換え
     $statedtp = DATAROOT . 'users/_outsider.txt';
@@ -43,11 +43,11 @@ if ($userdata["state"] == "g") {
     $key = array_search($_SESSION["userid"], $array);
     unset($array[$key]);
     $statedata = implode("\n", $array) . "\n";
-    if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
     $statedata = $_SESSION["userid"] . "\n";
     $statedtp = DATAROOT . 'users/_general.txt';
-    if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     register_alert("一般参加者に切り替えました。", "success");
 
 }

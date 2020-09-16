@@ -11,11 +11,11 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt')) redirect("./index.php");
 csrf_prevention_validate();
 
 if (!file_exists(DATAROOT . 'mail_schedule/')) {
-    if (!mkdir(DATAROOT . 'mail_schedule/')) die_mypage('ディレクトリの作成に失敗しました。');
+    if (!mkdir(DATAROOT . 'mail_schedule/')) die('ディレクトリの作成に失敗しました。');
 }
 
 //日時の計算
-$general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$general = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 $date = array();
 
@@ -42,7 +42,7 @@ $current = time();
 //設定内容保存
 foreach ($roop as $value) {
     if (array_search($value, (array)$_POST["schedule"]) !== FALSE and $date[$value] > $current) {
-        if (file_put_contents(DATAROOT . 'mail_schedule/' . $value . '.txt', "1") === FALSE) die('設定内容の書き込みに失敗しました。');
+        if (file_put_contents_repeat(DATAROOT . 'mail_schedule/' . $value . '.txt', "1") === FALSE) die('設定内容の書き込みに失敗しました。');
     } else {
         if (file_exists(DATAROOT . 'mail_schedule/' . $value . '.txt')) unlink(DATAROOT . 'mail_schedule/' . $value . '.txt');
     }

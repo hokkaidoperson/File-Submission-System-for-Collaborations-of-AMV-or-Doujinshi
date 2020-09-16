@@ -20,7 +20,7 @@ foreach(users_array() as $author => $data) {
             //主催がアクセス権を与えていたらおｋ
             $aclplace = DATAROOT . 'fileacl/' . $_SESSION["userid"] . '.txt';
             if (file_exists($aclplace)) {
-                $acldata = json_decode(file_get_contents($aclplace), true);
+                $acldata = json_decode(file_get_contents_repeat($aclplace), true);
                 if (array_search($author . '_userform', $acldata) !== FALSE) $allowed = TRUE;
             }
             //breakしない、下へ行く

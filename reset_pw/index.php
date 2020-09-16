@@ -7,7 +7,7 @@ if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出シ�
 }
 
 //recaptcha周りの参考URL https://webbibouroku.com/Blog/Article/invisible-recaptcha
-$recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
+$recdata = json_decode(file_get_contents_repeat(DATAROOT . 'rec.txt'), true);
 
 $userec = FALSE;
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) $userec = TRUE;
@@ -22,7 +22,8 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
@@ -151,47 +152,48 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。<br><br>
 確認の為、お使いのアカウントの情報を以下に入力して下さい。<br><br>
 ※<a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a>
 </div>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="auth.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="userid">ユーザーID</label>
 <input type="text" name="userid" class="form-control" id="userid" onBlur="check_individual(&quot;userid&quot;);">
-<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="userid-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム</label>
 <input type="text" name="nickname" class="form-control" id="nickname" onBlur="check_individual(&quot;nickname&quot;);">
-<div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="nickname-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス</label>
 <input type="email" name="email" class="form-control" id="email" onBlur="check_individual(&quot;email&quot;);">
-<div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="email-errortext" class="system-form-error"></div>
 </div>
 <?php
 if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
-<button class="btn btn-primary" type="submit">URLを送信</button><br><font size="2"><span class="text-muted">※「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></font>';
+<button class="btn btn-primary" type="submit">URLを送信</button><br><span class="small text-muted">※「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span>';
 else echo '<button type="submit" class="btn btn-primary" id="submitbtn">URLを送信</button>';
 ?>
-<div id="neterrortext" style="display: none;"><font size="2"><span class="text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「URLを送信」を押して下さい。</span></font></div>
+<div id="neterrortext" style="display: none;"><span class="small text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「URLを送信」を押して下さい。</span></div>
 </form>
 </div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

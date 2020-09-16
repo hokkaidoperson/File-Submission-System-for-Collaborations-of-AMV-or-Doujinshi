@@ -30,7 +30,7 @@ $acldata = array_merge((array)$_POST["fncs"], (array)$_POST["files"]);
 $acldata["expire"] = time() + (int)$_POST["time"] * 60 * 60;
 
 $acldatajson =  json_encode($acldata);
-if (file_put_contents(DATAROOT . 'outofterm/' . $userid . '.txt', $acldatajson) === FALSE) die('ACLデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'outofterm/' . $userid . '.txt', $acldatajson) === FALSE) die('ACLデータの書き込みに失敗しました。');
 
 //何が許可されているのかメールに書く
 $whatok = [];
@@ -43,18 +43,18 @@ foreach ($acldata as $key => $value) {
         $whatok[] = 'ファイルの新規提出';
         continue;
     }
-    if ($key == 'expire') continue;
-    $workdata = json_decode(file_get_contents(DATAROOT . 'submit/' . $userid . '/' . $value . '.txt'), true);
+    if ((string)$key === 'expire') continue;
+    $workdata = json_decode(file_get_contents_repeat(DATAROOT . 'submit/' . $userid . '/' . $value . '.txt'), true);
     $whatok[] = '作品「' . $workdata["title"] . '」の編集';
 }
-if ($whatok == array()) $whatok[] = "無し";
 
-$whatokj = implode("\n", $whatok);
+if ($whatok != []){
+    $whatokj = implode("\n", $whatok);
 
-//対象者にメール
-$nickname = nickname($userid);
-$expirej = date('Y年n月j日G時i分s秒', $acldata["expire"]);
-$content = "$nickname 様
+    //対象者にメール
+    $nickname = nickname($userid);
+    $expirej = date('Y年n月j日G時i分s秒', $acldata["expire"]);
+    $content = "$nickname 様
 
 $eventname のポータルサイトにて、提出期間外ではありますが、主催者が以下の機能を許可しました。
 ご確認頂き、必要な操作をなるべく早めに行って下さい。
@@ -65,8 +65,9 @@ $eventname のポータルサイトにて、提出期間外ではありますが
 【許可された機能】
 $whatokj
 ";
-//内部関数で送信
-sendmail(email($userid), '主催者に許可された機能があります', $content);
+    //内部関数で送信
+    sendmail(email($userid), '主催者に許可された機能があります', $content);
+}
 register_alert("操作権の変更が完了しました。", "success");
 
 redirect("./index.php");

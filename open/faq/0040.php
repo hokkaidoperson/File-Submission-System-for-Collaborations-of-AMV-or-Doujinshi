@@ -30,8 +30,6 @@ $content = <<<EOT
     上記リンク先のページに記載の「連絡先に入っていない相手に送る場合」の方法をご利用下さい。</li>
     <li><b><a href="https://www.amazon.co.jp/%E3%82%AE%E3%83%95%E3%83%88%E5%88%B8/b?ie=UTF8&node=2351652051" target="_blank" rel="noopener">Amazonギフト券</a></b><br>
     Eメールタイプのギフト券をお送り下さい。</li>
-    <li><b><a href="https://pointgift.rakuten.co.jp/" target="_blank" rel="noopener">楽天ポイントギフトカード</a></b><br>
-    スクラッチ部分を削り、PIN番号を使用せずシステム制作者宛にお知らせ下さい。</li>
 </ul>
 <h4>イベントの成果物（合同誌など）や、その他の贈答品</h4>
 <p>イベントの成果物やその他の贈答品をプレゼントして下さる場合は、事前にシステム制作者宛にご連絡・ご相談願います。<br>

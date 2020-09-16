@@ -37,14 +37,14 @@ else $incws = FALSE;
 $userformdata = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-    $userformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
+    $userformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
 }
 
 //提出フォーム設定ファイル読み込み
 $submitformdata = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $submitformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $submitformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
 
 
@@ -73,7 +73,7 @@ foreach (users_array() as $userid => $data) {
             //主催がアクセス権を与えていたらおｋ
             $aclplace = DATAROOT . 'fileacl/' . $_SESSION["userid"] . '.txt';
             if (file_exists($aclplace)) {
-                $acldata = json_decode(file_get_contents($aclplace), true);
+                $acldata = json_decode(file_get_contents_repeat($aclplace), true);
                 if (array_search($userid . '_userform', $acldata) !== FALSE) $allowed = TRUE;
             }
             //breakしない、下へ行く
@@ -100,7 +100,7 @@ foreach (users_array() as $userid => $data) {
                 //主催がアクセス権を与えていたらおｋ
                 $aclplace = DATAROOT . 'fileacl/' . $_SESSION["userid"] . '.txt';
                 if (file_exists($aclplace)) {
-                    $acldata = json_decode(file_get_contents($aclplace), true);
+                    $acldata = json_decode(file_get_contents_repeat($aclplace), true);
                     if (array_search($userid . '_' . $id, $acldata) !== FALSE) $allowed = TRUE;
                 }
                 //breakしない、下へ行く
@@ -110,7 +110,7 @@ foreach (users_array() as $userid => $data) {
             break;
         }
         if (!$allowed) continue;
-        $zipdata[$userid][$id] = json_decode(file_get_contents($filename), true);
+        $zipdata[$userid][$id] = json_decode(file_get_contents_repeat($filename), true);
         if ($zipdata[$userid][$id]["exam"] != 1 and $incna == FALSE) unset($zipdata[$userid][$id]);
     }
     if ($zipdata[$userid] == array()) {

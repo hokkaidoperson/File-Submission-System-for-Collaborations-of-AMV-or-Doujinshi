@@ -8,19 +8,19 @@ csrf_prevention_validate();
 //メッセージID
 $replyof = basename($_POST["replyof"]);
 
-if ($replyof == "") die_mypage('パラメーターエラー');
+if ($replyof == "") die('パラメーターエラー');
 
 //メッセージの閲覧権があるか確認
 $allowed = FALSE;
 list($to, $dummy) = explode('_', $replyof);
 $filename = DATAROOT . 'messages/' . $replyof . '.txt';
-if (!file_exists($filename)) die_mypage('このメッセージは存在しません。URLが誤っているか、送信者がメッセージを削除した可能性があります。');
+if (!file_exists($filename)) die('このメッセージは存在しません。URLが誤っているか、送信者がメッセージを削除した可能性があります。');
 
 //自分へのメッセージならok
-$data = json_decode(file_get_contents($filename), true);
+$data = json_decode(file_get_contents_repeat($filename), true);
 if (isset($data[$_SESSION["userid"]])) $allowed = TRUE;
 
-if (!$allowed) die_mypage('このメッセージの閲覧権限がありません。');
+if (!$allowed) die('このメッセージの閲覧権限がありません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -86,7 +86,7 @@ $message
 sendmail(email($to), 'メッセージ通知（' . $subject . '）', $content);
 
 $filedatajson = json_encode($messagedata);
-if (file_put_contents(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
 
 register_alert("メッセージを送信しました。", "success");
 

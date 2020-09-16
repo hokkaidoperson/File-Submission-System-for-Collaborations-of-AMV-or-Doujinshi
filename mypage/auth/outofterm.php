@@ -7,7 +7,7 @@ require_once(PAGEROOT . 'mypage_header.php');
 no_access_right(array("p"), TRUE);
 
 if (file_exists(DATAROOT . 'form/submit/done.txt')) {
-    $general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+    $general = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
     if ($general["from"] <= time() and $general["until"] > time()) die_mypage('現在、ファイル提出期間中です。この機能は、ファイル提出期間外に使用出来ます。');
 }
 
@@ -30,7 +30,7 @@ foreach ($exclude as $subject) {
     unset($choices[$subject]);
 }
 
-if ($choices == array()) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">ユーザーがいません。</div>');
+if ($choices == array()) die_mypage('<div class="border border-danger system-border-spacer">ユーザーがいません。</div>');
 
 echo '<ul>';
 foreach ($choices as $key => $choice) {

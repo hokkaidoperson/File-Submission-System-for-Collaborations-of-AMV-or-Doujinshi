@@ -66,6 +66,10 @@ if($_POST["filesize"] == "") $invalid = TRUE;
 else if(!preg_match('/^[0-9]*$/', $_POST["filesize"])) $invalid = TRUE;
 else if((int)$_POST["filesize"] < 1) $invalid = TRUE;
 
+if($_POST["accounts"] == "") $invalid = TRUE;
+else if(!preg_match('/^[0-9]*$/', $_POST["accounts"])) $invalid = TRUE;
+else if((int)$_POST["accounts"] < 1 or (int)$_POST["accounts"] > 10) $invalid = TRUE;
+
 //メールアドレス形式確認　必須でない
 if($_POST["system"] == ""){
 } else if(!preg_match('/.+@.+\..+/', $_POST["system"])) $invalid = TRUE;
@@ -112,6 +116,7 @@ if (file_put_contents(DATAROOT . 'siteurl.txt', $url) === FALSE) die('サイトU
 $init = array(
     "eventname" => $_POST["eventname"],
     "maxsize" => $_POST["filesize"],
+    "accounts" => $_POST["accounts"],
     "robot" => $_POST["robot"]
 );
 

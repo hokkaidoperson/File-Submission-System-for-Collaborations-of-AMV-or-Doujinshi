@@ -1,0 +1,111 @@
+.system-help-navcolor {
+    background-color: #e3f2fd;
+}
+
+.system-help-icon {
+    width: 1em;
+    height: 1em;
+    margin-right: 5px;
+}
+
+.navbar-nav .system-link-helpicon, .system-link-helpicon, .system-link-accounticon, .system-link-logouticon, .system-tags {
+    background-image: url(../images/question.svg);
+    background-size: 1em;
+    background-repeat: no-repeat;
+    padding-left: 1.2em;
+    background-position: left;
+}
+
+.system-border-spacer {
+    padding: 10px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.system-border-spacer :last-child {
+    margin-bottom: 0;
+}
+
+.system-form-error {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+
+.system-form-success {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #28a745;
+}
+
+.system-carditems {
+    padding: 10px;
+}
+
+.system-cardindv {
+    width: 20rem;
+    margin: 0.5rem;
+}
+
+.system-footer {
+    font-size: 65%;
+}
+
+.system-form-spacer {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.system-mytop-spacer {
+    padding: 10px;
+    margin-bottom: 1em;
+}
+
+.system-mytop-icon {
+    width: 70px;
+}
+
+.system-lastp-nospacer p:last-of-type {
+    margin-bottom: 0;
+}
+
+.system-menu-badge {
+    margin-bottom: 0rem;
+    margin-right: 0.7rem;
+}
+
+.system-link-accounticon {
+    background-image: url(../images/account.svg);
+    padding-left: 2.6em;
+    background-position: 1.4em;
+}
+
+.system-link-logouticon {
+    background-image: url(../images/logout.svg);
+    padding-left: 2.6em;
+    background-position: 1.4em;
+}
+
+.system-tags {
+    background-image: url(../images/tag.svg);
+}
+
+.system-tagbtn {
+    margin: 0.1em;
+}
+
+.system-alert-spacer {
+    margin-top: 1em;
+}
+
+.btn-outline-secondary:not(:disabled):not(.disabled):not(:active):not(.active):hover {
+    color: #6c757d;
+    background-color: #d2d2d2;
+    border-color: #6c757d;
+}
+
+.form-control:disabled, .form-check-input:disabled, .form-control-file:disabled {
+    cursor: not-allowed;
+}

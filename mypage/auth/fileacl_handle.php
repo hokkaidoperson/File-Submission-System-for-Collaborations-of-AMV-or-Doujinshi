@@ -24,7 +24,7 @@ if (!file_exists(DATAROOT . 'fileacl/')) {
 
 $acldata = array_merge((array)$_POST["users"], (array)$_POST["files"]);
 $acldatajson =  json_encode($acldata);
-if (file_put_contents(DATAROOT . 'fileacl/' . $userid . '.txt', $acldatajson) === FALSE) die('ACLデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'fileacl/' . $userid . '.txt', $acldatajson) === FALSE) die('ACLデータの書き込みに失敗しました。');
 
 //対象者にメール
 $nickname = nickname($userid);

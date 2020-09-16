@@ -18,7 +18,7 @@ $IP = getenv("REMOTE_ADDR");
 
 //入力済み情報を読み込む
 $userid = $_SESSION["userid"];
-$entereddata = json_decode(file_get_contents(DATAROOT . "users/" . $userid . ".txt"), true);
+$entereddata = json_decode(file_get_contents_repeat(DATAROOT . "users/" . $userid . ".txt"), true);
 
 //締め切り後は変更不可・例外処理
 if (outofterm('userform') != FALSE) $disable = FALSE;
@@ -36,7 +36,7 @@ $submitformdata = array();
 
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-    $submitformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
+    $submitformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
 }
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -104,22 +104,26 @@ foreach ($submitformdata as $array) {
         continue;
     }
     if ($array["type"] == "radio" or $array["type"] == "dropdown") {
-        $decode = htmlspecialchars_decode($_POST["custom-" . $array["id"]]);
-        if ($entereddata[$array["id"]] != $decode) {
-            $changeditem[$array["id"]] = $decode;
+        $choices = choices_array($array["list"]);
+        $selected = $choices[$_POST["custom-" . $array["id"]]];
+        if ($entereddata[$array["id"]] != $selected) {
+            $changeditem[$array["id"]] = $selected;
             if ($array["recheck"] != 'auto') $recheck = 1;
         }
         continue;
     }
     if ($array["type"] == "check") {
-        $oldcompare = implode("、", (array)$entereddata[$array["id"]]);
-        $newcompare = implode("、", (array)$_POST["custom-" . $array["id"]]);
-        $newdecode = htmlspecialchars_decode($newcompare);
-        if ($oldcompare != $newdecode) {
-            $changeditem[$array["id"]] = array();
+        $selected = [];
+        if ($_POST["custom-" . $array["id"]] !== "") {
+            $choices = choices_array($array["list"]);
             foreach ((array)$_POST["custom-" . $array["id"]] as $key => $value) {
-                $changeditem[$array["id"]][$key] = htmlspecialchars_decode($value);
+                $selected[$key] = $choices[$value];
             }
+        }
+        $oldcompare = implode("\n", (array)$entereddata[$array["id"]]);
+        $newcompare = implode("\n", $selected);
+        if ($oldcompare != $newcompare) {
+            $changeditem[$array["id"]] = $selected;
             if ($array["recheck"] != 'auto') $recheck = 1;
         }
         continue;
@@ -179,7 +183,7 @@ if ($recheck == 0) {
     }
 
     $entereddatajson =  json_encode($entereddata);
-    if (file_put_contents(DATAROOT . "users/" . $userid . ".txt", $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . "users/" . $userid . ".txt", $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
     register_alert("共通情報の変更が完了しました。<br>自動承認される項目のみ変更されていたため、変更は自動的に承認されました。", "success");
     redirect("./index.php");
@@ -209,14 +213,15 @@ $editid = $uploadid;
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
-$exammember = array("_state" => 0, "_ip" => $IP);
+$exammember = array("_state" => 0, "_ip" => $IP, "_realid" => $userid . '/common/' . $editid);
+$fileid = time() . "_" . md5(microtime() . $userid);
 $autoaccept = TRUE;
 
 $submitmem = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if ($entereddata["common_editing"] == 0) $exammember["_commonmode"] = "new";
 else $exammember["_commonmode"] = "edit";
 foreach ($submitmem as $key) {
-    if ($key == "_promoter") $key = id_promoter();
+    if ((string)$key === "_promoter") $key = id_promoter();
     if (!user_exists($key)) continue;
     $data = id_array($key);
     if ($data["state"] == 'g') continue;
@@ -232,10 +237,10 @@ foreach ($submitmem as $key) {
     //通知メール
     $nickname = $data["nickname"];
     $author = $_SESSION["nickname"];
-    $pageurl = $siteurl . 'mypage/exam/do_common.php?author=' . $userid . '&edit=' . $editid;
+    $pageurl = $siteurl . 'mypage/exam/do_common.php?examname=' . $fileid;
     $content = "$nickname 様
 
-$author 様が、$eventname のポータルサイトにて、共通情報を登録もしくは編集しました。
+$eventname のポータルサイトにて、共通情報の登録もしくは編集がありました。
 下記のURLから、登録内容を確認し、承認するか決めて下さい。
 
 　登録内容確認ページ：$pageurl
@@ -282,12 +287,12 @@ if ($autoaccept) {
 }
 else {
     $exammemberjson =  json_encode($exammember);
-    if (file_put_contents(DATAROOT . 'exam_edit/' . $userid . '_common_' . $editid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exam_edit/' . $fileid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
 }
 
 
 //初回だけもう書く
-if ($exammember["_commonmode"] == "new") {
+if ($exammember["_commonmode"] == "new" and !$autoaccept) {
     foreach($changeditem as $key => $data) {
         if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
             $fileto = DATAROOT . 'files/' . $_SESSION["userid"] . '/common/';
@@ -319,10 +324,10 @@ $editdatajson =  json_encode($changeditem);
 if (!file_exists(DATAROOT . 'edit/' . $userid . '/')) {
     if (!mkdir(DATAROOT . 'edit/' . $userid . '/')) die('ディレクトリの作成に失敗しました。');
 }
-if (file_put_contents(DATAROOT . 'edit/' . $userid . '/' . $userfile, $editdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'edit/' . $userid . '/' . $userfile, $editdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
 $entereddatajson =  json_encode($entereddata);
-if (file_put_contents(DATAROOT . "users/" . $userid . ".txt", $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . "users/" . $userid . ".txt", $entereddatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
 
 $email = $_SESSION["email"];

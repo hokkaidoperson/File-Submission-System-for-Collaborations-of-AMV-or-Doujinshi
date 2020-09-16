@@ -19,19 +19,18 @@ if ($invalid) $returnarray["emailresult"] = 0;
 else {
     $email = $_POST["email"];
 
-    $conflict = FALSE;
+    $conflict = 0;
 
     //登録済みの中から探す
     foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
         if (basename($filename, ".txt") == $_SESSION["userid"] and $_POST["skipmyself"]) continue;
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["email"] == $email) {
-            $conflict = TRUE;
-            break;
+            $conflict++;
         }
     }
 
-    if ($conflict) $returnarray["emailresult"] = 0;
+    if ($conflict >= ACCOUNTS_PER_ADDRESS) $returnarray["emailresult"] = 0;
     else $returnarray["emailresult"] = 1;
 }
 

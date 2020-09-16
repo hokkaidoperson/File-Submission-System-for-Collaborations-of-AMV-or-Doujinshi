@@ -8,10 +8,10 @@ no_access_right(array("p"), TRUE);
 
 $deny = FALSE;
 
-$id = basename($_GET["userid"]);
+$id = basename($_GET["id"]);
 
 if (file_exists(DATAROOT . 'mail/state/co_' . $id . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/state/co_' . $id . '.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'mail/state/co_' . $id . '.txt'), true);
     if ($filedata["expire"] <= time()) {
         unlink(DATAROOT . 'mail/state/co_' . $id . '.txt');
         $deny = TRUE;
@@ -32,7 +32,7 @@ if ($deny) die_mypage('<h1>申請が見付かりません</h1>
 <h1>共同運営者辞退 承認手続</h1>
 <p><?php echo nickname($id); ?> が共同運営者から辞退する事を承認します。</p>
 <p>よろしければ、以下の「共同運営者の辞退を実行する」を押して下さい。</p>
-<form name="form" action="co_handle.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="co_handle.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <button type="submit" class="btn btn-primary">共同運営者の辞退を実行する</button>

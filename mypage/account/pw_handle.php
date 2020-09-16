@@ -6,7 +6,7 @@ session_validation();
 csrf_prevention_validate();
 
 //今のパスワードで認証
-$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
+$userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
 if (!password_verify($_POST["oldpassword"], $userdata["pwhash"])) die('<!DOCTYPE html>
 <html>
 <head>
@@ -38,7 +38,7 @@ $userdata["pwhash"] = $hash;
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //メール本文形成
 $nickname = $_SESSION['nickname'];

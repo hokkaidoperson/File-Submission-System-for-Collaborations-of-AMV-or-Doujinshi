@@ -5,13 +5,17 @@ session_validation();
 
 $subject = basename($_POST["subject"]);
 
-//議論ログ
 if (!file_exists(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt')) die('ファイルが存在しません。');
-$discussdata = json_decode(file_get_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt'), true);
+$discussdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt'), true);
 
-//投票の回答データ
-$answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
+if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
+$answerdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
 if ($answerdata["_state"] != 1) die();
+
+list($author, $id, $editid) = explode('/', $answerdata["_realid"]);
+if ($author == "" or $id == "" or $editid == "") die('内部パラメーターエラー');
+if ($id == "common") die('内部パラメーターエラー');
+if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
 $memberfile = DATAROOT . 'exammember_' . $answerdata["_membermode"] . '.txt';
 
@@ -24,15 +28,15 @@ if ($key !== FALSE) {
 
 if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
-if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
+$leader = id_leader($answerdata["_membermode"]);
+if ($leader != NULL) {
+    if ($leader != $_SESSION["userid"]) redirect("./index.php");
+} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
 
 if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
 
 
 csrf_prevention_validate();
-if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
-list($author, $id, $editid) = explode('_', $subject);
-if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;
@@ -53,27 +57,27 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) die();
 
 //理由通知の設定呼び出し
-$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+$examsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
 
 
 //結果を保存
 $answerdata["_state"] = 2;
-$answerdata["_result"] = $_POST["ans"];
+$answerdata["_result"] = ["opinion" => $_POST["ans"], "reason" => $_POST["reason"]];
 $discussdata["comments"]["-system_" . time()] = "最終結論の入力が完了し、議論を終了しました。";
 
 $filedatajson = json_encode($answerdata);
-if (file_put_contents(DATAROOT . 'exam_edit/' . $subject . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'exam_edit/' . $subject . '.txt', $filedatajson) === FALSE) die('回答データの書き込みに失敗しました。');
 
 $filedatajson = json_encode($discussdata);
-if (file_put_contents(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'exam_edit_discuss/' . $subject . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 
 //入力内容を読み込んで書き換え
-$formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+$formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 $formdata["editing"] = 0;
 if ($_POST["ans"] == 1) {
     $formdata["exam"] = 1;
     $formdata["editdate"] = $editid;
-    $changeddata = json_decode(file_get_contents(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
+    $changeddata = json_decode(file_get_contents_repeat(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
     foreach($changeddata as $key => $data) {
         if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
             $fileto = DATAROOT . 'files/' . $author . '/' . $id . '/';
@@ -103,19 +107,19 @@ if ($_POST["ans"] == 1) {
     }
 }
 $filedatajson =  json_encode($formdata);
-if (file_put_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $filedatajson) === FALSE) die('作品データの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $filedatajson) === FALSE) die('作品データの書き込みに失敗しました。');
 
 $authornick = nickname($author);
 
 switch ($_POST["ans"]){
     case 1:
-        $contentpart = '承認しても問題無いという結論になったため、この作品を承認しました。
+        $contentpart = '承認しても問題無いという結論になったため、この変更を承認しました。
 作品の提出者に承認の通知をしました。';
         $subject = '議論の結果（承認・内容変更・' . $formdata["title"] . '）';
         $authorsubject = '内容変更を承認しました（' . $formdata["title"] . '）';
         break;
     case 2:
-        $contentpart = '問題があるという結論になったため、この作品を拒否しました。
+        $contentpart = '問題があるという結論になったため、この変更を拒否しました。
 作品の提出者に拒否の通知をしました。';
         $subject = '議論の結果（拒否・内容変更・' . $formdata["title"] . '）';
         $authorsubject = '内容変更の承認が見送られました（' . $formdata["title"] . '）';
@@ -124,11 +128,11 @@ switch ($_POST["ans"]){
 
 //内部関数で送信
 foreach ($submitmem as $key) {
-    if ($author == $key) continue;
+    if ($author === (string)$key) continue;
     $nickname = nickname($key);
     $content = "$nickname 様
 
-$authornick 様の作品「" . $formdata["title"] . "」の項目変更について、最終的な結論が入力されたため、議論を終了しました。
+作品「" . $formdata["title"] . "」の項目変更について、最終的な結論が入力されたため、議論を終了しました。
 $contentpart
 
 ファイル確認および議論へのご協力、ありがとうございます。

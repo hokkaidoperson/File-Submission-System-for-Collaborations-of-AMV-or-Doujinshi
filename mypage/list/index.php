@@ -25,7 +25,7 @@ foreach(glob(DATAROOT . 'submit/*', GLOB_MARK | GLOB_ONLYDIR) as $dirname) {
                 //主催がアクセス権を与えていたらおｋ
                 $aclplace = DATAROOT . 'fileacl/' . $_SESSION["userid"] . '.txt';
                 if (file_exists($aclplace)) {
-                    $acldata = json_decode(file_get_contents($aclplace), true);
+                    $acldata = json_decode(file_get_contents_repeat($aclplace), true);
                     if (array_search($author . '_' . $id, $acldata) !== FALSE) $allowed = TRUE;
                 }
                 //breakしない、下へ行く
@@ -35,7 +35,7 @@ foreach(glob(DATAROOT . 'submit/*', GLOB_MARK | GLOB_ONLYDIR) as $dirname) {
             break;
         }
     if (!$allowed) continue;
-    $canshow[$author][$id] = json_decode(file_get_contents($filename), true);
+    $canshow[$author][$id] = json_decode(file_get_contents_repeat($filename), true);
     }
     if ($canshow[$author] == array()) unset($canshow[$author]);
 }
@@ -65,10 +65,10 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出済み作品の一覧</h1>
 ';
 
 
-if (!in_term() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if (!in_term() and $_SESSION["state"] == 'p') echo '<div class="border border-primary system-border-spacer">
 現在ファイル提出期間外ですが、主催者は常時提出内容の編集が可能です。
 </div></p>';
-else if (!in_term()) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+else if (!in_term()) echo '<div class="border border-danger system-border-spacer">
 現在、ファイル提出期間外です。提出内容の確認は出来ますが、原則、編集は出来ません。<br>
 ただし、主催者が特定の作品について編集を認めている場合は、編集画面に移れます。
 </div>';
@@ -93,7 +93,7 @@ foreach ($canshow as $author => $array) {
             //主催がアクセス権を与えていたらおｋ
             $aclplace = DATAROOT . 'fileacl/' . $_SESSION["userid"] . '.txt';
             if (file_exists($aclplace)) {
-                $acldata = json_decode(file_get_contents($aclplace), true);
+                $acldata = json_decode(file_get_contents_repeat($aclplace), true);
                 if (array_search($author . '_userform', $acldata) !== FALSE) $showlink = TRUE;
             }
         break;

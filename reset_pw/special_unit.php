@@ -8,7 +8,7 @@ $userid = basename($_GET["userid"]);
 $fileplace = DATAROOT . 'mail/reset_pw/' . $userid . '.txt';
 
 if (file_exists($fileplace)) {
-    $filedata = json_decode(file_get_contents($fileplace), true);
+    $filedata = json_decode(file_get_contents_repeat($fileplace), true);
     if ($filedata["expire"] <= time()) {
         unlink($fileplace);
         $deny = TRUE;
@@ -40,7 +40,8 @@ if ($deny) die('<!DOCTYPE html>
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -162,30 +163,31 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 新しいパスワードを入力して下さい。
 </div>
 <form name="form" action="special_handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <div class="form-group">
 <label for="password">パスワード（8文字以上72文字以内）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
-<font size="2"><div id="password-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</font>
+<div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="password-errortext" class="system-form-error"></div>
+<small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
 </div>
 <div class="form-group">
 <label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
 <input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
-<div id="passwordagn-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="passwordagn-errortext" class="system-form-error"></div>
 </div>
 <button type="submit" class="btn btn-primary">入力したパスワードで設定する</button>
 </div>
@@ -197,6 +199,6 @@ echo_modal_confirm("入力したパスワードで再発行を行います。<br
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

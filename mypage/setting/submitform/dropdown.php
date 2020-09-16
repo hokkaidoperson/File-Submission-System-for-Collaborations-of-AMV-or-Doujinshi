@@ -16,7 +16,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["submitformdata"][$number]["id"]
 
 <h1>項目設定 - ドロップダウンリスト</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -42,50 +42,50 @@ if (isset($_SESSION["submitformdata"][$number]["required"]) and $_SESSION["submi
 ?>>
 <label class="form-check-label" for="required-1">必須</label>
 </div>
-<font size="2">※必須項目には「必須」と付記されます。</font>
+<small class="form-text">※必須項目には「必須」と付記されます。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["submitformdata"][$number]["detail"])) echo hsc($_SESSION["submitformdata"][$number]["detail"]);
 ?></textarea>
-<font size="2">※選択欄の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※選択欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、選択欄の下に何も表示されません。</font>
+※入力が無い場合は、選択欄の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 <label for="list">選択肢のリスト【必須】</label>
-<textarea id="list" name="list" rows="4" cols="80" class="form-control"><?php
+<textarea id="list" name="list" rows="4" class="form-control"><?php
 if (isset($_SESSION["submitformdata"][$number]["list"])) echo hsc($_SESSION["submitformdata"][$number]["list"]);
 ?></textarea>
-<font size="2">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
+<small class="form-text">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
 　例えば、<br>
 　　　りんご<br>
 　　　みかん<br>
 　　　ぶどう<br>
-　と入力した場合、「りんご」「みかん」「ぶどう」の中から1つ選ぶ項目になります。</font>
+　と入力した場合、「りんご」「みかん」「ぶどう」の中から1つ選ぶ項目になります。</small>
 </div>
 <div class="form-group">
 <label for="prefix_a">選択欄の前に表示する文字（接頭辞）（50文字以内）</label>
 <input type="text" name="prefix_a" class="form-control" id="prefix_a" value="<?php
 if (isset($_SESSION["submitformdata"][$number]["prefix_a"])) echo hsc($_SESSION["submitformdata"][$number]["prefix_a"]);
 ?>">
-<font size="2">※例えば、「利用規約に」と指定すると、選択欄は、<br>
+<small class="form-text">※例えば、「利用規約に」と指定すると、選択欄は、<br>
 　　利用規約に[　　　▽]<br>
-　のような見た目となります。</font>
+　のような見た目となります。</small>
 </div>
 <div class="form-group">
 <label for="suffix_a">選択欄の後に表示する文字（接尾辞）（50文字以内）</label>
 <input type="text" name="suffix_a" class="form-control" id="suffix_a" value="<?php
 if (isset($_SESSION["submitformdata"][$number]["suffix_a"])) echo hsc($_SESSION["submitformdata"][$number]["suffix_a"]);
 ?>">
-<font size="2">※例えば、「月」と指定すると、選択欄は、<br>
+<small class="form-text">※例えば、「月」と指定すると、選択欄は、<br>
 　　[　　　▽]月<br>
 　のような見た目となります。<br>
 ※接頭辞と接尾辞を組み合わせる事も出来ます。例えば、接頭辞に「動画内で」、接尾辞に「を利用しました。」と指定すると、<br>
 　　動画内で[　　　▽]を利用しました。<br>
-　のような見た目となります。</font>
+　のような見た目となります。</small>
 </div>
 <div class="form-group">
 入力内容の変更の自動承認について
@@ -95,7 +95,7 @@ if (isset($_SESSION["submitformdata"][$number]["recheck"]) and $_SESSION["submit
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
+<small class="form-text">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

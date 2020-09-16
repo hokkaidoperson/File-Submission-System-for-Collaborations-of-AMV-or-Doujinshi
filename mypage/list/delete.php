@@ -26,15 +26,15 @@ if (!in_term() and !$outofterm) die_mypage('現在、ファイル提出期間外
 
 //入力済み情報を読み込む
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die_mypage('ファイルが存在しません。');
-$formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+$formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 
 //フォーム設定データ
 $formsetting = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $formsetting[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $formsetting[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
-$formsetting["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$formsetting["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 ?>
 
@@ -54,9 +54,9 @@ if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
 } else {
     echo '<tr>
 <th>提出ファイルダウンロード先</th><td><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
-    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></font>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
-    echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
+    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
+    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</span>';
+    echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
     echo '</td></tr>';
 }
 ?>
@@ -75,7 +75,7 @@ foreach ($formsetting as $key => $array) {
     echo "<tr>\n";
     echo "<th>" . hsc($array["title"]) . "</th>";
     echo "<td>";
-    if (!isset($formdata[$array["id"]])) {
+    if (!isset($formdata[$array["id"]]) and !isset($formdata[$array["id"] . "-1"]) and !isset($formdata[$array["id"] . "-2"])) {
         echo '</td>';
         echo "</tr>\n";
         continue;
@@ -92,10 +92,25 @@ foreach ($formsetting as $key => $array) {
         $dsp = hsc($dsp);
         echo str_replace("\n", '<br>', $dsp);
     } else if ($array["type"] == "textbox2") {
-        echo hsc($formdata[$array["id"] . "-1"]);
-        echo '<br>';
-        echo hsc($formdata[$array["id"] . "-2"]);
-    } else echo give_br_tag($formdata[$array["id"]]);
+        if ($formdata[$array["id"] . "-1"] != "") {
+            echo '<div>';
+            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
+            echo hsc($formdata[$array["id"] . "-1"]);
+            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+            echo '</div>';
+        }
+        if ($formdata[$array["id"] . "-2"] != "") {
+            echo '<div>';
+            if (isset($array["prefix_b"]) and $array["prefix_b"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_b"]) . '</span> ';
+            echo hsc($formdata[$array["id"] . "-2"]);
+            if (isset($array["suffix_b"]) and $array["suffix_b"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_b"]) . '</span> ';
+            echo '</div>';
+        }
+    } else {
+        if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
+        echo give_br_tag($formdata[$array["id"]]);
+        if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+    }
     echo '</td>';
     echo "</tr>\n";
 }
@@ -122,14 +137,14 @@ echo "</tr>";
 </div>
 <p>削除してもよろしければ、現在のパスワードを入力して「削除する」ボタンを押して下さい。</p>
 <form name="form" action="delete_exec.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="author" value="<?php echo $author; ?>">
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <div class="form-group">
 <label for="password">現在のパスワード</label>
 <input type="password" name="password" class="form-control" id="password" onBlur="check_individual()">
-<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="password-errortext" class="system-form-error"></div>
 </div>
 <br>
 <button type="submit" class="btn btn-danger">削除する</button>

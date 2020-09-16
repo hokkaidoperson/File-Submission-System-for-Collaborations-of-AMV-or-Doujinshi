@@ -85,7 +85,7 @@ $message
 }
 
 $filedatajson = json_encode($messagedata);
-if (file_put_contents(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
 
 register_alert("メッセージを送信しました。", "success");
 

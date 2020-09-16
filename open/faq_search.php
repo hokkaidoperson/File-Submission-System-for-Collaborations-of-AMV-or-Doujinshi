@@ -134,8 +134,8 @@ else echo '全件表示';
 foreach ($tagcloud as $tag => $dummy) {
     if (is_array($_GET["tag"]) and array_search($tag, $_GET["tag"]) !== FALSE) $checked = TRUE;
     else $checked = FALSE;
-    if ($checked) echo '<label class="btn btn-outline-secondary btn-sm active" style="margin:0.1em;">';
-    else echo '<label class="btn btn-outline-secondary btn-sm" style="margin:0.1em;">';
+    if ($checked) echo '<label class="btn btn-outline-secondary btn-sm system-tagbtn active">';
+    else echo '<label class="btn btn-outline-secondary btn-sm system-tagbtn">';
     echo '<input class="form-check-input" type="checkbox" name="tag[]" id="tag_' . urlencode($tag) . '" value="' . hsc($tag) . '" autocomplete="off"';
     if ($checked) echo ' checked="checked"';
     echo '>' . hsc($tag) . '</label>';
@@ -146,7 +146,7 @@ foreach ($tagcloud as $tag => $dummy) {
     <button type="submit" class="btn btn-primary">再検索</button>
 </form>
 <hr>
-<div style="margin-top:1em; margin-bottom:1em;">
+<div class="system-form-spacer">
 <?php
 if (isset($_GET["query"]) and trim($_GET["query"]) != "") uasort($dsp, "faq_callback_fnc");
 

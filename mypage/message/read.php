@@ -19,7 +19,7 @@ if (!file_exists($filename)) die_mypage('このメッセージは存在しませ
 //自分が送ったやつ？
 if ($from == $_SESSION["userid"]) $allowed = TRUE;
 //自分へのメッセージなら見せる
-$data = json_decode(file_get_contents($filename), true);
+$data = json_decode(file_get_contents_repeat($filename), true);
 if (isset($data[$_SESSION["userid"]])) $allowed = TRUE;
 
 if (!$allowed) die_mypage('このメッセージの閲覧権限がありません。');
@@ -28,10 +28,10 @@ if (!$allowed) die_mypage('このメッセージの閲覧権限がありませ�
 if (isset($data[$_SESSION["userid"]]) and $data[$_SESSION["userid"]] == 0) {
     $data[$_SESSION["userid"]] = 1;
     $filedatajson = json_encode($data);
-    if (file_put_contents(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'messages/' . $id . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
 }
 
-if (blackuser($from)) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if (blackuser($from)) echo '<div class="border border-danger system-border-spacer">
 このメッセージの送信者は凍結されています。
 </div>';
 ?>
@@ -41,7 +41,7 @@ if (blackuser($from)) echo '<div class="border border-danger" style="padding:10p
 <table class="table table-hover table-bordered">
 <tr>
 <th width="20%">詳細情報</th>
-<td width="80%">
+<td width="80%" class="system-lastp-nospacer">
 <p><b>送信者：</b><br>
 <?php echo hsc(nickname($from)); 
 if (state($from) == "p") echo ' <span class="badge badge-success text-wrap">
@@ -81,13 +81,13 @@ if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
 <p><b>送信日時：</b><br>
 <?php echo date('Y年n月j日G時i分s秒', $time); ?>
 </p>
-<p style="margin-bottom: 0;"><b>件名：</b><br><?php echo hsc($data["_subject"]); ?></p>
+<p><b>件名：</b><br><?php echo hsc($data["_subject"]); ?></p>
 <?php
 if (isset($data["_replyof"])) {
     if (file_exists(DATAROOT . 'messages/' . $data["_replyof"] . '.txt')) {
-        $replyofdata = json_decode(file_get_contents(DATAROOT . 'messages/' . $data["_replyof"] . '.txt'), true);
-        echo '<p style="margin-top: 1em; margin-bottom: 0;">※このメッセージは、「<a href="read.php?name=' . $data["_replyof"] .'">' . hsc($replyofdata["_subject"]) . '</a>」への返信です。</p>';
-    } else echo '<p style="margin-top: 1em; margin-bottom: 0;">※このメッセージは、削除されたメッセージへの返信です。</p>';
+        $replyofdata = json_decode(file_get_contents_repeat(DATAROOT . 'messages/' . $data["_replyof"] . '.txt'), true);
+        echo '<p>※このメッセージは、「<a href="read.php?name=' . $data["_replyof"] .'">' . hsc($replyofdata["_subject"]) . '</a>」への返信です。</p>';
+    } else echo '<p>※このメッセージは、削除されたメッセージへの返信です。</p>';
 }
 ?>
 </td>
@@ -104,25 +104,25 @@ echo str_replace("\n", "<br>", $log);
 ?>
 
 <h2>このメッセージへ返信する</h2>
-<form name="form" action="reply.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="reply.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="replyof" value="<?php echo $id; ?>">
-<div class="border border-primary" style="padding:10px;">
+<div class="border border-primary system-border-spacer">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
 <input type="text" name="msg_subject" class="form-control" id="msg_subject" value="Re: <?php echo hsc($data["_subject"]); ?>" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
-<font size="2"><div id="subject-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="subject-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※必要に応じて変更して下さい。<br>
-※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</font>
+<div id="subject-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="subject-errortext" class="system-form-error"></div>
+<small class="form-text">※必要に応じて変更して下さい。<br>
+※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</small>
 </div>
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
-<textarea id="msg_content" name="msg_content" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
-<font size="2"><div id="msg_content-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="msg_content-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
-　ただし、URLを記載すると、自動的にリンクが張られます。</font>
+<textarea id="msg_content" name="msg_content" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
+<div id="msg_content-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="msg_content-errortext" class="system-form-error"></div>
+<small class="form-text">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
+　ただし、URLを記載すると、自動的にリンクが張られます。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary">送信</button>
@@ -225,7 +225,7 @@ function ShowLength(str, resultid) {
 } ?>
 <h2>メッセージ削除</h2>
 <p>メッセージを削除すると、自分だけでなく、宛先のユーザーからも閲覧出来なくなります。</p>
-<form name="form" action="delete.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="delete.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="name" value="<?php echo $id; ?>">
 <button type="submit" class="btn btn-danger">このメッセージを削除する</button>

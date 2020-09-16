@@ -8,24 +8,24 @@ require_once(PAGEROOT . 'mypage_header.php');
 
 <h1>パスワード変更</h1>
 <form name="form" action="pw_handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="oldpassword">現在のパスワード（本人確認の為ご入力願います）【必須】</label>
 <input type="password" name="oldpassword" class="form-control" id="oldpassword" onBlur="check_individual(&quot;oldpassword&quot;);">
-<div id="oldpassword-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="oldpassword-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="password">新しいパスワード（8文字以上72文字以内）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
-<font size="2"><div id="password-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</font>
+<div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="password-errortext" class="system-form-error"></div>
+<small class="form-text">※パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
 </div>
 <div class="form-group">
 <label for="passwordagn">新しいパスワード（確認の為再入力）【必須】</label>
 <input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
-<div id="passwordagn-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="passwordagn-errortext" class="system-form-error"></div>
 </div>
 <button type="submit" class="btn btn-primary">パスワードを変更する</button>
 </div>

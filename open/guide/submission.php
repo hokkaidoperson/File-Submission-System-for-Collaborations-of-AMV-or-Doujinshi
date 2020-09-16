@@ -3,7 +3,7 @@ require_once('../../set.php');
 $titlepart = 'ファイル提出の仕方';
 require_once(PAGEROOT . 'help_header.php');
 
-$general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$general = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 if (isset($general["size"]) and $general["size"] != "") $maxsize = $general["size"];
 else $maxsize = FILE_MAX_SIZE;
@@ -11,7 +11,7 @@ else $maxsize = FILE_MAX_SIZE;
 $submitformdata = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $submitformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $submitformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
 
 ?>

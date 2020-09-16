@@ -7,7 +7,7 @@ require_once(realpath(dirname(__FILE__).'/set.php'));
 
 if (file_exists(DATAROOT . 'form/submit/done.txt')) {
     //日時の計算
-    $general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+    $general = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
     $date = array();
 
@@ -35,7 +35,7 @@ if (file_exists(DATAROOT . 'form/submit/done.txt')) {
         if (file_exists(DATAROOT . 'mail_schedule/' . $value . '.txt') and $date[$value] <= $current) {
             $dsp = date('Y年n月j日G時i分s秒', $date['from_just']);
             $dspu = date('Y年n月j日G時i分s秒', $date['until_just']);
-            foreach (users_array() as $userid => $array) {
+            foreach (users_array() as $array) {
                 if ($array["state"] == "o") continue;
                 $nickname = $array["nickname"];
                 switch ($value) {

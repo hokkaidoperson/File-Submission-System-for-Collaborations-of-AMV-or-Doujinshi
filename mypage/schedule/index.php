@@ -12,7 +12,7 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt')) die_mypage('<h1>設定エ�
 
 
 //日時の計算
-$general = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
+$general = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
 
 $date = array();
 
@@ -46,12 +46,12 @@ $current = time();
 <p><b>メールの自動配信を行うには、サーバーOSのスケジュール機能（Windowsの場合はタスクスケジューラー、Linuxの場合はCron）と連携させる必要があります</b>。<br>
 もしあなたがシステム管理者でない場合、スケジュール機能について、以下の青枠の中に記載している内容と、メールの配信日時をシステム管理者にお伝え下さい。<br>
 設定方法がよく分からない場合は、メールの配信日時を過ぎた後にシステムのページ（ログイン画面など）にアクセスする事でもメールを配信出来ます（その際、ログインは不要です）。</p>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <b>【メール自動配信の設定方法】</b><br>
 メールの配信日時を迎えた際に、以下のPHPファイルを実行するように、タスクスケジューラーやCronを設定して下さい。<br>
 実行するPHPファイル：<code><?php echo PAGEROOT; ?>mail_scheduler.php</code>
 </div>
-<form name="form" action="handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <?php

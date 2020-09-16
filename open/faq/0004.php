@@ -16,5 +16,5 @@ $tags = array(
 
 $content = <<<EOT
 <p>いいえ、あなたのメールアドレスをシステム上で第三者に表示する事は一切ありません。</p>
-<p><font size="2" class="text-muted">※システム内部では、メールアドレスを平文で保持します。</font></p>
+<p class="small text-muted">※システム内部では、メールアドレスを平文で保持します。</p>
 EOT;

@@ -9,11 +9,11 @@ $accessok = 'none';
 //主催者が登録されていないかつシステム管理者
 if (!file_exists(DATAROOT . 'users/_promoter.txt') and $_SESSION["admin"]) $accessok = 'p';
 
-//主催者かつフォーム設定完了済み
-if ($_SESSION["state"] == 'p' and file_exists(DATAROOT . 'form/userinfo/done.txt')) $accessok = 'c';
+//主催者
+if ($_SESSION["state"] == 'p') $accessok = 'c';
 
 if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者が登録されていないシステムの管理者</b>、もしくは<b>ユーザー登録フォームの設定を完了させた主催者</b>のみです。</p>
+<p>この機能にアクセス出来るのは、<b>主催者が登録されていないシステムの管理者</b>、もしくは<b>主催者</b>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 ?>
@@ -31,7 +31,7 @@ switch ($accessok) {
 <p><?php
 //有効期限切れのリンクを整理
 foreach (glob(DATAROOT . 'mail/invitation/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["expire"] <= time()) unlink($filename);
 }
 switch ($accessok) {
@@ -55,11 +55,11 @@ switch ($accessok) {
 }
 ?></p>
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <input type="email" name="email" class="form-control" id="email" onBlur="check_individual()">
-<div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="email-errortext" class="system-form-error"></div>
 </div>
 ※送信前に、入力内容の確認をお願い致します。<br>
 <button type="submit" class="btn btn-primary">送信する</button>
@@ -100,7 +100,7 @@ function check_individual() {
             if (result.auth_status == "NG") {
                 throw new Error("Stopped because of an API error - response: " + result.error_detail);
             } else if (result.emailresult == 0) {
-                document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。";
+                document.getElementById("email-errortext").innerHTML = "このメールアドレスにこれ以上アカウントを紐づける事は出来ません。1つのメールアドレスにつき、紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です。";
                 document.form.email.classList.add("is-invalid");
                 document.form.email.classList.remove("is-valid");
             } else {
@@ -160,7 +160,7 @@ function check(){
             if (result.auth_status == "NG") {
                 throw new Error("Stopped because of an API error - response: " + result.error_detail);
             } else if (result.emailresult == 0) {
-                document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。";
+                document.getElementById("email-errortext").innerHTML = "このメールアドレスにこれ以上アカウントを紐づける事は出来ません。1つのメールアドレスにつき、紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です。";
                 document.form.email.classList.add("is-invalid");
                 document.form.email.classList.remove("is-valid");
             } else {

@@ -10,8 +10,13 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . '
 $subject = basename($_POST["subject"]);
 
 csrf_prevention_validate();
+
 if (!file_exists(DATAROOT . 'exam_edit/' . $subject . '.txt')) die('ファイルが存在しません。');
-list($author, $id, $editid) = explode('_', $subject);
+$answerdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
+
+list($author, $id, $editid) = explode("/", $answerdata["_realid"]);
+if ($author == "" or $id == "" or $editid == "") die('内部パラメーターエラー');
+if ($id == "common") die('内部パラメーターエラー');
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -29,8 +34,6 @@ if($_POST["reason"] == ""){
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
-//回答データ
-$answerdata = json_decode(file_get_contents(DATAROOT . 'exam_edit/' . $subject . '.txt'), true);
 $memberfile = DATAROOT . 'exammember_' . $answerdata["_membermode"] . '.txt';
 $submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search("_promoter", $submitmem);
@@ -55,15 +58,15 @@ $result = exam_totalization_edit($subject, FALSE);
 
 switch ($result){
     case 0:
-        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの変更の確認を終えました。<br>メンバー間で意見が分かれたため、<b>この変更の承認・拒否について議論する必要があります</b>。<br>以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。", "success");
+        if ($result === FALSE) register_alert("確認結果を送信しました。<br>他のメンバーが確認を終えるまでしばらくお待ち願います。", "success");
+        else register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの変更の確認を終えました。<br>メンバー間で意見が分かれたため、<b>この変更の承認・拒否について議論する必要があります</b>。<br>以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。", "success");
     break;
     case 1:
         register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの変更の確認を終えました。<br>承認しても問題無いという意見で一致したため、<b>この変更を承認しました</b>。<br>作品の提出者に承認の通知をしました。", "success");
     break;
     case 2:
-        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの変更の確認を終えました。<br>問題があるという意見で一致したため、<b>この変更を拒否しました</b>。<br>作品の提出者に拒否の通知をしました。", "success");
+        register_alert("確認結果を送信しました。<br><br>全てのメンバーがこの変更の確認を終えました。<br>問題があるという意見で一致したため、<b>この変更を拒否しました</b>。<br>作品の提出者に拒否の通知をします。", "success");
     break;
 }
-if ($result === FALSE) register_alert("確認結果を送信しました。<br>他のメンバーが確認を終えるまでしばらくお待ち願います。", "success");
 
 redirect("./index.php");

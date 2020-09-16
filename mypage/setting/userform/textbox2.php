@@ -16,7 +16,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) 
 
 <h1>項目設定 - テキストボックス×2</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -48,17 +48,17 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 ?>>
 <label class="form-check-label" for="required-1">どちらも必須</label>
 </div>
-<font size="2">※必須項目には「いずれか必須」もしくは「どちらも必須」と付記されます。</font>
+<small class="form-text">※必須項目には「いずれか必須」もしくは「どちらも必須」と付記されます。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
-<font size="2">※入力欄の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※入力欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、入力欄の下に何も表示されません。</font>
+※入力が無い場合は、入力欄の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 最大文字数（1～9999の間の半角数字）
@@ -78,8 +78,8 @@ if (isset($_SESSION["userformdata"][$number]["max"])) echo hsc($_SESSION["userfo
 if (isset($_SESSION["userformdata"][$number]["max2"])) echo hsc($_SESSION["userformdata"][$number]["max2"]);
 ?>">
 </div>
-<font size="2">※入力内容が、ここで指定する文字数を超えている場合に、警告を発して再入力を促します。<br>
-　入力が無い場合は、9999文字が最大となります。</font>
+<small class="form-text">※入力内容が、ここで指定する文字数を超えている場合に、警告を発して再入力を促します。<br>
+　入力が無い場合は、9999文字が最大となります。</small>
 </div>
 <div class="form-group">
 最小文字数（1～9999の間の半角数字）
@@ -99,8 +99,8 @@ if (isset($_SESSION["userformdata"][$number]["min"])) echo hsc($_SESSION["userfo
 if (isset($_SESSION["userformdata"][$number]["min2"])) echo hsc($_SESSION["userformdata"][$number]["min2"]);
 ?>">
 </div>
-<font size="2">※入力内容が、ここで指定する文字数を下回っている場合に、警告を発して再入力を促します。<br>
-　入力が無い場合は、最小文字数を設けません。</font>
+<small class="form-text">※入力内容が、ここで指定する文字数を下回っている場合に、警告を発して再入力を促します。<br>
+　入力が無い場合は、最小文字数を設けません。</small>
 </div>
 <div class="form-group">
 入力欄の幅（半角数字）
@@ -126,10 +126,10 @@ if (isset($_SESSION["userformdata"][$number]["width2"])) echo hsc($_SESSION["use
 <span class="input-group-text">em</span>
 </div>
 </div>
-<font size="2">※指定が無い場合は、入力欄は画面の端から端まで表示されます（テキストボックスを縦に並べる場合）。<br>
+<small class="form-text">※指定が無い場合は、入力欄は画面の端から端まで表示されます（テキストボックスを縦に並べる場合）。<br>
 　数文字を入力するだけの欄など、入力欄が短くてもよい場合は、ここで調節して下さい。<br>
 ※「em」はフォントサイズを基準とした単位です（1em＝大体1文字分　と認識してよいと思います）。
-</font>
+</small>
 </div>
 <div class="form-group">
 入力欄の前に表示する文字（接頭辞）（50文字以内）
@@ -149,9 +149,9 @@ if (isset($_SESSION["userformdata"][$number]["prefix_a"])) echo hsc($_SESSION["u
 if (isset($_SESSION["userformdata"][$number]["prefix_b"])) echo hsc($_SESSION["userformdata"][$number]["prefix_b"]);
 ?>">
 </div>
-<font size="2">※例えば、「https://www.nicovideo.jp/watch/sm」と指定すると、入力欄は、<br>
+<small class="form-text">※例えば、「https://www.nicovideo.jp/watch/sm」と指定すると、入力欄は、<br>
 　　https://www.nicovideo.jp/watch/sm[　　　　]<br>
-　のような見た目となります。</font>
+　のような見た目となります。</small>
 </div>
 <div class="form-group">
 入力欄の後に表示する文字（接尾辞）（50文字以内）
@@ -171,12 +171,12 @@ if (isset($_SESSION["userformdata"][$number]["suffix_a"])) echo hsc($_SESSION["u
 if (isset($_SESSION["userformdata"][$number]["suffix_b"])) echo hsc($_SESSION["userformdata"][$number]["suffix_b"]);
 ?>">
 </div>
-<font size="2">※例えば、「年」と指定すると、入力欄は、<br>
+<small class="form-text">※例えば、「年」と指定すると、入力欄は、<br>
 　　[　　　　]年<br>
 　のような見た目となります。<br>
 ※接頭辞と接尾辞を組み合わせる事も出来ます。例えば、接頭辞に「令和」、接尾辞に「年」と指定すると、<br>
 　　令和[　　　　]年<br>
-　のような見た目となります。</font>
+　のような見た目となります。</small>
 </div>
 <div class="form-group">
 テキストボックスの並べ方
@@ -186,7 +186,7 @@ if (isset($_SESSION["userformdata"][$number]["arrangement"]) and $_SESSION["user
 ?>>
 <label class="form-check-label" for="arrangement">テキストボックスを横に並べる場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※チェックが無い場合は、テキストボックスを縦に並べます。</font>
+<small class="form-text">※チェックが無い場合は、テキストボックスを縦に並べます。</small>
 </div>
 <div class="form-group">
 入力内容の変更の自動承認について
@@ -196,7 +196,7 @@ if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userform
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
+<small class="form-text">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

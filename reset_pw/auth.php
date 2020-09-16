@@ -9,7 +9,7 @@ if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出シ�
 csrf_prevention_validate();
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
-$recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
+$recdata = json_decode(file_get_contents_repeat(DATAROOT . 'rec.txt'), true);
 
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
@@ -50,7 +50,7 @@ $userid = basename($_POST["userid"]);
 
 if (!file_exists(DATAROOT . 'users/' . $userid . '.txt')) $invalid = TRUE;
 else {
-    $userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $userid . '.txt'), true);
+    $userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $userid . '.txt'), true);
     $email = $userdata["email"];
     $nickname = $userdata["nickname"];
     if ($email != $_POST["email"]) $invalid = TRUE;
@@ -87,7 +87,7 @@ $fileplace = DATAROOT . 'mail/reset_pw/' . $userid . '.txt';
 
 //もうURLを発行してるんならはじく
 if (file_exists($fileplace)) {
-    $filedata = json_decode(file_get_contents($fileplace), true);
+    $filedata = json_decode(file_get_contents_repeat($fileplace), true);
     if ($filedata["expire"] >= time()) die('<!DOCTYPE html>
 <html>
 <head>
@@ -114,7 +114,7 @@ $filedata = array(
 
 $filedatajson =  json_encode($filedata);
 
-if (file_put_contents($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
 
 
 //メール本文形成
@@ -145,7 +145,8 @@ sendmail($email, 'パスワード再発行用URL', $content);
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -178,13 +179,14 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行 - メール送信完了</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 お使いのアカウントの連絡メールアドレス宛に、パスワード再発行用URLが記載されたメールを送信しました。<br>
 メールを確認し、指示に従って下さい。<br><br>
 ※この画面は閉じても構いません。
@@ -193,6 +195,6 @@ var val = getCookie('check_cookie');
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@ $deny = FALSE;
 $userid = $_SESSION["userid"];
 
 if (file_exists(DATAROOT . 'mail/state/promoter.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/state/promoter.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'mail/state/promoter.txt'), true);
     if ($filedata["expire"] <= time()) {
         unlink(DATAROOT . 'mail/state/promoter.txt');
         $deny = TRUE;
@@ -32,17 +32,17 @@ $oldstate = $newprom["state"];
 //前の主催者の状態を一般参加者にして保存
 $oldprom["state"] = "g";
 $userdatajson =  json_encode($oldprom);
-if (file_put_contents(DATAROOT . 'users/' . $prom[0] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $prom[0] . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //新しい人を主催者に
 $newprom["state"] = "p";
 $userdatajson =  json_encode($newprom);
-if (file_put_contents(DATAROOT . 'users/' . $userid . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $userid . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //立場別一覧の書き換え
 $statedata = $userid . "\n";
 $statedtp = DATAROOT . 'users/_promoter.txt';
-if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 if ($oldstate == "c") $statedtp = DATAROOT . 'users/_co.txt';
 else if ($oldstate == "g") $statedtp = DATAROOT . 'users/_general.txt';
@@ -51,34 +51,33 @@ $array = file($statedtp, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search($userid, $array);
 unset($array[$key]);
 $statedata = implode("\n", $array) . "\n";
-if (file_put_contents($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 $statedata = $prom[0] . "\n";
 $statedtp = DATAROOT . 'users/_general.txt';
-if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 
 
 //新しい主催者がファイル確認メンバーにいたら、専用の名前「_promoter」に書き換える（「_promoter」がいたら消すだけ）
-$ismember_submit = FALSE;
-$ismember_edit = FALSE;
+$settingfile = json_unpack(DATAROOT . 'examsetting.txt');
 $array = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search($userid, $array);
 if ($key !== FALSE) {
-    $ismember_submit = TRUE;
     unset($array[$key]);
     if (array_search("_promoter", $array) === FALSE) $array[] = "_promoter";
     $statedata = implode("\n", $array) . "\n";
-    if (file_put_contents(DATAROOT . 'exammember_submit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exammember_submit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+    if ($settingfile["submit_leader"] == $userid) $settingfile["submit_leader"] = "_promoter";
 }
 $array = file(DATAROOT . 'exammember_edit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search($userid, $array);
 if ($key !== FALSE) {
-    $ismember_edit = TRUE;
     unset($array[$key]);
     if (array_search("_promoter", $array) === FALSE) $array[] = "_promoter";
     $statedata = implode("\n", $array) . "\n";
-    if (file_put_contents(DATAROOT . 'exammember_edit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exammember_edit.txt', $statedata) === FALSE) die('システムデータの書き込みに失敗しました。');
+    if ($settingfile["edit_leader"] == $userid) $settingfile["edit_leader"] = "_promoter";
 }
 
 

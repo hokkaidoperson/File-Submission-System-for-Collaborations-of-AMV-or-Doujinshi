@@ -75,7 +75,7 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 </code></pre>
 
 <form name="form" action="generatezip_exec.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 オプション（任意）

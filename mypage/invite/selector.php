@@ -8,7 +8,7 @@ no_access_right(array("p"), TRUE);
 
 //有効期限切れのリンクを整理
 foreach (glob(DATAROOT . 'mail/co_add/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["expire"] <= time()) unlink($filename);
 }
 
@@ -22,7 +22,7 @@ foreach (glob(DATAROOT . 'mail/co_add/*.txt') as $filename) {
 手続きが完了次第、その方が共同運営者に変更となります。</p>
 <p>手続きが完了するまでは、その方は引き続き一般参加者もしくは非参加者のままです。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
-<form name="form" action="selector_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="selector_handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
@@ -32,6 +32,7 @@ foreach (glob(DATAROOT . 'mail/co_add/*.txt') as $filename) {
 <?php
 $canshow = users_array();
 unset($canshow[$_SESSION["userid"]]);
+$printed = FALSE;
 foreach ($canshow as $author => $array) {
     if (blackuser($author)) continue;
     if ($array["state"] == "c") continue;
@@ -56,8 +57,10 @@ foreach ($canshow as $author => $array) {
         break;
     }
     echo "</tr>\n";
+    $printed = TRUE;
 }
 if ($canshow == array()) die_mypage('<tr><td colspan="3">現在、表示出来るユーザーはありません。</td></tr></table></div>');
+if (!$printed) die_mypage('<tr><td colspan="3">現在、表示出来るユーザーはありません。</td></tr></table></div>');
 ?>
 </table>
 </div>

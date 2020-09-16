@@ -15,7 +15,7 @@ $IP = getenv("REMOTE_ADDR");
 //登録中のユーザーID横取り阻止（保証期間は30分）
 if (file_exists(DATAROOT . 'users_reserve/')) {
     foreach (glob(DATAROOT . 'users_reserve/*.txt') as $filename) {
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["expire"] <= time()) {
             unlink($filename);
             continue;
@@ -62,16 +62,15 @@ else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
 
 //重複確認
 $email = $_POST["email"];
-$conflict = FALSE;
+$conflict = 0;
 //登録済みの中から探す
 foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["email"] == $email) {
-        $conflict = TRUE;
-        break;
+        $conflict++;
     }
 }
-if ($conflict) $invalid = TRUE;
+if ($conflict >= ACCOUNTS_PER_ADDRESS) $invalid = TRUE;
 
 
 //必須の場合のパターン・文字数・一致確認
@@ -85,7 +84,7 @@ if($_POST["state"] != "c") $invalid = TRUE;
 
 //sectokをもっかいチェック
 if (file_exists(DATAROOT . 'mail/invitation/' . basename($_POST["towhom"]) . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/invitation/' . basename($_POST["towhom"]) . '.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'mail/invitation/' . basename($_POST["towhom"]) . '.txt'), true);
     if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
@@ -122,27 +121,27 @@ $statej = "共同運営者";
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . $userfile, $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $userfile, $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //立場別の一覧
 $statedata = "$userid\n";
 $statedtp = DATAROOT . 'users/_co.txt';
 
-if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //この人をファイル確認メンバーに入れる？
 if (file_exists(DATAROOT . 'examsetting.txt')) {
-    $examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
+    $examsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
 
     if ($examsetting["submit_add"] == "1") {
         $statedata = "$userid\n";
         $statedtp = DATAROOT . 'exammember_submit.txt';
-        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+        if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     }
     if ($examsetting["edit_add"] == "1") {
         $statedata = "$userid\n";
         $statedtp = DATAROOT . 'exammember_edit.txt';
-        if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+        if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
     }
 }
 

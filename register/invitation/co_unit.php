@@ -6,7 +6,7 @@ $deny = FALSE;
 $towhom = basename($_GET["towhom"]);
 
 if (file_exists(DATAROOT . 'mail/invitation/' . $towhom . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'mail/invitation/' . $towhom . '.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'mail/invitation/' . $towhom . '.txt'), true);
     $email = $filedata["to"];
     if ($filedata["expire"] <= time()) {
         unlink(DATAROOT . 'mail/invitation/' . $towhom . '.txt');
@@ -39,7 +39,8 @@ if ($deny) die('<!DOCTYPE html>
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../../css/bootstrap.css">
+<link rel="stylesheet" href="../../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>共同運営者アカウント登録 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -127,10 +128,11 @@ function check_individual(id) {
             })
             .then((result) => {
                 if (result.emailresult == 0) {
-                    document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。ユーザー登録がお済みではありませんか？<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
+                    document.getElementById("email-errortext").innerHTML = "このメールアドレスではこれ以上アカウントを作成出来ません（1つのメールアドレスに紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です）。<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
                     document.form.email.classList.add("is-invalid");
                     document.form.email.classList.remove("is-valid");
                 } else {
+                    if (result.emailresult == 2) document.getElementById("email-errortext").innerHTML = "このメールアドレスを使用したアカウントが既に存在します。ユーザー登録がお済みではありませんか？（1つのメールアドレスに最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個のアカウントを紐づけられます。複数の名義を使うために別のアカウントを作成している場合は、このまま続行して下さい。）<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
                     document.form.email.classList.add("is-valid");
                     document.form.email.classList.remove("is-invalid");
                 }
@@ -343,10 +345,11 @@ function check(){
             document.form.userid.classList.remove("is-invalid");
         }
         if (result.emailresult == 0 && validemail == 1) {
-            document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。ユーザー登録がお済みではありませんか？<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
+            document.getElementById("email-errortext").innerHTML = "このメールアドレスではこれ以上アカウントを作成出来ません（1つのメールアドレスに紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です）。<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
             document.form.email.classList.add("is-invalid");
             document.form.email.classList.remove("is-valid");
         } else if (validemail == 1) {
+            if (result.emailresult == 2) document.getElementById("email-errortext").innerHTML = "このメールアドレスを使用したアカウントが既に存在します。ユーザー登録がお済みではありませんか？（1つのメールアドレスに最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個のアカウントを紐づけられます。複数の名義を使うために別のアカウントを作成している場合は、このまま続行して下さい。）<br><a href=\"../../search_id/index.php\">ユーザーIDをお忘れの場合、こちらから、メールアドレスと紐づいているユーザーのIDを調べられます。</a>";
             document.form.email.classList.add("is-valid");
             document.form.email.classList.remove("is-invalid");
         }
@@ -399,68 +402,69 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>共同運営者アカウント登録</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 共同運営者アカウントの登録をします。アカウントの登録後、イベントの運営に合流します。<br><br>
 <b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<br><br>
 <u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。<br><br>
 当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
 </div>
 <form name="form" action="co_handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <input type="hidden" name="towhom" value="<?php echo $towhom; ?>">
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
 <div class="form-group">
 <label for="userid">ユーザーID（半角英数字のみ　20文字以内　<b>後から変更出来ません</b>）【必須】</label>
 <input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onBlur="check_individual(&quot;userid&quot;);">
-<font size="2"><div id="userid-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="userid-duptext" class="valid-feedback" style="display: block;"></div>
-<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※ログインの際にこのユーザーIDを使用します。</font>
+<div id="userid-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="userid-duptext" class="system-form-success"></div>
+<div id="userid-errortext" class="system-form-error"></div>
+<small class="form-text">※ログインの際にこのユーザーIDを使用します。</small>
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
 <input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
-<font size="2"><div id="nickname-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</font>
+<div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="nickname-errortext" class="system-form-error"></div>
+<small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス【必須】</label>
 <input type="email" name="email" class="form-control" id="email" value="<?php echo $email; ?>" onBlur="check_individual(&quot;email&quot;);">
-<div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※登録用リンクを受け取ったメールアドレスが入力されています。必要に応じて変更して下さい。<br>
-※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</font>
+<div id="email-errortext" class="system-form-error"></div>
+<small class="form-text">※登録用リンクを受け取ったメールアドレスが入力されています。必要に応じて変更して下さい。<br>
+※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</small>
 </div>
 <div class="form-group">
 <label for="emailagn">メールアドレス（確認の為再入力）【必須】</label>
 <input type="email" name="emailagn" class="form-control" id="emailagn" onBlur="check_individual(&quot;emailagn&quot;);">
-<div id="emailagn-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="emailagn-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="password">パスワード（8文字以上72文字以内）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
-<font size="2"><div id="password-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</font>
+<div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="password-errortext" class="system-form-error"></div>
+<small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
 </div>
 <div class="form-group">
 <label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
 <input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
-<div id="passwordagn-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="passwordagn-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 あなたの立場
 <div class="form-check">
 <input id="state-c" class="form-check-input" type="radio" name="state" value="c" checked="checked">
-<label class="form-check-label" for="state-c">共同運営者<br><font size="2">一部の意思決定権を有します。自分が提出したファイルへのみアクセス権を有しますが、主催者が認めた場合は他人のファイルへアクセス出来る可能性があります。</font></label>
+<label class="form-check-label" for="state-c">共同運営者<br><span class="small">一部の意思決定権を有します。自分が提出したファイルへのみアクセス権を有しますが、主催者が認めた場合は他人のファイルへアクセス出来る可能性があります。</span></label>
 </div>
-<font size="2">※共同運営者から一般参加者に変更するには主催者の承認が必要です。</font>
+<small class="form-text">※共同運営者から一般参加者に変更するには主催者の承認が必要です。</small>
 </div>
 <br>
 ※送信前に、入力内容の確認をお願い致します。<br>
@@ -476,6 +480,6 @@ echo_modal_confirm("入力内容に問題は見つかりませんでした。<br
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

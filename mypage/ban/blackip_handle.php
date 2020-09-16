@@ -10,7 +10,7 @@ csrf_prevention_validate();
 
 $blplace = DATAROOT . 'blackip.txt';
 
-if (file_put_contents($blplace, $_POST["setting"]) === FALSE) die('リストデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($blplace, $_POST["setting"]) === FALSE) die('リストデータの書き込みに失敗しました。');
 
 register_alert("アカウント作成制限の設定を変更しました。", "success");
 

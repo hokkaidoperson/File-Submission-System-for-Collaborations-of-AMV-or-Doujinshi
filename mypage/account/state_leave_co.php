@@ -28,7 +28,7 @@ $filedata = array(
 
 $filedatajson = json_encode($filedata);
 
-if (file_put_contents($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
 
 
 //メール本文形成

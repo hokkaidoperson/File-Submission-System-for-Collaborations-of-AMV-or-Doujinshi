@@ -15,21 +15,21 @@ if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エ
 
 <form name="form" action="write_simultaneously_handle.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
 <input type="text" name="msg_subject" class="form-control" id="msg_subject" value="" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
-<font size="2"><div id="subject-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="subject-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</font>
+<div id="subject-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="subject-errortext" class="system-form-error"></div>
+<small class="form-text">※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</small>
 </div>
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
-<textarea id="msg_content" name="msg_content" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
-<font size="2"><div id="msg_content-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="msg_content-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
-　ただし、URLを記載すると、自動的にリンクが張られます。</font>
+<textarea id="msg_content" name="msg_content" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
+<div id="msg_content-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="msg_content-errortext" class="system-form-error"></div>
+<small class="form-text">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
+　ただし、URLを記載すると、自動的にリンクが張られます。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary">送信</button>

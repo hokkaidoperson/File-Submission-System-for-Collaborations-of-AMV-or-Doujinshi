@@ -28,7 +28,7 @@ IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
 }
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
-$recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
+$recdata = json_decode(file_get_contents_repeat(DATAROOT . 'rec.txt'), true);
 
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
@@ -78,7 +78,7 @@ $IP = getenv("REMOTE_ADDR");
 //登録中のユーザーID横取り阻止（保証期間は30分）
 if (file_exists(DATAROOT . 'users_reserve/')) {
     foreach (glob(DATAROOT . 'users_reserve/*.txt') as $filename) {
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["expire"] <= time()) {
             unlink($filename);
             continue;
@@ -125,16 +125,15 @@ else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
 
 //重複確認
 $email = $_POST["email"];
-$conflict = FALSE;
+$conflict = 0;
 //登録済みの中から探す
 foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["email"] == $email) {
-        $conflict = TRUE;
-        break;
+        $conflict++;
     }
 }
-if ($conflict) $invalid = TRUE;
+if ($conflict >= ACCOUNTS_PER_ADDRESS) $invalid = TRUE;
 
 
 //必須の場合のパターン・文字数・一致確認
@@ -178,13 +177,13 @@ $statej = "一般参加者";
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . $userfile, $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . $userfile, $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //立場別の一覧
 $statedata = "$userid\n";
 $statedtp = DATAROOT . 'users/_general.txt';
 
-if (file_put_contents($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($statedtp, $statedata, FILE_APPEND | LOCK_EX) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 //メール本文形成
 $date = date('Y/m/d H:i:s');

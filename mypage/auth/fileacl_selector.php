@@ -11,6 +11,7 @@ $userid = basename($_GET["userid"]);
 
 if ($userid == "") die_mypage('パラメーターエラー');
 if (!user_exists($userid)) die_mypage('ユーザーが存在しません。');
+if (state($userid) != "c") die_mypage('このユーザーは共同運営者ではありません。');
 
 $canshow = array();
 
@@ -20,13 +21,13 @@ foreach(glob(DATAROOT . 'submit/*', GLOB_MARK | GLOB_ONLYDIR) as $dirname) {
     foreach(glob($dirname . '*.txt') as $filename) {
         $id = basename($filename, '.txt');
         if ($author == $userid) continue;
-        $canshow[$author][$id] = json_decode(file_get_contents($filename), true);
+        $canshow[$author][$id] = json_decode(file_get_contents_repeat($filename), true);
     }
     if ($canshow[$author] == array()) unset($canshow[$author]);
 }
 
 $aclplace = DATAROOT . 'fileacl/' . $userid . '.txt';
-if (file_exists($aclplace)) $acldata = json_decode(file_get_contents($aclplace), true);
+if (file_exists($aclplace)) $acldata = json_decode(file_get_contents_repeat($aclplace), true);
 else $acldata = array();
 
 ?>
@@ -34,7 +35,7 @@ else $acldata = array();
 <p>閲覧を許可したいユーザーもしくは提出作品を選択して下さい（設定済みの場合は、その内容が反映されています）。</p>
 <p>共通情報の閲覧を許可すると、該当ユーザーが共通情報として入力した内容や添付ファイルを閲覧・ダウンロード出来ます。<br>
 提出作品の閲覧を許可すると、提出時に入力された内容や提出ファイル・添付ファイルを閲覧・ダウンロード出来ます。</p>
-<form name="form" action="fileacl_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="fileacl_handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>共通情報の閲覧許可</h2>

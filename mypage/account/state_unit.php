@@ -15,7 +15,7 @@ if (!$accessok) die_mypage('<h1>権限エラー</h1>
 
 //有効期限切れのリンクを整理
 foreach (glob(DATAROOT . 'mail/state/*.txt') as $filename) {
-    $filedata = json_decode(file_get_contents($filename), true);
+    $filedata = json_decode(file_get_contents_repeat($filename), true);
     if ($filedata["expire"] <= time()) unlink($filename);
 }
 
@@ -35,7 +35,7 @@ if ($_SESSION["state"] == 'p')  {
 <p>手続きが完了するまでは、あなたは引き続き主催者のままです。<br>
 手続きが完了次第、あなたは一般参加者に変更となります。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
-<form name="form" action="state_leave_promoter.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="state_leave_promoter.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
@@ -78,7 +78,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="3">現在、表示出来�
 ?>
 </table>
 </div>
-<div id="userid-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="userid-errortext" class="system-form-error"></div>
 <br>
 <button type="submit" class="btn btn-warning">選択したユーザーを主催者に任命し、主催者を辞退する</button>
 <?php
@@ -167,7 +167,7 @@ else if ($_SESSION["state"] == 'c')  {
 承認され次第、あなたは一般参加者に変更となります。</p>
 <p>承認されるまでは、あなたは引き続き共同運営者のままです。<br>
 提出済みの作品など、立場以外の情報は変更されません。</p>
-<form name="form" action="state_leave_co.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="state_leave_co.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <button type="submit" class="btn btn-warning">共同運営者を辞退する</button>
 <?php
@@ -180,7 +180,7 @@ else if ($_SESSION["admin"]) {
 <p>あなたの立場を「一般参加者」に変更します。<br>
 一般参加者になる事により、本イベントに対してファイルの提出が行えるようになります。</p>
 <p>よろしければ、以下の「一般参加者になる」ボタンを押して下さい。</p>
-<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <button type="submit" class="btn btn-primary">一般参加者になる</button>
 <?php
@@ -195,7 +195,7 @@ echo_modal_confirm("一般参加者になります。続行してよろしけれ
 立場を再び「一般参加者」に変更すると、再び、作品の提出・編集を行えるようになります。<br>
 作品も削除したい場合は、予め、「提出済み作品一覧・編集」から、作品を削除して下さい。</p>
 <p>よろしければ、以下の「非参加者になる」ボタンを押して下さい。</p>
-<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="state_admin_switcher.php" method="post" onSubmit="$('#confirmmodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <button type="submit" class="btn btn-warning">非参加者になる</button>
 <?php

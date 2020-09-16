@@ -16,7 +16,7 @@ if (!isset($_GET['number']) or !isset($_SESSION["userformdata"][$number]["id"]) 
 
 <h1>項目設定 - 添付ファイル</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="number" value="<?php echo $number; ?>">
@@ -42,29 +42,29 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 ?>>
 <label class="form-check-label" for="required-1">必須</label>
 </div>
-<font size="2">※必須項目には「必須」と付記されます。</font>
+<small class="form-text">※必須項目には「必須」と付記されます。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
-<font size="2">※選択欄の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※選択欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の登録画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、選択欄の下に何も表示されません。</font>
+※入力が無い場合は、選択欄の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 <label for="ext">ファイルの拡張子指定（半角英数字（小文字）とカンマ「,」）【必須】</label>
 <input type="text" name="ext" class="form-control" id="ext" value="<?php
 if (isset($_SESSION["userformdata"][$number]["ext"])) echo hsc($_SESSION["userformdata"][$number]["ext"]);
 ?>">
-<font size="2">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
+<small class="form-text">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
 ※無差別に全ての種類のファイルを受け入れられるようにすると、セキュリティ的に脆弱になる恐れがあります。<br>
 　項目の用途に応じて、アップロード出来るファイルの種類をある程度制限して下さい。<br>
 ※アップロード出来るファイルの種類を制限しても、悪意あるファイルの全てを防げる訳ではありません。<br>
 　参加者から送られたファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティ面の準備を万全にしておく事をお勧め致します。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="filenumber">同時にアップロード可能なファイル数（1～100の間の半角数字）</label>
@@ -76,9 +76,9 @@ if (isset($_SESSION["userformdata"][$number]["filenumber"])) echo hsc($_SESSION[
 <span class="input-group-text">個</span>
 </div>
 </div>
-<font size="2">※この入力欄に添付出来るファイル数を設定します。<br>
+<small class="form-text">※この入力欄に添付出来るファイル数を設定します。<br>
 ※入力が無い場合は、100個として設定します。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="size">アップロード可能な最大サイズ（1～<?php echo FILE_MAX_SIZE; ?>の間の半角数字）</label>
@@ -90,10 +90,10 @@ if (isset($_SESSION["userformdata"][$number]["size"])) echo hsc($_SESSION["userf
 <span class="input-group-text">MB</span>
 </div>
 </div>
-<font size="2">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
+<small class="form-text">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
 ※複数個のファイルをこの入力欄に添付出来る設定にしている場合、この入力欄に添付するファイルの合計サイズが、ここで指定するサイズ以下になっている必要があります。<br>
 ※入力が無い場合は、<?php echo FILE_MAX_SIZE; ?>MBとして設定します。
-</font>
+</small>
 </div>
 <div class="form-group">
 入力内容の変更の自動承認について
@@ -103,7 +103,7 @@ if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userform
 ?>>
 <label class="form-check-label" for="recheck">この項目の入力内容の変更を自動承認する場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<font size="2">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</font>
+<small class="form-text">※自動承認する項目のみ変更する場合は、運営メンバーによる確認を経ずに入力内容を変更します。自動承認しない項目も併せて変更する場合は、運営メンバーによる確認が必要となります。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button> 

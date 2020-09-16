@@ -10,7 +10,7 @@ no_access_right(array("p"), TRUE);
 
 <h1>項目設定 - 全体</h1>
 
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <form name="form" action="save.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="type" value="general">
@@ -32,10 +32,10 @@ if (isset($_SESSION["submitformdata"]["general"]["from"])) echo date('Y-m-d', $_
 if (isset($_SESSION["submitformdata"]["general"]["from"])) echo date('H:i', $_SESSION["submitformdata"]["general"]["from"]);
 ?>">
 </div>
-<font size="2">※日付の欄をクリックするとカレンダーから日付を選べます。<br>
+<small class="form-text">※日付の欄をクリックするとカレンダーから日付を選べます。<br>
 ※時刻の欄についてはブラウザにより表示が異なります（ポップアップ画面が表示される、入力欄の横に上下のボタンが出る　など）。<br>
 　時刻の欄をクリックしても何も出ない（通常のテキストボックスのようになっている）場合は、「時:分」の形で、半角で入力して下さい。<br>
-※指定時間になった瞬間に、ファイルの提出受付を開始します。</font>
+※指定時間になった瞬間に、ファイルの提出受付を開始します。</small>
 </div>
 <div class="form-group">
 ファイル提出期間（締切）【必須】
@@ -55,30 +55,30 @@ if (isset($_SESSION["submitformdata"]["general"]["until"])) echo date('Y-m-d', $
 if (isset($_SESSION["submitformdata"]["general"]["until"])) echo date('H:i', $_SESSION["submitformdata"]["general"]["until"]);
 ?>">
 </div>
-<font size="2">※日付・時刻の入力方法については「ファイル提出期間（開始）」をご参照願います。<br>
-※指定時間になった瞬間に、ファイルの提出受付を終了します（例えば、10月31日の、日付が変わるギリギリまで提出を受け付ける場合は、締切日時を「11月01日00時00分」に設定して下さい）。</font>
+<small class="form-text">※日付・時刻の入力方法については「ファイル提出期間（開始）」をご参照願います。<br>
+※指定時間になった瞬間に、ファイルの提出受付を終了します（例えば、10月31日の、日付が変わるギリギリまで提出を受け付ける場合は、締切日時を「11月01日00時00分」に設定して下さい）。</small>
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" cols="80" class="form-control"><?php
+<textarea id="detail" name="detail" rows="4" class="form-control"><?php
 if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo hsc($_SESSION["submitformdata"]["general"]["detail"]);
 ?></textarea>
-<font size="2">※ファイル提出欄の下に、このようにして小さく表示される文字です。<br>
+<small class="form-text">※ファイル提出欄の下に、このようにして小さく表示される文字です。<br>
 　改行は反映されます（この入力欄で改行すると実際の提出画面でも改行されます）が、HTMLタグはお使いになれません。<br>
 　ただし、URLを記載すると、自動的にリンクが張られます。<br>
-※入力が無い場合は、ファイル提出欄の下に何も表示されません。</font>
+※入力が無い場合は、ファイル提出欄の下に何も表示されません。</small>
 </div>
 <div class="form-group">
 <label for="ext">ファイルの拡張子指定（半角英数字（小文字）とカンマ「,」）【必須】</label>
 <input type="text" name="ext" class="form-control" id="ext" value="<?php
 if (isset($_SESSION["submitformdata"]["general"]["ext"])) echo hsc($_SESSION["submitformdata"]["general"]["ext"]);
 ?>">
-<font size="2">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
+<small class="form-text">※ <code>jpg,png,gif</code> のように、拡張子をカンマ <code>,</code> で区切って指定して下さい（ドット <code>.</code> は付けないで下さい）。<br>
 ※無差別に全ての種類のファイルを受け入れられるようにすると、セキュリティ的に脆弱になる恐れがあります。<br>
 　イベントに応じて、アップロード出来るファイルの種類をある程度制限して下さい。<br>
 ※アップロード出来るファイルの種類を制限しても、悪意あるファイルの全てを防げる訳ではありません。<br>
 　参加者から送られたファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティ面の準備を万全にしておく事をお勧め致します。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="filenumber">サーバーに同時にアップロード可能なファイル数（1～100の間の半角数字）</label>
@@ -90,9 +90,9 @@ if (isset($_SESSION["submitformdata"]["general"]["filenumber"])) echo hsc($_SESS
 <span class="input-group-text">個</span>
 </div>
 </div>
-<font size="2">※サーバーに直接アップロードする際に提出欄に添付出来るファイル数を設定します。<br>
+<small class="form-text">※サーバーに直接アップロードする際に提出欄に添付出来るファイル数を設定します。<br>
 ※入力が無い場合は、100個として設定します。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="size">サーバーに直接アップロード可能な最大サイズ（1～<?php echo FILE_MAX_SIZE; ?>の間の半角数字）</label>
@@ -104,10 +104,10 @@ if (isset($_SESSION["submitformdata"]["general"]["size"])) echo hsc($_SESSION["s
 <span class="input-group-text">MB</span>
 </div>
 </div>
-<font size="2">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
+<small class="form-text">※システム管理者によって、ファイルのサイズは<?php echo FILE_MAX_SIZE; ?>MBまでに制限されています。<br>
 ※複数個のファイルを提出欄に添付出来る設定にしている場合、この提出欄に添付するファイルの合計サイズが、ここで指定するサイズ以下になっている必要があります。<br>
 ※入力が無い場合は、<?php echo FILE_MAX_SIZE; ?>MBとして設定します。
-</font>
+</small>
 </div>
 <div class="form-group">
 <label for="worknumber">提出可能な作品の最大個数（1以上の半角数字）</label>
@@ -119,9 +119,9 @@ if (isset($_SESSION["submitformdata"]["general"]["worknumber"])) echo hsc($_SESS
 <span class="input-group-text">個</span>
 </div>
 </div>
-<font size="2">※作品数の上限を設定出来ます。ユーザーが作品数の上限を超えて作品を提出しようとすると、エラーをユーザーに表示します。<br>
+<small class="form-text">※作品数の上限を設定出来ます。ユーザーが作品数の上限を超えて作品を提出しようとすると、エラーをユーザーに表示します。<br>
 ※入力が無い場合は、作品数の上限を設定しません。
-</font>
+</small>
 </div>
 
 <br>

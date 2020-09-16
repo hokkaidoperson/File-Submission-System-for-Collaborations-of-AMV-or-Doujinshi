@@ -15,7 +15,7 @@ no_access_right(array("p"), TRUE);
 <?php
 $choices = id_state('c');
 
-if ($choices == array()) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">共同運営者がいません。</div>');
+if ($choices == array()) die_mypage('<div class="border border-danger system-border-spacer">共同運営者がいません。</div>');
 
 echo '<ul>';
 foreach ($choices as $choice) {

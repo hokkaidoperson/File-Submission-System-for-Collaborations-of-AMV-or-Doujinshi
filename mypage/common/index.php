@@ -20,7 +20,7 @@ $includeattach = FALSE;
 
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-    $userformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
+    $userformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
     if ($userformdata[$i]["type"] == "attach") $includeattach = TRUE;
 }
 
@@ -42,7 +42,7 @@ for ($i = 0; $i <= 9; $i++) {
 $userid = $_SESSION["userid"];
 
 //入力済み情報を読み込む
-$entereddata = json_decode(file_get_contents(DATAROOT . "users/" . $userid . ".txt"), true);
+$entereddata = json_decode(file_get_contents_repeat(DATAROOT . "users/" . $userid . ".txt"), true);
 
 //締め切り後は変更不可・例外処理
 if (outofterm('userform') != FALSE) $disable = FALSE;
@@ -64,24 +64,24 @@ $uploadedfs = array();
 <p>情報を入力済みの場合、現在登録されている情報が入力欄に入力されています。変更したい項目のみ、入力欄の中身を変更して下さい。</p>
 <p>※ニックネームの編集はこの画面では行えません。ニックネームを変更する場合は「<a href="../account/">アカウント情報編集</a>」画面で変更出来ます。</p>
 <?php
-if ($userformdata == array()) die_mypage('<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if ($userformdata == array()) die_mypage('<div class="border border-danger system-border-spacer">
 設定可能な項目はありません。
 </div>');
-if (!before_deadline() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if (!before_deadline() and $_SESSION["state"] == 'p') echo '<div class="border border-primary system-border-spacer">
 現在ファイル提出期間外ですが、主催者は常時共通情報の編集が可能です。
 </div>';
-else if (!before_deadline() and !$disable) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+else if (!before_deadline() and !$disable) echo '<div class="border border-primary system-border-spacer">
 現在ファイル提出期間外ですが、あなたは主催者から共通情報の編集を許可されています（' . date('Y年n月j日G時i分s秒', outofterm('userform')) . 'まで）。
 </div>';
-else if (!before_deadline()) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+else if (!before_deadline()) echo '<div class="border border-danger system-border-spacer">
 現在、ファイル提出期間外です。入力内容の確認は出来ますが、変更は出来ません。
 </div>';
 if ($waiting) {
-    echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+    echo '<div class="border border-danger system-border-spacer">
 現在、共通情報の確認待ちです。確認が完了するまでは、共通情報の編集が出来ません。
 </div>';
 }
-echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+echo '<div class="border border-primary system-border-spacer">
 共通情報の承認状態：';
 if (isset($entereddata["common_acceptance"])) {
     if (isset($entereddata["common_editing"]) and $entereddata["common_editing"] == 1) echo '項目編集の承認待ち<br>※変更後の内容は下記に反映されていません。';
@@ -102,7 +102,7 @@ echo '</div>';
 <form name="form" action="handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
 ?> onSubmit="return check();">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <?php
 foreach ($userformdata as $number => $data) {
@@ -111,186 +111,71 @@ foreach ($userformdata as $number => $data) {
     $data["detail"] = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $data["detail"]);
     $data["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $data["detail"]);
     $data["detail"] = str_replace("\n", "<br>", $data["detail"]);
+    if ($data["recheck"] != "auto") $data["detail"] .= '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>';
+    else echo $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
 
     switch ($data["type"]) {
         case "textbox":
-            echo '<div class="form-group">
-<label for="custom-' . $data["id"] . '">' . hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") echo '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") echo '（' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") echo '（' . $data["min"] . '文字以上）';
-            if ($data["required"] == "1") echo '【必須】';
-            echo '</label>';
-            if ($data["width"] != "") echo '<div class="input-group" style="width:' . $data["width"] . 'em;">';
-            else echo '<div class="input-group">';
-            if ($data["prefix_a"] != "") echo '<div class="input-group-prepend">
-<span class="input-group-text">' . hsc($data["prefix_a"]) . '</span>
-</div>';
-            echo '<input type="text" name="custom-' . $data["id"] . '" class="form-control" id="custom-' . $data["id"] . '"';
-            if (isset($entereddata[$data["id"]])) echo ' value="' . hsc($entereddata[$data["id"]]) . '"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onkeyup="ShowLength(value, &quot;custom-' . $data["id"] . '-counter&quot;);" onBlur="check_individual(' . $number . ');">';
-            if ($data["suffix_a"] != "") echo '<div class="input-group-append">
-<span class="input-group-text">' . hsc($data["suffix_a"]) . '</span>
-</div>';
-            echo '</div>';
-            echo '<font size="2"><div id="custom-' . $data["id"] . '-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            $parttitle = hsc($data["title"]);
+            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
+            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
+            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
+            if ($data["required"] == "1") $parttitle .= '【必須】';
+            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], $disable);
         break;
         case "textbox2":
-            echo '<div class="form-group">' . hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") echo '（1つ目の入力欄：' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") echo '（1つ目の入力欄：' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") echo '（1つ目の入力欄：' . $data["min"] . '文字以上）';
-            if ($data["max2"] != "" and $data["min2"] != "") echo '（2つ目の入力欄：' . $data["min2"] . '文字以上' . $data["max2"] . '文字以内）';
-            else if ($data["max2"] != "" and $data["min2"] == "") echo '（2つ目の入力欄：' . $data["max2"] . '文字以内）';
-            else if ($data["max2"] == "" and $data["min2"] != "") echo '（2つ目の入力欄：' . $data["min2"] . '文字以上）';
-            if ($data["required"] == "1") echo '【どちらも必須】';
-            else if ($data["required"] == "2") echo '【いずれか必須】';
-            if ($data["arrangement"] == "h") echo '<div class="form-row"><div class="col">';
-            if ($data["width"] != "") echo '<div class="input-group" style="width:' . $data["width"] . 'em;">';
-            else echo '<div class="input-group">';
-            if ($data["prefix_a"] != "") echo '<div class="input-group-prepend">
-<span class="input-group-text">' . hsc($data["prefix_a"]) . '</span>
-</div>';
-            echo '<input type="text" name="custom-' . $data["id"] . '-1" class="form-control" id="custom-' . $data["id"] . '-1"';
-            if (isset($entereddata[$data["id"] . "-1"])) echo ' value="' . hsc($entereddata[$data["id"] . "-1"]) . '"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onkeyup="ShowLength(value, &quot;custom-' . $data["id"] . '-1-counter&quot;);" onBlur="check_individual(' . $number . ');">';
-            if ($data["suffix_a"] != "") echo '<div class="input-group-append">
-<span class="input-group-text">' . hsc($data["suffix_a"]) . '</span>
-</div>';
-            echo '</div>';
-            echo '<font size="2"><div id="custom-' . $data["id"] . '-1-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>';
-            if ($data["arrangement"] == "h") echo '</div><div class="col">';
-            if ($data["width2"] != "") echo '<div class="input-group" style="width:' . $data["width2"] . 'em;">';
-            else echo '<div class="input-group">';
-            if ($data["prefix_b"] != "") echo '<div class="input-group-prepend">
-<span class="input-group-text">' . hsc($data["prefix_b"]) . '</span>
-</div>';
-            echo '<input type="text" name="custom-' . $data["id"] . '-2" class="form-control" id="custom-' . $data["id"] . '-2"';
-            if (isset($entereddata[$data["id"] . "-2"])) echo ' value="' . hsc($entereddata[$data["id"] . "-2"]) . '"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onkeyup="ShowLength(value, &quot;custom-' . $data["id"] . '-2-counter&quot;);" onBlur="check_individual(' . $number . ');">';
-            if ($data["suffix_b"] != "") echo '<div class="input-group-append">
-<span class="input-group-text">' . hsc($data["suffix_b"]) . '</span>
-</div>';
-            echo '</div>';
-            echo '<font size="2"><div id="custom-' . $data["id"] . '-2-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>';
-            if ($data["arrangement"] == "h") echo '</div></div>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            $parttitle = hsc($data["title"]);
+            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（1つ目の入力欄：' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
+            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（1つ目の入力欄：' . $data["max"] . '文字以内）';
+            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（1つ目の入力欄：' . $data["min"] . '文字以上）';
+            if ($data["max2"] != "" and $data["min2"] != "") $parttitle .= '（2つ目の入力欄：' . $data["min2"] . '文字以上' . $data["max2"] . '文字以内）';
+            else if ($data["max2"] != "" and $data["min2"] == "") $parttitle .= '（2つ目の入力欄：' . $data["max2"] . '文字以内）';
+            else if ($data["max2"] == "" and $data["min2"] != "") $parttitle .= '（2つ目の入力欄：' . $data["min2"] . '文字以上）';
+            if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
+            else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
+            $horizontally = ($data["arrangement"] == "h");
+            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"], $disable);
         break;
         case "textarea":
-            echo '<div class="form-group">
-<label for="custom-' . $data["id"] . '">' . hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") echo '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") echo '（' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") echo '（' . $data["min"] . '文字以上）';
-            if ($data["required"] == "1") echo '【必須】';
-            echo '</label>';
-            if ($data["width"] != "") echo '<div class="input-group" style="width:' . $data["width"] . 'em;">';
-            else echo '<div class="input-group">';
-            if ($data["height"] != "") echo '<textarea id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '" rows="' . $data["height"] . '" cols="80" class="form-control"';
-            else echo '<textarea id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '" rows="4" cols="80" class="form-control"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onkeyup="ShowLength(value, &quot;custom-' . $data["id"] . '-counter&quot;);" onBlur="check_individual(' . $number . ');">';
-            if (isset($entereddata[$data["id"]])) echo hsc($entereddata[$data["id"]]);
-            echo '</textarea>';
-            echo '</div>';
-            echo '<font size="2"><div id="custom-' . $data["id"] . '-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            $parttitle = hsc($data["title"]);
+            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
+            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
+            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
+            if ($data["required"] == "1") $parttitle .= '【必須】';
+            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', $data["width"], $data["height"], $disable);
         break;
         case "radio":
-            //選択肢一覧を取得、配列へ（変なスペースを取ったり空行を取ったり）
-            $choices = str_replace(array("\r\n", "\r", "\n"), "\n", $data["list"]);
-            $choices = explode("\n", $choices);
-            $choices = array_map('trim', $choices);
-            //参考　https://www.hachi-log.com/php-arrayfilter-arrayvalue/
-            $choices = array_filter($choices);
-            $choices = array_values($choices);
+            $choices = choices_array($data["list"], TRUE);
 
-            echo '<div class="form-group">' . hsc($data["title"]);
-            if ($data["required"] == "1") echo '【必須】';
-            if ($data["arrangement"] == "h") echo '<div>';
-            foreach ($choices as $num => $choice) {
-                $choice = hsc($choice);
-                if ($data["arrangement"] == "h") echo '<div class="form-check form-check-inline">';
-                else echo '<div class="form-check">';
-                echo '<input id="custom-' . $data["id"] . '-' . $num . '" class="form-check-input" type="radio" name="custom-' . $data["id"] . '" value="' . $choice . '"';
-                if (isset($entereddata[$data["id"]]) and hsc($entereddata[$data["id"]]) == $choice) echo ' checked="checked"';
-                if ($disable) echo ' disabled="disabled"';
-                echo ' onChange="check_individual(' . $number . ');">';
-                echo '<label class="form-check-label" for="custom-' . $data["id"] . '-' . $num . '">' . $choice . '</label>';
-                echo '</div>';
-            }
-            if ($data["arrangement"] == "h") echo '</div>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            $parttitle = hsc($data["title"]);
+            if ($data["required"] == "1") $parttitle .= '【必須】';
+            $horizontally = ($data["arrangement"] == "h");
+            if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] !== "") $prefill = (string) array_search($entereddata[$data["id"]], $choices);
+            else $prefill = "";
+            echo_radio($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', $disable);
         break;
         case "check":
-            //選択肢一覧を取得、配列へ（変なスペースを取ったり空行を取ったり）
-            $choices = str_replace(array("\r\n", "\r", "\n"), "\n", $data["list"]);
-            $choices = explode("\n", $choices);
-            $choices = array_map('trim', $choices);
-            //参考　https://www.hachi-log.com/php-arrayfilter-arrayvalue/
-            $choices = array_filter($choices);
-            $choices = array_values($choices);
+            $choices = choices_array($data["list"], TRUE);
 
-            echo '<div class="form-group">' . hsc($data["title"]);
-            if ($data["required"] == "1") echo '【必須】';
-            if ($data["arrangement"] == "h") echo '<div>';
-            foreach ($choices as $num => $choice) {
-                $choiceh = hsc($choice);
-                if ($data["arrangement"] == "h") echo '<div class="form-check form-check-inline">';
-                else echo '<div class="form-check">';
-                echo '<input id="custom-' . $data["id"] . '-' . $num . '" class="form-check-input" type="checkbox" name="custom-' . $data["id"] . '[]" value="' . $choiceh . '"';
-                if (isset($entereddata[$data["id"]]) and array_search($choice, $entereddata[$data["id"]]) !== FALSE) echo ' checked="checked"';
-                if ($disable) echo ' disabled="disabled"';
-                echo ' onChange="check_individual(' . $number . ');">';
-                echo '<label class="form-check-label" for="custom-' . $data["id"] . '-' . $num . '">' . $choiceh . '</label>';
-                echo '</div>';
+            $parttitle = hsc($data["title"]);
+            if ($data["required"] == "1") $parttitle .= '【必須】';
+            $horizontally = ($data["arrangement"] == "h");
+            $prefill = [];
+            if (isset($entereddata[$data["id"]])) foreach ((array)$entereddata[$data["id"]] as $selected) {
+                $search = array_search($selected, $choices);
+                if ($search !== FALSE) $prefill[] = $search;
             }
-            if ($data["arrangement"] == "h") echo '</div>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            echo_check($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', $disable);
         break;
         case "dropdown":
-            //選択肢一覧を取得、配列へ（変なスペースを取ったり空行を取ったり）
-            $choices = str_replace(array("\r\n", "\r", "\n"), "\n", $data["list"]);
-            $choices = explode("\n", $choices);
-            $choices = array_map('trim', $choices);
-            //参考　https://www.hachi-log.com/php-arrayfilter-arrayvalue/
-            $choices = array_filter($choices);
-            $choices = array_values($choices);
+            $choices = choices_array($data["list"]);
 
-            echo '<div class="form-group">
-<label for="custom-' . $data["id"] . '">' . hsc($data["title"]);
-            if ($data["required"] == "1") echo '【必須】';
-            echo '</label>';
-            echo '<div class="input-group">';
-            if ($data["prefix_a"] != "") echo '<div class="input-group-prepend">
-<span class="input-group-text">' . hsc($data["prefix_a"]) . '</span>
-</div>';
-            echo '<select id="custom-' . $data["id"] . '" class="form-control" name="custom-' . $data["id"] . '"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onChange="check_individual(' . $number . ');">';
-            echo '<option value="">【選択して下さい】</option>';
-            foreach ($choices as $choice) {
-                $choice = hsc($choice);
-                echo '<option value="' . $choice . '"';
-                if (isset($entereddata[$data["id"]]) and hsc($entereddata[$data["id"]]) == $choice) echo ' selected';
-                echo '>' . $choice . '</option>';
-            }
-            echo '</select>';
-            if ($data["suffix_a"] != "") echo '<div class="input-group-append">
-<span class="input-group-text">' . hsc($data["suffix_a"]) . '</span>
-</div>';
-            echo '</div>';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            $parttitle = hsc($data["title"]);
+            if ($data["required"] == "1") $parttitle .= '【必須】';
+            $horizontally = ($data["arrangement"] == "h");
+            if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] !== "") $prefill = (string) array_search($entereddata[$data["id"]], $choices);
+            else $prefill = "";
+            echo_dropdown($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $disable);
         break;
         case "attach":
             $uploadedfs[$data["id"]] = array();
@@ -306,9 +191,8 @@ foreach ($userformdata as $number => $data) {
             else $filenumexp = '複数個アップロード可能　合計' . $filesize . 'MBまで';
             echo '<div class="form-group">' . hsc($data["title"]) . '（' . $exts . 'ファイル　' . $filenumexp . '）';
             if ($data["required"] == "1") echo '【必須】';
-            echo '<font size="2">';
             if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] != array()) {
-                echo '<div>現在アップロードされているファイルを以下に表示します。<br>ファイル名をクリックするとそのファイルをダウンロードします。<br>ファイルを削除する場合は、そのファイルの左側にあるチェックボックスにチェックを入れて下さい。</div></font>';
+                echo '<div class="small">現在アップロードされているファイルを以下に表示します。<br>ファイル名をクリックするとそのファイルをダウンロードします。<br>ファイルを削除する場合は、そのファイルの左側にあるチェックボックスにチェックを入れて下さい。</div>';
                 foreach ($entereddata[$data["id"]] as $key => $element){
                     echo '<div class="form-check">';
                     echo '<input id="custom-' . $data["id"] . '-delete-' . $key . '" class="form-check-input" type="checkbox" name="custom-' . $data["id"] . '-delete[]" value="' . $key . '"';
@@ -323,23 +207,21 @@ foreach ($userformdata as $number => $data) {
                 echo '<input type="hidden" name="custom-' . $data["id"] . '-already" value="' . count($entereddata[$data["id"]]) . '">';
             }
             else {
-                echo '<div>現在アップロードされているファイルはありません。</div></font>';
+                echo '<div class="small">現在アップロードされているファイルはありません。</div>';
                 echo '<input type="hidden" name="custom-' . $data["id"] . '-delete[]" value="none">';
                 echo '<input type="hidden" name="custom-' . $data["id"] . '-already" value="0">';
                 echo '<input type="hidden" name="custom-' . $data["id"] . '-currentsize" value="0">';
             }
-            echo '<font size="2"><label for="custom-' . $data["id"] . '">ファイルを新規に追加する場合はこちらにアップロードして下さい：</label></font>';
+            echo '<label for="custom-' . $data["id"] . '" class="small">ファイルを新規に追加する場合はこちらにアップロードして下さい：</label>';
             echo '<input type="file" class="form-control-file" id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '[]"';
             if ($data["filenumber"] != "1") echo ' multiple="multiple"';
             if ($disable) echo ' disabled="disabled"';
             echo ' onChange="check_individual(' . $number . ');">';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="invalid-feedback" style="display: block;"></div>';
-            if ($data["detail"] != "") echo '<font size="2">' . $data["detail"] . '</font>';
+            echo '<div id="custom-' . $data["id"] . '-errortext" class="system-form-error"></div>';
+            if ($data["detail"] != "") echo '<small class="form-text">' . $data["detail"] . '</small>';
+            echo '</div>';
         break;
     }
-    if ($data["recheck"] != "auto") echo '<div><font size="2"><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></font></div>';
-    else echo '<div><font size="2">※この項目の変更は自動承認されます。</font></div>';
-    echo '</div>';
 }
 ?>
 <br>
@@ -356,7 +238,9 @@ echo_modal_wait();
 </form>
 <script type="text/javascript">
 <!--
+var changed = false;
 function check_individual(id) {
+  changed = true;
   var setting = <?php echo json_encode($tojsp); ?>;
   var uploadedfs = <?php echo json_encode($uploadedfs); ?>;
 
@@ -378,6 +262,7 @@ function check_individual(id) {
 }
 
 function check(){
+  changed = true;
   var problem = 0;
   var setting = <?php echo json_encode($tojsp); ?>;
   var uploadedfs = <?php echo json_encode($uploadedfs); ?>;
@@ -416,6 +301,13 @@ function check(){
   return false;
 
 }
+
+window.addEventListener('beforeunload', function (e) {
+  if (changed) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 
 // -->
 </script>

@@ -1,7 +1,7 @@
 <?php
 require_once('../../set.php');
 setup_session();
-$titlepart = '提出作品の確認・承認 - 議論画面';
+$titlepart = '提出物の確認・承認 - 議論画面';
 require_once(PAGEROOT . 'mypage_header.php');
 
 no_access_right(array("p", "c"), TRUE);
@@ -12,31 +12,29 @@ if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . '
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 
-//ファイル提出者のユーザーID
-$author = basename($_GET["author"]);
+$examfilename = basename($_GET["examname"]);
+if ($examfilename == "") die_mypage('パラメーターエラー');
 
-//提出ID
-$id = basename($_GET["id"]);
+if (!file_exists(DATAROOT . 'exam/' . $examfilename . '.txt')) die_mypage('ファイルが存在しません。');
+$filedata = json_decode(file_get_contents_repeat(DATAROOT . 'exam/' . $examfilename . '.txt'), true);
 
-if ($author == "" or $id == "") die_mypage('パラメーターエラー');
+list($author, $id) = explode("/", $filedata["_realid"]);
+
+if ($author == "" or $id == "") die_mypage('内部パラメーターエラー');
 
 
 //入力内容を読み込む
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die_mypage('ファイルが存在しません。');
-$formdata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+$formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 
 //フォーム設定データ
 $formsetting = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-    $formsetting[$i] = json_decode(file_get_contents(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
+    $formsetting[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/' . "$i" . '.txt'), true);
 }
-$formsetting["general"] = json_decode(file_get_contents(DATAROOT . 'form/submit/general.txt'), true);
-$examsetting = json_decode(file_get_contents(DATAROOT . 'examsetting.txt'), true);
-
-//投票した時の回答データ
-if (!file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) die_mypage('ファイルが存在しません。');
-$filedata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
+$formsetting["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/submit/general.txt'), true);
+$examsetting = json_decode(file_get_contents_repeat(DATAROOT . 'examsetting.txt'), true);
 
 $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $key = array_search("_promoter", $submitmem);
@@ -48,12 +46,12 @@ if ($key !== FALSE) {
 $nopermission = FALSE;
 if (array_search($_SESSION["userid"], $submitmem) === FALSE) $nopermission = TRUE;
 
-if ($filedata["_state"] == 1) echo '<h1>提出作品の確認・承認 - 議論画面</h1>
+if ($filedata["_state"] == 1) echo '<h1>提出物の確認・承認 - 議論画面</h1>
 <p>この作品への対応について、意見が分かれたため、以下の簡易チャットを用いて議論を行って下さい。</p>
 <p>意見がまとまったら、最終的な対応を入力して下さい。<br>
-最終的な対応の入力は、原則として主催者が行えます。ファイル確認メンバーに主催者がいない場合には、共同運営者が対応を入力します。</p>
+最終的な対応の入力は、原則としてファイル確認のリーダー（リーダーが設定されていない場合は主催者）が行えます。ファイル確認メンバーにリーダーも主催者もいない場合には、共同運営者が対応を入力します。</p>
 ';
-else if ($filedata["_state"] == 2) echo '<h1>提出作品の確認・承認 - 議論履歴</h1>
+else if ($filedata["_state"] == 2) echo '<h1>提出物の確認・承認 - 議論履歴</h1>
 <p>この作品への対応について議論し、対応を決定しました。<br>
 最終的な対応及び議論の履歴を以下に表示します。</p>
 ';
@@ -63,17 +61,17 @@ else die_mypage('この作品への議論は行われていません。');
 if (!file_exists(DATAROOT . 'exam_discuss/')) {
     if (!mkdir(DATAROOT . 'exam_discuss/')) die_mypage('ディレクトリの作成に失敗しました。');
 }
-if (file_exists(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt')) $discussdata = json_decode(file_get_contents(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt'), true);
+if (file_exists(DATAROOT . 'exam_discuss/' . $examfilename . '.txt')) $discussdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam_discuss/' . $examfilename . '.txt'), true);
 else {
     $discussdata = array(
         "read" => array(),
         "comments" => array()
     );
     foreach ($submitmem as $key) {
-        $discussdata["read"][$key] = 1;
+        $discussdata["read"][$key] = 0;
     }
     $filedatajson = json_encode($discussdata);
-    if (file_put_contents(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exam_discuss/' . $examfilename . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 }
 //read...既読？（0未読　1既読）　comments...ログ
 
@@ -81,12 +79,12 @@ else {
 if (!$nopermission) {
     $discussdata["read"][$_SESSION["userid"]] = 1;
     $filedatajson = json_encode($discussdata);
-    if (file_put_contents(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'exam_discuss/' . $examfilename . '.txt', $filedatajson) === FALSE) die('議論データの書き込みに失敗しました。');
 }
 
 if ($filedata["_state"] == 1 and $author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
-    echo '<div class="border border-warning" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+    echo '<div class="border border-warning system-border-spacer">
 <b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
@@ -107,23 +105,26 @@ if (!isset($_SESSION["dld_caution"])) {
 if ($filedata["_state"] == 1) {
 
 if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
-    echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+    echo '<tr><th>提出ファイル</th><td>ファイル名をクリックするとそのファイルをダウンロードします。<br>';
     foreach ($formdata["submit"] as $filename => $title)
-    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
+    echo '<a href="../fnc/filedld.php?author=_exam-s-' . $examfilename . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
     echo '</td></tr>';
 } else {
     echo '<tr>
 <th>提出ファイルダウンロード先</th><td><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
-    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><font size="2">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></font>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><font size="2">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</font>';
-    echo '<br><font size="2">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</font>';
+    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
+    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</span>';
+    echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
     echo '</td></tr>';
 }
 
 }
 ?>
 <tr>
-<th>提出者</th><td><?php echo hsc(nickname($author)); ?></td>
+<th width="30%">提出者</th><td width="70%"><?php
+if (exam_anonymous() and $filedata["_state"] == 1) echo '<span class="text-muted">（主催者が、ファイル確認時に提出者名を表示しない設定にしています。）</span>';
+else echo hsc(nickname($author));
+?></td>
 </tr>
 <tr>
 <th>タイトル</th><td><?php echo hsc($formdata["title"]); ?></td>
@@ -145,11 +146,16 @@ foreach ($formsetting as $key => $array) {
     echo "<tr>\n";
     echo "<th>" . hsc($array["title"]) . "</th>";
     echo "<td>";
+    if (!isset($formdata[$array["id"]]) and !isset($formdata[$array["id"] . "-1"]) and !isset($formdata[$array["id"] . "-2"])) {
+        echo '</td>';
+        echo "</tr>\n";
+        continue;
+    }
     if ($array["type"] == "attach") {
         if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
             echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
             foreach ($formdata[$array["id"]] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
+            echo '<a href="../fnc/filedld.php?author=_exam-s-' . $examfilename . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
         }
     }
     else if ($array["type"] == "check") {
@@ -157,10 +163,25 @@ foreach ($formsetting as $key => $array) {
         $dsp = hsc($dsp);
         echo str_replace("\n", '<br>', $dsp);
     } else if ($array["type"] == "textbox2") {
-        echo hsc($formdata[$array["id"] . "-1"]);
-        echo '<br>';
-        echo hsc($formdata[$array["id"] . "-2"]);
-    } else echo give_br_tag($formdata[$array["id"]]);
+        if ($formdata[$array["id"] . "-1"] != "") {
+            echo '<div>';
+            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
+            echo hsc($formdata[$array["id"] . "-1"]);
+            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+            echo '</div>';
+        }
+        if ($formdata[$array["id"] . "-2"] != "") {
+            echo '<div>';
+            if (isset($array["prefix_b"]) and $array["prefix_b"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_b"]) . '</span> ';
+            echo hsc($formdata[$array["id"] . "-2"]);
+            if (isset($array["suffix_b"]) and $array["suffix_b"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_b"]) . '</span> ';
+            echo '</div>';
+        }
+    } else {
+        if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
+        echo give_br_tag($formdata[$array["id"]]);
+        if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+    }
     echo '</td>';
     echo "</tr>\n";
 }
@@ -192,35 +213,36 @@ foreach ($filedata as $key => $data) {
             echo '<td>軽微な修正が必要</td>';
         break;
         case 3:
-            echo '<td>内容等に問題がある</td>';
+            echo '<td>内容等の問題が多い・重大な問題がある</td>';
         break;
         default:
             echo '<td>未回答</td>';
         break;
     }
-    echo '<td>' . hsc($data["reason"]) . '</td>';
+    echo '<td>' . give_br_tag($data["reason"]) . '</td>';
     echo "</tr>\n";
 }
-if (isset($filedata["_result"]) and $filedata["_result"] != "") {
+if (isset($filedata["_result"])) {
     echo '<tr class="table-primary"><th>最終結果</th>';
-    switch ($filedata["_result"]) {
+    switch ($filedata["_result"]["opinion"]) {
       case 1:
-          echo '<td colspan="2"><b>承認</b></td>';
+          echo '<td><b>承認</b></td>';
       break;
       case 2:
-          echo '<td colspan="2"><b>修正待ち</b></td>';
+          echo '<td><b>修正待ち</b></td>';
       break;
       case 3:
-          echo '<td colspan="2"><b>拒否</b></td>';
+          echo '<td><b>拒否</b></td>';
       break;
     }
+    echo '<td>' . give_br_tag($filedata["_result"]["reason"]) . '</td>';
     echo '</tr>';
 }
 ?>
 </table>
 </div>
 <h2>簡易チャット</h2>
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php
 if ($discussdata["comments"] != array()) {
     echo "<ul>";
@@ -245,14 +267,14 @@ else {
 ?>
 <form name="form" action="discuss_handle.php" method="post" onSubmit="return check()">
 <?php csrf_prevention_in_form(); ?>
-<input type="hidden" name="subject" value="<?php echo $author . '_' . $id; ?>">
+<input type="hidden" name="subject" value="<?php echo $examfilename; ?>">
 <div class="form-group">
 <label for="add">新規コメント追加（500文字以内）</label>
-<textarea id="add" name="add" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;add-counter&quot;);" onBlur="check_individual();"></textarea>
-<font size="2"><div id="add-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="add-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※改行は反映されます（この入力欄で改行すると実際のコメントでも改行されます）が、HTMLタグはお使いになれません。<br>
-　ただし、URLを記載すると、自動的にリンクが張られます。</font>
+<textarea id="add" name="add" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;add-counter&quot;);" onBlur="check_individual();"></textarea>
+<div id="add-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="add-errortext" class="system-form-error"></div>
+<small class="form-text">※改行は反映されます（この入力欄で改行すると実際のコメントでも改行されます）が、HTMLタグはお使いになれません。<br>
+　ただし、URLを記載すると、自動的にリンクが張られます。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">コメントを追加</button>
@@ -315,14 +337,19 @@ function check(){
 // -->
 </script>
 
-<?php if ($_SESSION["state"] != 'p' and $noprom == FALSE) die_mypage(); ?>
+<?php
+$leader = id_leader("submit");
+if ($leader != NULL) {
+    if ($leader != $_SESSION["userid"]) die_mypage();
+} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) die_mypage();
+?>
 <h2>最終判断</h2>
 <p>結論が固まりましたら、以下にその結論を入力して、議論を終了して下さい。<br>
 トラブル防止のため、結論が固まっていない段階で入力を行うのはお控え下さい。</p>
 <form name="form_decide" action="discuss_decide.php" method="post" onSubmit="return check_decide()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
-<input type="hidden" name="subject" value="<?php echo $author . '_' . $id; ?>">
+<input type="hidden" name="subject" value="<?php echo $examfilename; ?>">
 <div class="form-group">
 議論の末の判断を以下から選んで下さい。
 <div class="form-check">
@@ -337,17 +364,17 @@ function check(){
 <input id="ans-3" class="form-check-input" type="radio" name="ans" value="3" onChange="check_decide_individual(&quot;ans&quot;);">
 <label class="form-check-label" for="ans-3">この作品を拒否する</label>
 </div>
-<div id="ans-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="ans-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="reason">「軽微な修正を求める」もしくは「拒否する」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="4" cols="80" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onBlur="check_decide_individual(&quot;reason&quot;);"></textarea>
-<font size="2"><div id="reason-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="reason-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2"><?php
-if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載される可能性があります。</b>";
+<textarea id="reason" name="reason" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onBlur="check_decide_individual(&quot;reason&quot;);"></textarea>
+<div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="reason-errortext" class="system-form-error"></div>
+<small class="form-text"><?php
+if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載されます。</b>";
 else echo "※ここで記入した理由は、ファイル提出者本人宛に送信するメールに直接的に記載されません。";
-?></font>
+?></small>
 </div>
 <br>
 <button type="submit" class="btn btn-warning">回答を送信し、議論を終了する</button>

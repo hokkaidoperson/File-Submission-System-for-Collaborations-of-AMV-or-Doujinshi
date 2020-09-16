@@ -19,7 +19,7 @@ $id = $_POST["subject"];
 if (!user_exists($id)) die ("ユーザーが存在しません。");
 
 $blplace = DATAROOT . 'blackuser.txt';
-if (file_exists($blplace)) $bldata = json_decode(file_get_contents($blplace), true);
+if (file_exists($blplace)) $bldata = json_decode(file_get_contents_repeat($blplace), true);
 else $bldata = array();
 
 $key = array_search($id, $bldata);
@@ -35,7 +35,7 @@ else {
 }
 
 $datajson =  json_encode($bldata);
-if (file_put_contents($blplace, $datajson) === FALSE) die('リストデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($blplace, $datajson) === FALSE) die('リストデータの書き込みに失敗しました。');
 
 //対象者にメール
 $nickname = nickname($id);

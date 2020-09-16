@@ -15,12 +15,12 @@ foreach(glob(DATAROOT . 'messages/*.txt') as $filename) {
 
     //自分が送ったやつ？
     if ($from == $_SESSION["userid"]) {
-        $outbox[$id] = json_decode(file_get_contents($filename), true);
+        $outbox[$id] = json_decode(file_get_contents_repeat($filename), true);
         continue;
     }
 
     //自分へのメッセージなら見せる
-    $inbox[$id] = json_decode(file_get_contents($filename), true);
+    $inbox[$id] = json_decode(file_get_contents_repeat($filename), true);
     if (!isset($inbox[$id][$_SESSION["userid"]])) unset($inbox[$id]);
 }
 
@@ -85,9 +85,9 @@ foreach ($outbox as $id => $array) {
     list($from, $time) = explode('_', $id);
     $to = array();
     foreach ($array as $key => $dummy) {
-        if ($key == "_subject") continue;
-        if ($key == "_replyof") continue;
-        if ($key == "_content") continue;
+        if ((string)$key === "_subject") continue;
+        if ((string)$key === "_replyof") continue;
+        if ((string)$key === "_content") continue;
         if (strpos($key, "sectok_") !== FALSE) continue;
         $to[] = $key;
     }

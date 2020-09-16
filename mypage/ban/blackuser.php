@@ -17,7 +17,7 @@ unset($canshow[id_admin()]);
 <p>凍結されたユーザーは、作品提出などの操作を一切行えなくなります。また、提出情報の一括ダウンロード時は、凍結されたユーザーは除外されます。<br>
 ただし、凍結されたユーザーのファイルは抹消されず、作品一覧のページから閲覧出来ます（凍結されたユーザーである旨が表示されます）。また、凍結解除の操作を行えば、これまで通りファイル提出などを行えるようになります。</p>
 
-<form name="form" action="blackuser_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="blackuser_handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
@@ -61,11 +61,11 @@ if ($canshow == array()) die_mypage('<tr><td colspan="4">現在、表示出来�
 </div>
 <div class="form-group">
 <label for="add">メッセージ（500文字以内・省略可能）</label>
-<textarea id="message_mail" name="message_mail" rows="4" cols="80" class="form-control"></textarea>
-<font size="2">※本人宛に通知するメールに記載するメッセージです。<br>
+<textarea id="message_mail" name="message_mail" rows="4" class="form-control"></textarea>
+<small class="form-text">※本人宛に通知するメールに記載するメッセージです。<br>
 ※例1：「あなたはイベント運営を著しく妨害しているため、アカウントを凍結する運びとなりました。」<br>
 ※例2：「諸問題の解決が確認出来たため、アカウントの凍結を解除致しました。」
-</font>
+</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary" id="submitbtn">実行</button>

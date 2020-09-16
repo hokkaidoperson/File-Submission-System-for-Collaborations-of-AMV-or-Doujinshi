@@ -117,7 +117,7 @@ $filedata = $_SESSION["userformdata"][$number];
 $filedatajson = json_encode($filedata);
 
 if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
-    if (!mkdir(DATAROOT . 'form/userinfo/draft/')) die_mypage('ディレクトリの作成に失敗しました。');
+    if (!mkdir(DATAROOT . 'form/userinfo/draft/')) die('ディレクトリの作成に失敗しました。');
     for ($i = 0; $i <= 9; $i++) {
         if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
         copy(DATAROOT . 'form/userinfo/' . "$i" . '.txt', DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt');
@@ -127,7 +127,7 @@ if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
 
 $fileplace = DATAROOT . 'form/userinfo/draft/' . $number . '.txt';
 
-if (file_put_contents($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $filedatajson) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 register_alert("設定内容を一時ファイルに保存しました。設定を完了する場合は、「変更内容を保存し適用する」ボタンを押して実際の入力画面に反映させて下さい。");
 

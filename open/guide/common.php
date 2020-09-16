@@ -6,7 +6,7 @@ require_once(PAGEROOT . 'help_header.php');
 $userformdata = array();
 for ($i = 0; $i <= 9; $i++) {
     if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-    $userformdata[$i] = json_decode(file_get_contents(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
+    $userformdata[$i] = json_decode(file_get_contents_repeat(DATAROOT . 'form/userinfo/' . "$i" . '.txt'), true);
 }
 ?>
 

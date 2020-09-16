@@ -20,7 +20,7 @@ else {
     //登録中のユーザーID横取り阻止（保証期間は30分）
     if (file_exists(DATAROOT . 'users_reserve/')) {
         foreach (glob(DATAROOT . 'users_reserve/*.txt') as $filename) {
-            $filedata = json_decode(file_get_contents($filename), true);
+            $filedata = json_decode(file_get_contents_repeat($filename), true);
             if ($filedata["expire"] <= time()) {
                 unlink($filename);
                 continue;
@@ -68,18 +68,18 @@ if ($invalid) $returnarray["emailresult"] = 0;
 else {
     $email = $_GET["email"];
 
-    $conflict = FALSE;
+    $conflict = 0;
 
     //登録済みの中から探す
     foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["email"] == $email) {
-            $conflict = TRUE;
-            break;
+            $conflict++;
         }
     }
 
-    if ($conflict) $returnarray["emailresult"] = 0;
+    if ($conflict >= ACCOUNTS_PER_ADDRESS) $returnarray["emailresult"] = 0;
+    else if ($conflict > 0) $returnarray["emailresult"] = 2;
     else $returnarray["emailresult"] = 1;
 }
 

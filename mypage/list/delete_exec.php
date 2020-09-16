@@ -14,19 +14,19 @@ $author = basename($_POST["author"]);
 //提出ID
 $id = basename($_POST["id"]);
 
-if ($author == "" or $id == "") die_mypage('パラメーターエラー');
+if ($author == "" or $id == "") die('パラメーターエラー');
 
 
 //自分のファイルのみ編集可
-if ($author != $_SESSION['userid']) die_mypage('ご自身のファイルのみ、編集が可能です。');
+if ($author != $_SESSION['userid']) die('ご自身のファイルのみ、編集が可能です。');
 
 if (outofterm($id) != FALSE) $outofterm = TRUE;
 else $outofterm = FALSE;
 if ($_SESSION["state"] == 'p') $outofterm = TRUE;
-if (!in_term() and !$outofterm) die_mypage('現在、ファイル提出期間外のため、ファイル操作は行えません。');
+if (!in_term() and !$outofterm) die('現在、ファイル提出期間外のため、ファイル操作は行えません。');
 
 //今のパスワードで認証
-$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
+$userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
 if (!password_verify($_POST["password"], $userdata["pwhash"])) die('<!DOCTYPE html>
 <html>
 <head>
@@ -43,7 +43,7 @@ if (!password_verify($_POST["password"], $userdata["pwhash"])) die('<!DOCTYPE ht
 
 //色々削除
 if (!file_exists(DATAROOT . "submit/" . $author . "/" . $id . ".txt")) die('ファイルが存在しません。');
-$filedata = json_decode(file_get_contents(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
+$filedata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 unlink(DATAROOT . "submit/" . $author . "/" . $id . ".txt");
 
 if (file_exists(DATAROOT . 'files/' . $author . '/' . $id . '/')) remove_directory(DATAROOT . 'files/' . $author . '/' . $id . '/');
@@ -54,7 +54,7 @@ if (file_exists(DATAROOT . 'edit_files/' . $author . '/' . $id . '/')) remove_di
 //検査関連で通知する人
 $noticeto = array();
 if (file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) {
-    $examdata = json_decode(file_get_contents(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
+    $examdata = json_decode(file_get_contents_repeat(DATAROOT . 'exam/' . $author . '_' . $id . '.txt'), true);
     unlink(DATAROOT . 'exam/' . $author . '_' . $id . '.txt');
     $submitmem = file(DATAROOT . 'exammember_submit.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $key = array_search("_promoter", $submitmem);
@@ -71,7 +71,7 @@ if (file_exists(DATAROOT . 'exam/' . $author . '_' . $id . '.txt')) {
 }
 if (file_exists(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt')) unlink(DATAROOT . 'exam_discuss/' . $author . '_' . $id . '.txt');
 foreach(glob(DATAROOT . 'exam_edit/' . $author . '_' . $id . '_*.txt') as $filename) {
-    $examdata = json_decode(file_get_contents($filename), true);
+    $examdata = json_decode(file_get_contents_repeat($filename), true);
     unlink($filename);
     $memberfile = DATAROOT . 'exammember_' . $examdata["_membermode"] . '.txt';
     $submitmem = file($memberfile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

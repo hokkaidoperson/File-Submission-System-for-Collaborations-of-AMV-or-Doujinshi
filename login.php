@@ -10,7 +10,7 @@ if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出シ�
 csrf_prevention_validate();
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
-$recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
+$recdata = json_decode(file_get_contents_repeat(DATAROOT . 'rec.txt'), true);
 
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
@@ -58,7 +58,7 @@ $userid = basename($_POST["userid"]);
 
 if (!file_exists(DATAROOT . 'users/' . $userid . '.txt')) $invalid = TRUE;
 else {
-    $userdata = json_decode(file_get_contents(DATAROOT . 'users/' . $userid . '.txt'), true);
+    $userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $userid . '.txt'), true);
     $email = $userdata["email"];
     $state = $userdata["state"];
     $nickname = $userdata["nickname"];

@@ -16,12 +16,12 @@ $canshow = array();
 
 foreach(glob(DATAROOT . 'submit/' . $userid . '/*.txt') as $filename) {
     $id = basename($filename, '.txt');
-    $canshow[$id] = json_decode(file_get_contents($filename), true);
+    $canshow[$id] = json_decode(file_get_contents_repeat($filename), true);
 }
 
 $aclplace = DATAROOT . 'outofterm/' . $userid . '.txt';
 if (file_exists($aclplace)) {
-    $acldata = json_decode(file_get_contents($aclplace), true);
+    $acldata = json_decode(file_get_contents_repeat($aclplace), true);
     if ($acldata["expire"] > time()) $set = TRUE;
     else $set = FALSE;
 }
@@ -38,7 +38,7 @@ if ($set) echo '<p>現在、一部あるいは全部の操作権限が有効に�
 その設定内容が以下に反映されています。<br>
 設定を変更すると、操作期限が更新されます。操作期限が切れるまでの時間は改めて設定して下さい。</p>';
 ?>
-<form name="form" action="outofterm_handle.php" method="post" onSubmit="return check()" style="margin-top:1em; margin-bottom:1em;">
+<form name="form" action="outofterm_handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="userid" value="<?php echo $userid; ?>">
 <h2>操作期限が切れるまでの時間</h2>

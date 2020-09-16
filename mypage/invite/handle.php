@@ -8,8 +8,8 @@ $accessok = 'none';
 //主催者が登録されていないかつシステム管理者
 if (!file_exists(DATAROOT . 'users/_promoter.txt') and $_SESSION["admin"]) $accessok = 'p';
 
-//主催者かつフォーム設定完了済み
-if ($_SESSION["state"] == 'p' and file_exists(DATAROOT . 'form/userinfo/done.txt')) $accessok = 'c';
+//主催者
+if ($_SESSION["state"] == 'p') $accessok = 'c';
 
 if ($accessok == 'none') redirect("./index.php");
 
@@ -25,17 +25,16 @@ else if(!preg_match('/.+@.+\..+/', $_POST["email"])) $invalid = TRUE;
 else {
     $email = $_POST["email"];
 
-    $conflict = FALSE;
+    $conflict = 0;
 
     //登録済みの中から探す
     foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["email"] == $email) {
-            $conflict = TRUE;
-            break;
+            $conflict++;
         }
     }
-    if ($conflict) $invalid = TRUE;
+    if ($conflict >= ACCOUNTS_PER_ADDRESS) $invalid = TRUE;
 }
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
@@ -72,7 +71,7 @@ $filedata = array(
 
 $filedatajson =  json_encode($filedata);
 
-if (file_put_contents($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
+if (file_put_contents_repeat($fileplace, $filedatajson) === FALSE) die('メール関連のデータの書き込みに失敗しました。');
 
 
 //メール本文形成

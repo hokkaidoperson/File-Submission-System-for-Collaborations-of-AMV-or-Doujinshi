@@ -9,7 +9,7 @@ if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出シ�
 csrf_prevention_validate();
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
-$recdata = json_decode(file_get_contents(DATAROOT . 'rec.txt'), true);
+$recdata = json_decode(file_get_contents_repeat(DATAROOT . 'rec.txt'), true);
 
 if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl')) {
     $secret_key = $recdata["sec"];
@@ -45,6 +45,8 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 
 
 $invalid = FALSE;
+$userid = array();
+$nickname = array();
 
 if($_POST["email"] == "") $invalid = TRUE;
 else if(!preg_match('/.+@.+\..+/', $_POST["email"])) $invalid = TRUE;
@@ -55,12 +57,11 @@ else {
 
     //登録済みの中から探す
     foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
-        $filedata = json_decode(file_get_contents($filename), true);
+        $filedata = json_decode(file_get_contents_repeat($filename), true);
         if ($filedata["email"] == $email) {
             $conflict = TRUE;
-            $userid = basename($filename, ".txt");
-            $nickname = $filedata["nickname"];
-            break;
+            $userid[] = basename($filename, ".txt");
+            $nickname[] = $filedata["nickname"];
         }
     }
 
@@ -76,11 +77,11 @@ if (!file_exists(DATAROOT . 'mail/search_id/')) {
     if (!mkdir(DATAROOT . 'mail/search_id/', 0777, true)) die('ディレクトリの作成に失敗しました。');
 }
 
-$fileplace = DATAROOT . 'mail/search_id/' . $userid . '.txt';
+$fileplace = DATAROOT . 'mail/search_id/' . md5($_POST["email"]) . '.txt';
 
 //24時間以内に送信してるんならはじく
 if (file_exists($fileplace)) {
-    $filedata = json_decode(file_get_contents($fileplace), true);
+    $filedata = json_decode(file_get_contents_repeat($fileplace), true);
     if ($filedata["expire"] >= time()) die('<!DOCTYPE html>
 <html>
 <head>
@@ -110,16 +111,20 @@ if (json_pack($fileplace, $filedata) === FALSE) die('メール関連のデータ
 
 //メール本文形成
 $pageurl = $siteurl . "reset_pw/index.php";
-$content = "$nickname 様
+$text = "【ユーザーID】\n{$userid[0]}\n\n【ニックネーム】\n{$nickname[0]}";
+$i = 1;
+while (1) {
+    if (!isset($userid[$i])) break;
+    $dsp = $i + 1;
+    $text .= "\n\n【ユーザーID（{$dsp}つ目のアカウント）】\n{$userid[$i]}\n\n【ニックネーム（{$dsp}つ目のアカウント）】\n{$nickname[$i]}";
+    $i++;
+}
+$content = "{$nickname[0]} 様
 
 $eventname のポータルサイトで、アカウント情報再送のリクエストがありました。
 パスワード再発行に必要なアカウント情報は以下の通りです。
 
-【ユーザーID】
-$userid
-
-【ニックネーム】
-$nickname
+$text
 
 ※パスワードの再発行はこちらから行えます。
 　$pageurl
@@ -136,7 +141,8 @@ sendmail($email, 'アカウント情報再送', $content);
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>ユーザーID・ニックネーム再送信 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -169,13 +175,14 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>ユーザーID・ニックネーム再送信 - メール送信完了</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 お使いのアカウントの連絡メールアドレス宛に、アカウント情報が記載されたメールを送信しました。<br>
 メールをご確認下さい。<br><br>
 <a href="<?php echo $pageurl; ?>">パスワードの再発行はこちらから行えます。</a>
@@ -184,6 +191,6 @@ var val = getCookie('check_cookie');
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ require_once(PAGEROOT . 'mypage_header.php');
 $userid = $_SESSION["userid"];
 
 //入力済み情報を読み込む
-$entereddata = json_decode(file_get_contents(DATAROOT . "users/" . $userid . ".txt"), true);
+$entereddata = json_decode(file_get_contents_repeat(DATAROOT . "users/" . $userid . ".txt"), true);
 
 //提出期間外だとメールアドレス以外変更不可にする
 if (outofterm('userform') != FALSE) $disable = FALSE;
@@ -20,25 +20,25 @@ if (before_deadline()) $disable = FALSE;
 <h1>アカウント情報変更（パスワード以外）</h1>
 <p>現在登録されている情報が入力欄に入力されています。変更したい項目のみ、入力欄の中身を変更して下さい（ユーザーIDは変更出来ません）。</p>
 <?php
-if (!before_deadline() and $disable) echo '<div class="border border-danger" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+if (!before_deadline() and $disable) echo '<div class="border border-danger system-border-spacer">
 現在、ファイル提出期間外のため、ニックネームのみ変更不可になっています。
 </div>';
 else {
-    if (!before_deadline() and $_SESSION["state"] == 'p') echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+    if (!before_deadline() and $_SESSION["state"] == 'p') echo '<div class="border border-primary system-border-spacer">
 現在ファイル提出期間外のため、本来はニックネームが変更不可になっていますが、主催者は常時編集が可能です。
 </div>';
-    else if (!before_deadline()) echo '<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+    else if (!before_deadline()) echo '<div class="border border-primary system-border-spacer">
 現在ファイル提出期間外のため、本来はニックネームが変更不可になっていますが、あなたは主催者から編集を許可されています（' . date('Y年n月j日G時i分s秒', outofterm('userform')) . 'まで）。
 </div>';
 }
 ?>
 <form name="form" action="others_handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="password">現在のパスワード（本人確認の為ご入力願います）【必須】</label>
 <input type="password" name="password" class="form-control" id="password" onBlur="check_individual(&quot;password&quot;);">
-<div id="password-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="password-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="userid_dummy">ユーザーID（変更出来ません）</label>
@@ -49,24 +49,24 @@ else {
 <input type="text" name="nickname" class="form-control" id="nickname" value="<?php
 if (isset($entereddata["nickname"])) echo hsc($entereddata["nickname"]);
 ?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
-<font size="2"><div id="nickname-counter" class="text-right text-md-left text-muted">現在 - 文字</div></font>
-<div id="nickname-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</font>
+<div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="nickname-errortext" class="system-form-error"></div>
+<small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス【必須】</label>
 <input type="email" name="email" class="form-control" id="email" value="<?php
 if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
 ?>" onBlur="check_individual(&quot;email&quot;);">
-<div id="email-errortext" class="invalid-feedback" style="display: block;"></div>
-<font size="2">※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</font>
+<div id="email-errortext" class="system-form-error"></div>
+<small class="form-text">※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</small>
 </div>
 <div class="form-group">
 <label for="emailagn">メールアドレス（確認の為再入力）【必須】</label>
 <input type="email" name="emailagn" class="form-control" id="emailagn" value="<?php
 if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
 ?>" onBlur="check_individual(&quot;emailagn&quot;);">
-<div id="emailagn-errortext" class="invalid-feedback" style="display: block;"></div>
+<div id="emailagn-errortext" class="system-form-error"></div>
 </div>
 <br>
 ※送信前に、入力内容の確認をお願い致します。<br>
@@ -173,7 +173,7 @@ function check_individual(id){
                 if (result.auth_status == "NG") {
                     throw new Error("Stopped because of an API error - response: " + result.error_detail);
                 } else if (result.emailresult == 0) {
-                    document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。1つのメールアドレスにつき、紐づけられるアカウントは1個のみです。";
+                    document.getElementById("email-errortext").innerHTML = "このメールアドレスにこれ以上アカウントを紐づける事は出来ません。1つのメールアドレスにつき、紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です。";
                     document.form.email.classList.add("is-invalid");
                     document.form.email.classList.remove("is-valid");
                 } else {
@@ -321,7 +321,7 @@ function check(){
                 document.form.password.classList.remove("is-invalid");
             }
             if (result.emailresult == 0 && validemail == 1) {
-                document.getElementById("email-errortext").innerHTML = "このメールアドレスは既に使用されています。1つのメールアドレスにつき、紐づけられるアカウントは1個のみです。";
+                document.getElementById("email-errortext").innerHTML = "このメールアドレスにこれ以上アカウントを紐づける事は出来ません。1つのメールアドレスにつき、紐づけられるアカウントの数は最大<?php echo ACCOUNTS_PER_ADDRESS; ?>個です。";
                 document.form.email.classList.add("is-invalid");
                 document.form.email.classList.remove("is-valid");
             } else if (validemail == 1) {

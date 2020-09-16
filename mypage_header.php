@@ -15,7 +15,8 @@ session_validation(TRUE);
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/style.css?<?php echo urlencode(VERSION); ?>">
 <title><?php
 if (isset($titlepart)) echo $titlepart . ' - ';
 echo $eventname;
@@ -51,6 +52,7 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
@@ -70,7 +72,7 @@ aria-expanded="false">
 <h6 class="dropdown-header text-wrap">
 <?php echo $_SESSION["nickname"]; ?>
 </h6>
-<p class="text-right" style="margin-bottom: 0rem; margin-right: 0.7rem;">
+<p class="text-right system-menu-badge">
 <?php
 switch ($_SESSION["state"]) {
     case 'p':
@@ -93,18 +95,18 @@ switch ($_SESSION["state"]) {
 非参加者
 </span>';
 }
-if ($_SESSION["admin"]) echo '</p><p class="text-right" style="margin-bottom: 0rem; margin-right: 0.7rem;"><span class="dropdown-item-text badge badge-danger text-wrap">
+if ($_SESSION["admin"]) echo '</p><p class="text-right system-menu-badge"><span class="dropdown-item-text badge badge-danger text-wrap">
 システム管理者
 </span>';
 ?>
 </p>
 <div class="dropdown-divider"></div>
-<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/account/index.php"><img src="<?php echo $siteurl; ?>images/account.svg" style="width: 1em; height: 1em;"> アカウント情報編集</a>
-<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/logout.php"><img src="<?php echo $siteurl; ?>images/logout.svg" style="width: 1em; height: 1em;"> ログアウト</a>
+<a class="dropdown-item system-link-accounticon" href="<?php echo $siteurl; ?>mypage/account/index.php">アカウント情報編集</a>
+<a class="dropdown-item system-link-logouticon" href="<?php echo $siteurl; ?>mypage/logout.php">ログアウト</a>
 </div>
 </div>
 <ul class="navbar-nav mr-3">
-<li><a class="nav-link" href='<?php echo $siteurl; ?>open/index.php' target="_blank"><img src="<?php echo $siteurl; ?>images/question.svg" style="width: 1em; height: 1em;"> ヘルプ</a></li>
+<li><a class="nav-link system-link-helpicon" href='<?php echo $siteurl; ?>open/index.php' target="_blank">ヘルプ</a></li>
 </ul>
 </div>
 </nav>

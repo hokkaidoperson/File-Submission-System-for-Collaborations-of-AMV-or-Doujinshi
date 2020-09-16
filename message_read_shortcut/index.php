@@ -11,7 +11,7 @@ if ($name == "" or $userid == "" or $sectok == "") die("パラメーターエラ
 if (!user_exists($userid)) die();
 
 if (file_exists(DATAROOT . 'messages/' . $name . '.txt')) {
-    $filedata = json_decode(file_get_contents(DATAROOT . 'messages/' . $name . '.txt'), true);
+    $filedata = json_decode(file_get_contents_repeat(DATAROOT . 'messages/' . $name . '.txt'), true);
     if (!isset($filedata["sectok_$userid"]) or $filedata["sectok_$userid"] !== $sectok) $deny = TRUE;
 } else $deny = TRUE;
 
@@ -34,7 +34,7 @@ if ($deny) die('<!DOCTYPE html>
 if (isset($filedata[$userid]) and $filedata[$userid] == 0) {
     $filedata[$userid] = 1;
     $filedatajson = json_encode($filedata);
-    if (file_put_contents(DATAROOT . 'messages/' . $name . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
+    if (file_put_contents_repeat(DATAROOT . 'messages/' . $name . '.txt', $filedatajson) === FALSE) die('メッセージデータの書き込みに失敗しました。');
     $print = "メッセージ「" . hsc($filedata["_subject"]) . "」に既読を付けました。<br>ブラウザを閉じても構いません。";
 } else $print = "メッセージ「" . hsc($filedata["_subject"]) . "」には既に既読が付いています。<br>ブラウザを閉じても構いません。";
 
@@ -45,7 +45,8 @@ if (isset($filedata[$userid]) and $filedata[$userid] == 0) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>メッセージ開封確認 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -78,19 +79,20 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>メッセージ開封確認</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 <?php echo $print; ?>
 </div>
 </div>
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>

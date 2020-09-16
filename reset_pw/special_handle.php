@@ -13,7 +13,7 @@ else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
 $fileplace = DATAROOT . 'mail/reset_pw/' . basename($_POST["userid"]) . '.txt';
 
 if (file_exists($fileplace)) {
-    $filedata = json_decode(file_get_contents($fileplace), true);
+    $filedata = json_decode(file_get_contents_repeat($fileplace), true);
     if ($filedata["sectok"] !== $_POST["sectok"]) $invalid = TRUE;
 } else $invalid = TRUE;
 
@@ -24,12 +24,12 @@ if ($invalid) die('リクエスト内容に不備がありました。入力フ�
 //パスワードハッシュ化
 $hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
-$userdata = json_decode(file_get_contents(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt'), true);
+$userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt'), true);
 $userdata["pwhash"] = $hash;
 
 $userdatajson =  json_encode($userdata);
 
-if (file_put_contents(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+if (file_put_contents_repeat(DATAROOT . 'users/' . basename($_POST["userid"]) . '.txt', $userdatajson) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 
 
 //リンクを消す
@@ -44,7 +44,8 @@ unlink($fileplace);
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行完了 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
 </head>
 <script type="text/javascript">
@@ -77,13 +78,14 @@ var val = getCookie('check_cookie');
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
+<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
 <h1>パスワード再発行完了</h1>
-<div class="border" style="padding:10px; margin-top:1em; margin-bottom:1em;">
+<div class="border system-border-spacer">
 パスワードの再発行が完了しました。新しいパスワードでログインして下さい。<br><br>
 <a href="../index.php">ログインページへ</a>
 </div>
@@ -91,6 +93,6 @@ var val = getCookie('check_cookie');
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
 </body>
 </html>
