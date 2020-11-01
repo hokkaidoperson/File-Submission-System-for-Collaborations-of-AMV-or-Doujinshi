@@ -43,7 +43,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <script type="text/javascript">
 <!--
 function check_individual(id) {
@@ -159,6 +158,7 @@ setCookie('check_cookie', true);
 var val = getCookie('check_cookie');
 // -->
 </script>
+</head>
 <body>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>

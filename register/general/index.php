@@ -44,7 +44,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>アカウント登録 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
@@ -418,6 +417,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
@@ -430,9 +430,9 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>アカウント登録</h1>
 <div class="border system-border-spacer">
-本イベントのポータルサイトで使用するアカウントを登録します。登録したアカウントを使用して、ファイルを提出して下さい。<br><br>
-<b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b><br><br>
-<u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。
+<p>本イベントのポータルサイトで使用するアカウントを登録します。登録したアカウントを使用して、ファイルを提出して下さい。</p>
+<p><b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b></p>
+<p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。</p>
 </div>
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary system-border-spacer">
@@ -490,12 +490,12 @@ if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
 <?php
-$modaltext = "入力内容に問題は見つかりませんでした。<br><br>
-現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。<br><br>
-※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。";
-if ($userec) $modaltext .= '<div><br><span class="small text-muted">※「送信する」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></div>
-<div id="neterrortext" style="display: none;"><br><span class="small text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。</span></div>';
+$modaltext = "<p>入力内容に問題は見つかりませんでした。</p>
+<p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
+入力内容の修正を行う場合は「戻る」を押して下さい。</p>
+<p>※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。</p>";
+if ($userec) $modaltext .= '<div><span class="small text-muted">※「送信する」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</span></div>
+<div id="neterrortext" style="display: none;"><span class="small text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。</span></div>';
 
 echo_modal_alert();
 echo_modal_alert("入力内容の検証中にエラーが発生しました。<br>お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。", "ネットワーク・エラー", null, null, "neterrormodal", "dismissbtn2");

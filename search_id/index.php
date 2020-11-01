@@ -25,7 +25,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>ユーザーID・ニックネーム再送信 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
@@ -149,6 +148,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
@@ -161,10 +161,10 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>ユーザーID・ニックネーム再送信</h1>
 <div class="border system-border-spacer">
-<b>パスワードの再発行に必要な情報（ユーザーID・ニックネーム）は、ユーザー登録完了時にお送りしているメールに記載しています</b>ので、まずはそちらをご確認願います。<br>
-もし見当たらない場合や、ニックネームが変更されていて分からない場合は、パスワードの再発行に必要な情報をお使いのアカウントのメールアドレスに再送します。<br><br>
-お使いのアカウントのメールアドレスを以下に入力して下さい。<br><br>
-※無暗に大量のメールが送信されるのを防ぐため、この機能でアカウント情報を再送出来るのは、1アカウントにつき、24時間に1回のみとさせて頂きます。
+<p><b>パスワードの再発行に必要な情報（ユーザーID・ニックネーム）は、ユーザー登録完了時にお送りしているメールに記載しています</b>ので、まずはそちらをご確認願います。<br>
+もし見当たらない場合や、ニックネームが変更されていて分からない場合は、パスワードの再発行に必要な情報をお使いのアカウントのメールアドレスに再送します。</p>
+<p>お使いのアカウントのメールアドレスを以下に入力して下さい。</p>
+<p>※無暗に大量のメールが送信されるのを防ぐため、この機能でアカウント情報を再送出来るのは、1アカウントにつき、24時間に1回のみとさせて頂きます。</p>
 </div>
 <div class="border border-primary system-border-spacer">
 <form name="form" action="auth.php" method="post" onSubmit="return check()">

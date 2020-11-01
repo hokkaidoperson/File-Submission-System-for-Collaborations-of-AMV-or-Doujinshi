@@ -47,11 +47,13 @@ switch ($_POST["method"]) {
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
         else if(!preg_match('{^https?://[\w/:%#\$&\?\(\)~\.=\+\-]+$}', $_POST["url"])) $invalid = TRUE;
-        list($Y, $m, $d) = explode('-', $_POST["due_date"]);
-        if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
-        list($hr, $mn) = explode(':', $_POST["due_time"]);
-        if ($hr < 0 and $hr > 23) $invalid = TRUE;
-        if ($mn < 0 and $mn > 59) $invalid = TRUE;
+        if ($_POST["due_date"] != "" or $_POST["due_time"] != "") {
+            list($Y, $m, $d) = explode('-', $_POST["due_date"]);
+            if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
+            list($hr, $mn) = explode(':', $_POST["due_time"]);
+            if ($hr < 0 and $hr > 23) $invalid = TRUE;
+            if ($mn < 0 and $mn > 59) $invalid = TRUE;
+        }
     break;
     default: $invalid = TRUE;
 }
@@ -96,7 +98,8 @@ $userdata = array(
     "title" => $_POST["title"],
     "exam" => 0,
     "editing" => 0,
-    "author_ip" => $IP
+    "author_ip" => $IP,
+    "related_exams" => []
 );
 
 //メインのファイルを保存
@@ -213,6 +216,7 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 //メンバー無しなら自動承認
 if ($autoaccept) $userdata["exam"] = 1;
 else {
+    $userdata["related_exams"][] = 'exam/' . $fileid;
     $exammemberjson =  json_encode($exammember);
     if (file_put_contents_repeat(DATAROOT . 'exam/' . $fileid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
 }
@@ -253,8 +257,8 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品提出を受け付けました', $content);
-        if ($_POST["jumptocommonpage"]) register_alert("ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。<br><br>続いて、共通情報の入力を行って下さい。", "success");
-        else register_alert("ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。<br><br>続けて提出する場合は、再びこの画面から提出して下さい。", "success");
+        if ($_POST["jumptocommonpage"]) register_alert("<p>ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。</p><p>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。</p><p>続いて、共通情報の入力を行って下さい。</p>", "success");
+        else register_alert("<p>ファイルの提出が完了しました。<br>ファイル内容を運営チームが確認するまでしばらくお待ち願います。</p><p>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。</p><p>続けて提出する場合は、再びこの画面から提出して下さい。</p>", "success");
         break;
     default:
         $nickname = $_SESSION["nickname"];
@@ -280,8 +284,8 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品提出を受け付け・承認しました', $content);
-        if ($_POST["jumptocommonpage"]) register_alert("ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。<br><br>続いて、共通情報の入力を行って下さい。", "success");
-        else register_alert("ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。<br><br>続けて提出する場合は、再びこの画面から提出して下さい。", "success");
+        if ($_POST["jumptocommonpage"]) register_alert("<p>ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。</p><p>続いて、共通情報の入力を行って下さい。</p>", "success");
+        else register_alert("<p>ファイルの提出が完了しました。<br>ファイル確認の権限があるユーザー（主催者・共同運営者）があなたの他にいないため、この作品は<b>自動的に承認されました</b>。</p><p>続けて提出する場合は、再びこの画面から提出して下さい。</p>", "success");
 }
 
 if ($_POST["jumptocommonpage"]) redirect("../common/index.php");

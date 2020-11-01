@@ -246,7 +246,7 @@ if (!$permitted) die_mypage('<div class="border border-danger system-border-spac
 <button type="submit" class="btn btn-primary">通知を送信する</button>
 </div>
 <?php
-echo_modal_confirm("入力内容に問題は見つかりませんでした。<br><br>現在の入力内容をメールに記載し、提出者への通知を行います。よろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。");
+echo_modal_confirm("<p>入力内容に問題は見つかりませんでした。</p><p>現在の入力内容をメールに記載し、提出者への通知を行います。よろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p>");
 ?>
 </form>
 <script type="text/javascript">

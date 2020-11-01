@@ -380,7 +380,7 @@ else echo "※ここで記入した理由は、ファイル提出者本人宛に
 <button type="submit" class="btn btn-warning">回答を送信し、議論を終了する</button>
 </div>
 <?php
-echo_modal_confirm("入力内容に問題は見つかりませんでした。<br><br>現在の回答内容を登録し、議論を終了します。よろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。", null, null, null, null, null, null, "submitbtn_decide", 'document.getElementById("submitbtn_decide").disabled = "disabled"; document.form_decide.submit();');
+echo_modal_confirm("<p>入力内容に問題は見つかりませんでした。</p><p>現在の回答内容を登録し、議論を終了します。よろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p>", null, null, null, null, null, null, "submitbtn_decide", 'document.getElementById("submitbtn_decide").disabled = "disabled"; document.form_decide.submit();');
 ?>
 </form>
 <script type="text/javascript">

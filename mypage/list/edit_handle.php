@@ -64,11 +64,13 @@ switch ($_POST["method"]) {
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
         else if(!preg_match('{^https?://[\w/:%#\$&\?\(\)~\.=\+\-]+$}', $_POST["url"])) $invalid = TRUE;
-        list($Y, $m, $d) = explode('-', $_POST["due_date"]);
-        if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
-        list($hr, $mn) = explode(':', $_POST["due_time"]);
-        if ($hr < 0 and $hr > 23) $invalid = TRUE;
-        if ($mn < 0 and $mn > 59) $invalid = TRUE;
+        if ($_POST["due_date"] != "" or $_POST["due_time"] != "") {
+            list($Y, $m, $d) = explode('-', $_POST["due_date"]);
+            if (checkdate($m, $d, $Y) !== true) $invalid = TRUE;
+            list($hr, $mn) = explode(':', $_POST["due_time"]);
+            if ($hr < 0 and $hr > 23) $invalid = TRUE;
+            if ($mn < 0 and $mn > 59) $invalid = TRUE;
+        }
     break;
     default: $invalid = TRUE;
 }
@@ -406,6 +408,8 @@ if ($autoaccept) {
     $entereddata["editdate"] = $uploadid;
 }
 else {
+    if (!isset($userdata["related_exams"])) $userdata["related_exams"] = [];
+    $userdata["related_exams"][] = 'exam_edit/' . $fileid;
     $exammemberjson =  json_encode($exammember);
     if (file_put_contents_repeat(DATAROOT . 'exam_edit/' . $fileid . '.txt', $exammemberjson) === FALSE) die('ファイル確認データの書き込みに失敗しました。');
 }
@@ -450,7 +454,7 @@ $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」�
 ";
         //内部関数で送信
         sendmail($email, '作品編集を受け付けました', $content);
-        register_alert("ファイルの編集が完了しました。<br>変更内容を運営チームが確認するまでしばらくお待ち願います。<br><br>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。", "success");
+        register_alert("<p>ファイルの編集が完了しました。<br>変更内容を運営チームが確認するまでしばらくお待ち願います。</p><p>ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、<b>制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい</b>。</p>", "success");
         break;
     default:
         $nickname = $_SESSION["nickname"];

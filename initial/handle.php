@@ -5,8 +5,13 @@ function sendmail($email, $subject, $content) {
     global $eventname;
     if ($sendmaildata["pre"] == '') $mailpre = mb_substr($eventname, 0, 15);
     else $mailpre = $sendmaildata["pre"];
-    if ($sendmaildata["fromname"] != '') $from = "From: " . $sendmaildata["fromname"] . " <" . $sendmaildata["from"] . ">";
-    else $from = "From: " . $sendmaildata["from"];
+    if ($sendmaildata["from"] == '') {
+        $sendmaildata["from"] = ini_get('sendmail_from');
+        if ($sendmaildata["from"] === FALSE or $sendmaildata["from"] == "") die("メール：From情報が欠落しています。");
+    }
+    if ($sendmaildata["fromname"] != '') $from = mb_encode_mimeheader($sendmaildata["fromname"], "UTF-8") . " <" . $sendmaildata["from"] . ">";
+    else $from = $sendmaildata["from"];
+    $from = str_replace(["\r\n", "\r", "\n"], "", $from);
     $subject = '【' . $mailpre . '】' . $subject;
     if ($sendmaildata["sendonly"] == 1 ) $content = "※このメールは、$eventname に関する自動送信メールです。
 　あなたが $eventname に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
@@ -25,12 +30,7 @@ $content
 $eventname
 $sendmailurl";
 
-    if ($sendmaildata["from"] != '') {
-      if (!mb_send_mail($email, $subject, $content, $from)) die("メール送信に失敗しました。");
-    } else {
-      if (!mb_send_mail($email, $subject, $content)) die("メール送信に失敗しました。");
-    }
-
+    if (!mb_send_mail($email, $subject, $content, "Content-Type: text/plain; charset=UTF-8 \nX-Mailer: PHP/" . phpversion() . " \nFrom: $from \nContent-Transfer-Encoding: BASE64", "-f " . $sendmaildata["from"])) die("メール送信に失敗しました。");
 }
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
@@ -221,7 +221,7 @@ $_SESSION['expire'] = time() + (30 * 60);
 $_SESSION['useragent'] = $browser;
 $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $userid;
 
-$_SESSION["alerts_holder"] = array(array("body" => 'ユーザー登録が完了しました。<br><br>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。', "class" => "primary"), array("body" => '当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。', "class" => "warning"));
+$_SESSION["alerts_holder"] = array(array("body" => '<p>ユーザー登録が完了しました。</p><p>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。</p>', "class" => "primary"), array("body" => '当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。', "class" => "warning"));
 
 header("Location: ../mypage/index.php");
 exit;

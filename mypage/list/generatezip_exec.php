@@ -263,8 +263,8 @@ $repafter = array('￥', '／', '：', '＊', '？', '”', '＜', '＞', '｜')
 $zip = new ZipArchive;
 $zip->open(DATAROOT . 'zip/' . $_SESSION["userid"] . '.zip', ZipArchive::CREATE|ZipArchive::OVERWRITE);
 
-$zip->addFile(DATAROOT . 'zip/tmp_user_' . $_SESSION["userid"] . '.csv', '参加者データ.csv');
-$zip->addFile(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv', '提出作品データ.csv');
+$zip->addFile(DATAROOT . 'zip/tmp_user_' . $_SESSION["userid"] . '.csv', mb_convert_encoding('参加者データ.csv', 'CP932', 'UTF-8'));
+$zip->addFile(DATAROOT . 'zip/tmp_submit_' . $_SESSION["userid"] . '.csv', mb_convert_encoding('提出作品データ.csv', 'CP932', 'UTF-8'));
 
 foreach($zipmerge as $userid => $data) {
     $nickname = nickname($userid);
@@ -277,7 +277,7 @@ foreach($zipmerge as $userid => $data) {
                 foreach ($data["userform"][$array["id"]] as $internal => $external) {
                     $title = str_replace($repbefore, $repafter, $array["title"]);
                     $external = str_replace($repbefore, $repafter, $external);
-                    $zip->addFile(DATAROOT . "files/" . $userid . "/common/" . $array["id"] . "_$internal", "$nickname ($userid)/$key ($internal) - $title - $external");
+                    $zip->addFile(DATAROOT . "files/" . $userid . "/common/" . $array["id"] . "_$internal", mb_convert_encoding("$nickname ($userid)/$key ($internal) - $title - $external", 'CP932', 'UTF-8'));
                 }
             }
         }
@@ -290,7 +290,7 @@ foreach($zipmerge as $userid => $data) {
         if (isset($work["submit"]) and $work["submit"] != array()) {
             foreach ($work["submit"] as $internal => $external) {
                 $external = str_replace($repbefore, $repafter, $external);
-                $zip->addFile(DATAROOT . "files/$userid/$id/main_$internal", "$nickname ($userid)/$worktitle ($id)/提出ファイル ($internal) - $external");
+                $zip->addFile(DATAROOT . "files/$userid/$id/main_$internal", mb_convert_encoding("$nickname ($userid)/$worktitle ($id)/提出ファイル ($internal) - $external", 'CP932', 'UTF-8'));
             }
         }
         foreach($submitformdata as $key => $array) {
@@ -299,7 +299,7 @@ foreach($zipmerge as $userid => $data) {
                 $parttitle = str_replace($repbefore, $repafter, $array["title"]);
                 if ($work[$array["id"]] != array()) {
                     foreach ($work[$array["id"]] as $internal => $external) {
-                        $zip->addFile(DATAROOT . "files/$userid/$id/" . $array["id"] . "_$internal", "$nickname ($userid)/$worktitle ($id)/$key ($internal) - $parttitle - $external");
+                        $zip->addFile(DATAROOT . "files/$userid/$id/" . $array["id"] . "_$internal", mb_convert_encoding("$nickname ($userid)/$worktitle ($id)/$key ($internal) - $parttitle - $external", 'CP932', 'UTF-8'));
                     }
                 }
             }

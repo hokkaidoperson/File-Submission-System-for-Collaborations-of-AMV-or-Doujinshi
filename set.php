@@ -8,13 +8,15 @@
 
 
 //各種定義・初期設定チェック----------------------------------
+mb_language("Japanese");
+mb_internal_encoding("UTF-8");
 if (file_exists('dataplace.php')) require_once('dataplace.php'); else define('DATAROOT', dirname(__FILE__).'/data/');
 if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいません。');
 
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-3E-0');
+define('VERSION', 'Gamma-3E-1');
 
 $initdata = json_decode(file_get_contents_repeat(DATAROOT . 'init.txt'), true);
 define('FILE_MAX_SIZE', (int)$initdata["maxsize"]);
@@ -24,6 +26,8 @@ define('META_NOFOLLOW', (isset($initdata["robot"]) and $initdata["robot"] == 1))
 
 $eventname = $initdata["eventname"];
 $siteurl = file_get_contents_repeat(DATAROOT . 'siteurl.txt');
+
+$sendmaildata = json_decode(file_get_contents_repeat(DATAROOT . 'mail.txt'), true);
 //----------------------------------------------------------
 
 
@@ -55,13 +59,18 @@ foreach ($file_remover as $filename) {
 
 //保存している規定値（接頭辞とか）を使ってメール送信
 function sendmail($email, $subject, $content) {
-    $sendmaildata = json_decode(file_get_contents_repeat(DATAROOT . 'mail.txt'), true);
+    global $sendmaildata;
     global $eventname;
     global $siteurl;
     if ($sendmaildata["pre"] == '') $mailpre = mb_substr($eventname, 0, 15);
     else $mailpre = $sendmaildata["pre"];
-    if ($sendmaildata["fromname"] != '') $from = "From: " . $sendmaildata["fromname"] . " <" . $sendmaildata["from"] . ">";
-    else $from = "From: " . $sendmaildata["from"];
+    if ($sendmaildata["from"] == '') {
+        $sendmaildata["from"] = ini_get('sendmail_from');
+        if ($sendmaildata["from"] === FALSE or $sendmaildata["from"] == "") die("メール：From情報が欠落しています。");
+    }
+    if ($sendmaildata["fromname"] != '') $from = mb_encode_mimeheader($sendmaildata["fromname"], "UTF-8") . " <" . $sendmaildata["from"] . ">";
+    else $from = $sendmaildata["from"];
+    $from = str_replace(["\r\n", "\r", "\n"], "", $from);
     $subject = '【' . $mailpre . '】' . $subject;
     if ($sendmaildata["sendonly"] == 1 ) $content = "※このメールは、$eventname に関する自動送信メールです。
 　あなたが $eventname に関わっている覚えが無い場合は、このまま本メールを破棄して下さい。
@@ -80,11 +89,7 @@ $content
 $eventname
 $siteurl";
 
-    if ($sendmaildata["from"] != '') {
-      if (!mb_send_mail($email, $subject, $content, $from)) die("メール送信に失敗しました。");
-    } else {
-      if (!mb_send_mail($email, $subject, $content)) die("メール送信に失敗しました。");
-    }
+    if (!mb_send_mail($email, $subject, $content, "Content-Type: text/plain; charset=UTF-8 \nX-Mailer: PHP/" . phpversion() . " \nFrom: $from \nContent-Transfer-Encoding: BASE64", "-f " . $sendmaildata["from"])) die("メール送信に失敗しました。");
 
 }
 
@@ -1135,7 +1140,7 @@ function no_access_right($allowed, $echo_message = FALSE) {
 
 //確認modalのエコー
 function echo_modal_confirm($body = null, $title = null, $dismiss = null, $dismiss_class = null, $send = null, $send_class = null, $meta_modal_id = null, $meta_send_id = null, $meta_send_onclick = null) {
-    if (is_null($body)) $body = "入力内容に問題は見つかりませんでした。<br><br>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。";
+    if (is_null($body)) $body = "<p>入力内容に問題は見つかりませんでした。</p><p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p>";
     if (is_null($title)) $title = "送信確認";
     if (is_null($dismiss)) $dismiss = "戻る";
     if (is_null($dismiss_class)) $dismiss_class = "secondary";
@@ -1169,7 +1174,7 @@ EOT;
 
 //アラートmodalのエコー（大体フォームの内容エラーだと思われ）
 function echo_modal_alert($body = null, $title = null, $dismiss = null, $dismiss_class = null, $meta_modal_id = null, $meta_dismiss_id = null) {
-    if (is_null($body)) $body = "入力内容に問題が見つかりました。<br>お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。<br><br>修正後、再度「送信する」を押して下さい。";
+    if (is_null($body)) $body = "<p>入力内容に問題が見つかりました。<br>お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。</p><p>修正後、再度「送信する」を押して下さい。</p>";
     if (is_null($title)) $title = "入力内容の修正が必要です";
     if (is_null($dismiss)) $dismiss = "OK";
     if (is_null($dismiss_class)) $dismiss_class = "primary";
@@ -1230,7 +1235,7 @@ function output_alert() {
     if (!is_array($_SESSION["alerts_holder"])) return;
     foreach ($_SESSION["alerts_holder"] as $contents) {
         echo <<<EOT
-<div class="alert alert-{$contents["class"]} alert-dismissible fade show system-alert-spacer" role="alert">
+<div class="alert alert-{$contents["class"]} alert-dismissible fade show system-alert-closable-spacer" role="alert">
 {$contents["body"]}
 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
 <span aria-hidden="true">&times;</span>
@@ -1244,7 +1249,7 @@ EOT;
 //普通にアラートを表示
 function echo_alert($body, $class = "primary", $not_dismissable = FALSE) {
     if (!$not_dismissable) echo <<<EOT
-<div class="alert alert-$class alert-dismissible fade show system-alert-spacer" role="alert">
+<div class="alert alert-$class alert-dismissible fade show system-alert-closable-spacer" role="alert">
 $body
 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
 <span aria-hidden="true">&times;</span>

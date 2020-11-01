@@ -40,7 +40,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>主催者アカウント登録 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <script type="text/javascript">
 <!--
 function check_individual(id) {
@@ -396,6 +395,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
@@ -408,10 +408,10 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>主催者アカウント登録</h1>
 <div class="border system-border-spacer">
-最初に、主催者アカウントの登録をします。募集期間など、イベントの詳細事項については、アカウントの登録後に行えるようになります。<br><br>
-<b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<br><br>
-<u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。<br><br>
-当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。
+<p>最初に、主催者アカウントの登録をします。募集期間など、イベントの詳細事項については、アカウントの登録後に行えるようになります。</p>
+<p><b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。</p>
+<p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。</p>
+<p>当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。</p>
 </div>
 <form name="form" action="prom_handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary system-border-spacer">
@@ -470,7 +470,7 @@ var val = getCookie('check_cookie');
 <?php
 echo_modal_alert();
 echo_modal_alert("入力内容の検証中にエラーが発生しました。<br>お手数ですが、インターネット接続環境をご確認頂き、再度「送信する」を押して下さい。", "ネットワーク・エラー", null, null, "neterrormodal", "dismissbtn2");
-echo_modal_confirm("入力内容に問題は見つかりませんでした。<br><br>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。<br><br>※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。");
+echo_modal_confirm("<p>入力内容に問題は見つかりませんでした。</p><p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p><p>※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。</p>");
 ?>
 </form>
 </div>

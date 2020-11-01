@@ -25,7 +25,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="css/style.css?<?php echo urlencode(VERSION); ?>">
 <title><?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
@@ -125,6 +124,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>

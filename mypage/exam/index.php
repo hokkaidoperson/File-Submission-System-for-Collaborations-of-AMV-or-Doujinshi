@@ -45,6 +45,10 @@ foreach(glob(DATAROOT . 'exam/*.txt') as $filename) {
     else $key = "p";
     if (array_search($_SESSION["userid"], $submitmem) === FALSE) $key = "n";
     $authorandid = $filedata["_realid"];
+    if (!file_exists(DATAROOT . 'submit/' . $authorandid . '.txt')) {
+        unlink($filename);
+        continue;
+    }
     $submitdata = json_unpack(DATAROOT . 'submit/' . $authorandid . '.txt');
     $examlist[$key][$authorandid . '/new'] = $submitdata;
     $examlist[$key][$authorandid . '/new']["examrealid"] = basename($filename, ".txt");
@@ -67,6 +71,10 @@ foreach(glob(DATAROOT . 'exam_edit/*.txt') as $filename) {
         if ($filedata["_commonmode"] == "new") $editid = "new";
         $examlist[$key][$author . "/" . $id . "/$editid"] = $submitdata;
         $examlist[$key][$author . "/" . $id . "/$editid"]["examrealid"] = basename($filename, ".txt");
+        continue;
+    }
+    if (!file_exists(DATAROOT . 'submit/' . $author . '/' . $id . '.txt')) {
+        unlink($filename);
         continue;
     }
     $submitdata = json_decode(file_get_contents_repeat(DATAROOT . 'submit/' . $author . '/' . $id . '.txt'), true);

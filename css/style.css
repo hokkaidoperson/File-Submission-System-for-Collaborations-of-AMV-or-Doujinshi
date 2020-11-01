@@ -22,7 +22,7 @@
     margin-bottom: 1em;
 }
 
-.system-border-spacer :last-child {
+.system-border-spacer :last-child, .system-alert-spacer :last-child, .modal-body :last-child, .system-lastp-nospacer p:last-of-type, .system-alert-closable-spacer :nth-last-child(2) {
     margin-bottom: 0;
 }
 
@@ -67,10 +67,6 @@
     width: 70px;
 }
 
-.system-lastp-nospacer p:last-of-type {
-    margin-bottom: 0;
-}
-
 .system-menu-badge {
     margin-bottom: 0rem;
     margin-right: 0.7rem;
@@ -96,7 +92,7 @@
     margin: 0.1em;
 }
 
-.system-alert-spacer {
+.system-alert-spacer, .system-alert-closable-spacer {
     margin-top: 1em;
 }
 

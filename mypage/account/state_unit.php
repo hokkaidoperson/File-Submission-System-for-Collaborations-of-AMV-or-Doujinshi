@@ -82,7 +82,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="3">現在、表示出来�
 <br>
 <button type="submit" class="btn btn-warning">選択したユーザーを主催者に任命し、主催者を辞退する</button>
 <?php
-echo_modal_confirm("選択したユーザーに手続用のURLを送信します。手続が完了次第、あなたは主催者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。<br><br><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。", "操作確認", null, null, "OK", "danger");
+echo_modal_confirm("<p>選択したユーザーに手続用のURLを送信します。手続が完了次第、あなたは主催者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。</p><p><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。</p>", "操作確認", null, null, "OK", "danger");
 ?>
 </form>
 <script language="JavaScript" type="text/javascript">
@@ -171,7 +171,7 @@ else if ($_SESSION["state"] == 'c')  {
 <?php csrf_prevention_in_form(); ?>
 <button type="submit" class="btn btn-warning">共同運営者を辞退する</button>
 <?php
-echo_modal_confirm("主催者に手続用のURLを送信します。手続が完了次第、あなたは共同運営者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。<br><br><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。", "操作確認", null, null, "OK", "danger");
+echo_modal_confirm("<p>主催者に手続用のURLを送信します。手続が完了次第、あなたは共同運営者から一般参加者へ変更となります。<br>続行してよろしければ、「OK」ボタンを押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。</p><p><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。</p>", "操作確認", null, null, "OK", "danger");
 ?>
 </form>
 <?php }

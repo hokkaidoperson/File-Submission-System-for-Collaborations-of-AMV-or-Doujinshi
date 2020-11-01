@@ -20,7 +20,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 if (isset($titlepart)) echo $titlepart . ' - ';
 echo 'ヘルプ - ' . $eventname;
 ?>　ファイル提出用ポータルサイト</title>
-</head>
 <script type="text/javascript">
 <!--
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
@@ -47,6 +46,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>

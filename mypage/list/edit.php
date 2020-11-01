@@ -173,7 +173,7 @@ foreach ($submitformdata as $number => $data) {
     $data["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $data["detail"]);
     $data["detail"] = str_replace("\n", "<br>", $data["detail"]);
     if ($data["recheck"] != "auto") $data["detail"] .= '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>';
-    else echo $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
+    else $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
 
     switch ($data["type"]) {
         case "textbox":

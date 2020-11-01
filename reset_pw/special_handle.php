@@ -47,7 +47,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行完了 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <script type="text/javascript">
 <!--
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
@@ -74,6 +73,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
@@ -86,8 +86,8 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>パスワード再発行完了</h1>
 <div class="border system-border-spacer">
-パスワードの再発行が完了しました。新しいパスワードでログインして下さい。<br><br>
-<a href="../index.php">ログインページへ</a>
+<p>パスワードの再発行が完了しました。新しいパスワードでログインして下さい。</p>
+<p><a href="../index.php">ログインページへ</a></p>
 </div>
 </div>
 </div>

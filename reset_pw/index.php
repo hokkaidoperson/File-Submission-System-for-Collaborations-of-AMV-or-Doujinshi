@@ -25,7 +25,6 @@ if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchi
 <link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
 <title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-</head>
 <?php if ($userec) echo "<script src='https://www.google.com/recaptcha/api.js' async defer></script>"; ?>
 <script type="text/javascript">
 <!--
@@ -148,6 +147,7 @@ var val = getCookie('check_cookie');
 
 // -->
 </script>
+</head>
 <body<?php if ($userec) echo ' style="margin-bottom: 90px;"'; ?>>
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
@@ -160,9 +160,9 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>パスワード再発行</h1>
 <div class="border system-border-spacer">
-パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。<br><br>
-確認の為、お使いのアカウントの情報を以下に入力して下さい。<br><br>
-※<a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a>
+<p>パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。</p>
+<p>確認の為、お使いのアカウントの情報を以下に入力して下さい。</p>
+<p>※<a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a></p>
 </div>
 <div class="border border-primary system-border-spacer">
 <form name="form" action="auth.php" method="post" onSubmit="return check()">

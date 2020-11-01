@@ -319,7 +319,7 @@ else echo "※ここで記入した理由は、情報提出者本人宛に送信
 <button type="submit" class="btn btn-primary">回答を送信する</button>
 </div>
 <?php
-echo_modal_confirm("入力内容に問題は見つかりませんでした。<br><br>現在の回答内容を登録してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。");
+echo_modal_confirm("<p>入力内容に問題は見つかりませんでした。</p><p>現在の回答内容を登録してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p>");
 ?>
 </form>
 <?php } else {
@@ -349,7 +349,7 @@ if ($echoforceclose) { ?>
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="examname" value="<?php echo $examfilename; ?>">
 <button type="submit" class="btn btn-danger">投票を強制的に締め切る</button>
-<?php echo_modal_confirm("投票を強制的に締め切ります。よろしければ「OK」を押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。<br><br><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。", "操作確認", null, null, "OK", "danger", "forceclosemodal", "forceclosebtn", 'document.getElementById("forceclosebtn").disabled = "disabled"; document.form_forceclose.submit();'); ?>
+<?php echo_modal_confirm("<p>投票を強制的に締め切ります。よろしければ「OK」を押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。</p><p><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。</p>", "操作確認", null, null, "OK", "danger", "forceclosemodal", "forceclosebtn", 'document.getElementById("forceclosebtn").disabled = "disabled"; document.form_forceclose.submit();'); ?>
 </form>
 <?php }
 ?>

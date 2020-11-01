@@ -37,6 +37,6 @@ unset($_SESSION["userformdata"]);
 if (!file_exists(DATAROOT . 'form/userinfo/done.txt')){
     if (file_put_contents_repeat(DATAROOT . 'form/userinfo/done.txt', "1") === FALSE) die('設定内容の書き込みに失敗しました。');
 }
-register_alert("共通情報入力画面の設定変更が完了しました。<br>ご自身の入力内容を変更する場合は、「共通情報の入力・編集」から設定画面に推移して下さい。<br><br><b>必須項目を新たに追加したりした場合、メッセージ機能を用いて参加者にその旨を通知し、設定変更を促して下さい。</b>", "success");
+register_alert("<p>共通情報入力画面の設定変更が完了しました。<br>ご自身の入力内容を変更する場合は、「共通情報の入力・編集」から設定画面に推移して下さい。</p><p><b>必須項目を新たに追加したりした場合、メッセージ機能を用いて参加者にその旨を通知し、設定変更を促して下さい。</b></p>", "success");
 
 redirect("../../index.php");

@@ -190,10 +190,10 @@ foreach ($submitformdata as $number => $data) {
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
 <?php
-$modaltext = "入力内容に問題は見つかりませんでした。<br><br>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。";
+$modaltext = "<p>入力内容に問題は見つかりませんでした。</p><p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>入力内容の修正を行う場合は「戻る」を押して下さい。</p>";
 if ($commonitems != array()) {
     $commonitems = implode("、", $commonitems);
-    $modaltext .= '<br><br><div class="form-check small">
+    $modaltext .= '<div class="form-check small">
 <input id="jumptocommonpage" class="form-check-input" type="checkbox" name="jumptocommonpage" value="1">
 <label class="form-check-label" for="jumptocommonpage">提出完了後に共通情報（' . $commonitems . '）の入力・編集画面にジャンプする場合は、左のチェックボックスにチェックして下さい。</label>
 </div>';

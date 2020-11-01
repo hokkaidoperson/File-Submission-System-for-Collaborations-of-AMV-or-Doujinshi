@@ -593,12 +593,12 @@ var val = getCookie('check_cookie');
 <div class="container">
 <h1>初期設定</h1>
 <div class="border system-border-spacer">
-管理者のアカウント、およびシステムの最低限必要な事項を設定します。「【必須】」と記載されている項目は必ず入力して下さい。<br><br>
-<b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b><br><br>
-<u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（ただし、あなたの立場の変更に際しては、他人による承認が必要になる場合があります）。<br>
-ニックネームなどについては、マイページトップ画面の「アカウント情報編集」、システムの設定事項については「システム設定」から編集出来ます。<br><br>
-当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。<br><br>
-<a href="https://www.hkdyukkuri.space/filesystem/doc/security" target="_blank" rel="noopener">ポータルサイト設置にあたって、セキュリティ上注意すべき点をこちらからご確認願います。</a>
+<p>管理者のアカウント、およびシステムの最低限必要な事項を設定します。「【必須】」と記載されている項目は必ず入力して下さい。</p>
+<p><b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b></p>
+<p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（ただし、あなたの立場の変更に際しては、他人による承認が必要になる場合があります）。<br>
+ニックネームなどについては、マイページトップ画面の「アカウント情報編集」、システムの設定事項については「システム設定」から編集出来ます。</p>
+<p>当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。</p>
+<p><a href="https://www.hkdyukkuri.space/filesystem/doc/security" target="_blank" rel="noopener">ポータルサイト設置にあたって、セキュリティ上注意すべき点をこちらからご確認願います。</a></p>
 </div>
 <form name="form" action="handle.php" method="post" onSubmit="return check()">
 <div class="border border-primary system-border-spacer">
@@ -774,9 +774,9 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 </button>
 </div>
 <div class="modal-body">
-入力内容に問題が見つかりました。<br>
-お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。<br><br>
-修正後、再度「送信する」を押して下さい。
+<p>入力内容に問題が見つかりました。<br>
+お手数ですが、表示されているエラー内容を参考に、入力内容の確認・修正をお願いします。</p>
+<p>修正後、再度「送信する」を押して下さい。</p>
 </div>
 <div class="modal-footer">
 <button type="button" class="btn btn-primary" data-dismiss="modal" id="dismissbtn">OK</button>
@@ -795,10 +795,10 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 </button>
 </div>
 <div class="modal-body">
-入力内容に問題は見つかりませんでした。<br><br>
-現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
-入力内容の修正を行う場合は「戻る」を押して下さい。<br><br>
-※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。
+<p>入力内容に問題は見つかりませんでした。</p>
+<p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
+入力内容の修正を行う場合は「戻る」を押して下さい。</p>
+<p>※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。</p>
 </div>
 <div class="modal-footer">
 <button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
