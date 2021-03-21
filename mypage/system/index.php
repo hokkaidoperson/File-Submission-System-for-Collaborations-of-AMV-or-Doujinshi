@@ -5,7 +5,7 @@ $titlepart = 'システム設定';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if (!$_SESSION["admin"]) die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>システム管理者</b>のみです。</p>
+<p>この機能にアクセス出来るのは、<strong>システム管理者</strong>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 //入力済み情報を読み込む
@@ -27,7 +27,7 @@ $entereddata["recaptcha"] = json_decode(file_get_contents_repeat(DATAROOT . 'rec
 <label for="eventname">イベント名（50文字以内）【必須】</label><br/>
 <input type="text" name="eventname" id="eventname" class="form-control" value="<?php
 if (isset($entereddata["eventname"])) echo hsc($entereddata["eventname"]);
-?>" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onBlur="check_individual(&quot;eventname&quot;);">
+?>" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
 <div id="eventname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="eventname-errortext" class="system-form-error"></div>
 <small class="form-text">※イベント名は、サイトのトップページなど、随所に表示されます。</small>
@@ -37,7 +37,7 @@ if (isset($entereddata["eventname"])) echo hsc($entereddata["eventname"]);
 <div class="input-group" style="width:8em;">
 <input type="text" name="filesize" class="form-control" id="filesize" value="<?php
 if (isset($entereddata["filesize"])) echo hsc($entereddata["filesize"]);
-?>" onBlur="check_individual(&quot;filesize&quot;);">
+?>" onChange="check_individual(&quot;filesize&quot;);">
 <div class="input-group-append">
 <span class="input-group-text">MB</span>
 </div>
@@ -49,15 +49,15 @@ if (isset($entereddata["filesize"])) echo hsc($entereddata["filesize"]);
 　用途を考え、最大サイズをあまり大きくし過ぎないようにして下さい。<br>
 ※以下に、ファイルアップロードの制限に関する、サーバーの設定値を表示します。<br>
 　これらを上回る最大サイズを指定すると、送信中にエラーが返される事があります（単位は「バイト」、「M」は「メガ」の事です）。<br>
-　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<b><?php echo ini_get('upload_max_filesize'); ?></b></u><br>
-　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<b><?php echo ini_get('post_max_size'); ?></b></u></small>
+　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></u><br>
+　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></u></small>
 </div>
 <div class="form-group">
 <label for="accounts">メールアドレス1つ当たりの最大アカウント数（1～10の半角数字）【必須】</label>
 <div class="input-group" style="width:8em;">
 <input type="text" name="accounts" class="form-control" id="accounts" value="<?php
 echo ACCOUNTS_PER_ADDRESS;
-?>" onBlur="check_individual(&quot;accounts&quot;);">
+?>" onChange="check_individual(&quot;accounts&quot;);">
 <div class="input-group-append">
 <span class="input-group-text">個</span>
 </div>
@@ -70,7 +70,7 @@ echo ACCOUNTS_PER_ADDRESS;
 <label for="system">システムが送信するメールの送信元アドレス</label>
 <input type="email" name="system" class="form-control" id="system" value="<?php
 if (isset($entereddata["mail"]["from"])) echo hsc($entereddata["mail"]["from"]);
-?>" onBlur="check_individual(&quot;system&quot;);">
+?>" onChange="check_individual(&quot;system&quot;);">
 <div class="form-check">
 <input id="systemsend" class="form-check-input" type="checkbox" name="systemsend" value="1" <?php
 if (isset($entereddata["mail"]["sendonly"]) and $entereddata["mail"]["sendonly"] == 1) echo 'checked="checked"';
@@ -85,7 +85,7 @@ if (isset($entereddata["mail"]["sendonly"]) and $entereddata["mail"]["sendonly"]
 <label for="systemfrom">システムが送信するメールの差出人名（30文字以内）</label>
 <input type="text" name="systemfrom" class="form-control" id="systemfrom" value="<?php
 if (isset($entereddata["mail"]["fromname"])) echo hsc($entereddata["mail"]["fromname"]);
-?>" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onBlur="check_individual(&quot;systemfrom&quot;);">
+?>" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
 <div id="systemfrom-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systemfrom-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの送信元（From）の差出人名を指定する場合はここで指定して下さい。<br>
@@ -96,7 +96,7 @@ if (isset($entereddata["mail"]["fromname"])) echo hsc($entereddata["mail"]["from
 <label for="systempre">システムが送信するメールの接頭辞（15文字以内）</label>
 <input type="text" name="systempre" class="form-control" id="systempre" value="<?php
 if (isset($entereddata["mail"]["pre"])) echo hsc($entereddata["mail"]["pre"]);
-?>" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onBlur="check_individual(&quot;systempre&quot;);">
+?>" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
 <div id="systempre-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systempre-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの件名の頭に、ここで指定した接頭辞が付きます。接頭辞は括弧【】で囲われます。<br>
@@ -111,7 +111,7 @@ reCAPTCHA v2（非表示reCAPTCHAバッジ）の設定
 </div>
 <input type="text" name="recaptcha_site" class="form-control" id="recaptcha_site" value="<?php
 if (isset($entereddata["recaptcha"]["site"])) echo hsc($entereddata["recaptcha"]["site"]);
-?>" onBlur="check_individual(&quot;recaptcha&quot;);">
+?>" onChange="check_individual(&quot;recaptcha&quot;);">
 </div>
 <div class="input-group">
 <div class="input-group-prepend">
@@ -119,7 +119,7 @@ if (isset($entereddata["recaptcha"]["site"])) echo hsc($entereddata["recaptcha"]
 </div>
 <input type="text" name="recaptcha_sec" class="form-control" id="recaptcha_sec" value="<?php
 if (isset($entereddata["recaptcha"]["sec"])) echo hsc($entereddata["recaptcha"]["sec"]);
-?>" onBlur="check_individual(&quot;recaptcha&quot;);">
+?>" onChange="check_individual(&quot;recaptcha&quot;);">
 </div>
 <div id="recaptcha-errortext" class="system-form-error"></div>
 <small class="form-text">※reCAPTCHA v2（非表示reCAPTCHAバッジ／Invisible reCAPTCHA）を利用出来ます。ログイン画面やユーザー登録画面など、ログインしていない状態で利用可能な入力画面を、ロボットなどによる攻撃から保護出来ます。<br>
@@ -128,7 +128,7 @@ if (isset($entereddata["recaptcha"]["sec"])) echo hsc($entereddata["recaptcha"][
 ※特に、シークレットキーは外部に漏れてはいけません。データの保管先が外部から見られないように十分注意して下さい（<a href="https://www.hkdyukkuri.space/filesystem/doc/security#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E4%BF%9D%E7%AE%A1%E3%81%99%E3%82%8B%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E3%81%AE%E5%AE%89%E5%85%A8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" target="_blank" rel="noopener">詳細</a>）。<br>
 ※reCAPTCHA v2（非表示reCAPTCHAバッジ）を利用するには、PHPの拡張モジュール Client URL Library（cURL）が有効になっている必要があります。<?php
 if (extension_loaded('curl')) echo '<br>　現在、Client URL Libraryが有効になっているため、reCAPTCHA v2をご利用になれます。';
-else echo '<br>　<b>現在、Client URL Libraryが無効になっているため、このままではreCAPTCHA v2をご利用になれません。reCAPTCHA v2を利用するには、Client URL Libraryをインストール・有効化して下さい。</b>';
+else echo '<br>　<strong>現在、Client URL Libraryが無効になっているため、このままではreCAPTCHA v2をご利用になれません。reCAPTCHA v2を利用するには、Client URL Libraryをインストール・有効化して下さい。</strong>';
 ?></small>
 </div>
 <div class="form-group">
@@ -150,7 +150,7 @@ echo_modal_confirm();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_individual(id){
 
     var valid = 1;
@@ -428,7 +428,7 @@ function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

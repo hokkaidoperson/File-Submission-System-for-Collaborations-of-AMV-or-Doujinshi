@@ -12,19 +12,19 @@ require_once(PAGEROOT . 'mypage_header.php');
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="oldpassword">現在のパスワード（本人確認の為ご入力願います）【必須】</label>
-<input type="password" name="oldpassword" class="form-control" id="oldpassword" onBlur="check_individual(&quot;oldpassword&quot;);">
+<input type="password" name="oldpassword" class="form-control" id="oldpassword" onChange="check_individual(&quot;oldpassword&quot;);">
 <div id="oldpassword-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="password">新しいパスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
 <div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="password-errortext" class="system-form-error"></div>
 <small class="form-text">※パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
 </div>
 <div class="form-group">
 <label for="passwordagn">新しいパスワード（確認の為再入力）【必須】</label>
-<input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
+<input type="password" name="passwordagn" class="form-control" id="passwordagn" onChange="check_individual(&quot;passwordagn&quot;);">
 <div id="passwordagn-errortext" class="system-form-error"></div>
 </div>
 <button type="submit" class="btn btn-primary">パスワードを変更する</button>
@@ -35,7 +35,7 @@ echo_modal_confirm("パスワードの変更を実行します。<br>よろし�
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_individual(id) {
     var valid = 1;
     if (id === "oldpassword") {
@@ -231,7 +231,7 @@ function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

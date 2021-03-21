@@ -75,7 +75,7 @@ switch($id) {
 if ($author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
     echo '<div class="border border-warning system-border-spacer">
-<b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
+<strong>【第三者のファイルをダウンロードするにあたっての注意事項】</strong><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
@@ -103,7 +103,7 @@ if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
     echo '<tr>
 <th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
     if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</span>';
+    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
     echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
     echo '</td></tr>';
 }
@@ -182,13 +182,13 @@ else switch ($formdata["exam"]) {
         echo '<td>承認待ち</td>';
     break;
     case 1:
-        echo '<td class="text-success"><b>承認</b></td>';
+        echo '<td class="text-success"><strong>承認</strong></td>';
     break;
     case 2:
-        echo '<td class="text-warning"><b>修正待ち</b></td>';
+        echo '<td class="text-warning"><strong>修正待ち</strong></td>';
     break;
     case 3:
-        echo '<td class="text-danger"><b>承認見送り</b></td>';
+        echo '<td class="text-danger"><strong>承認見送り</strong></td>';
     break;
 }
 echo "</tr>";
@@ -271,10 +271,10 @@ if (isset($formdata["common_acceptance"])) {
             echo '承認待ち';
         break;
         case 1:
-            echo '<span class="text-success"><b>承認</b></span>';
+            echo '<span class="text-success"><strong>承認</strong></span>';
         break;
         case 2:
-            echo '<span class="text-danger"><b>承認見送り</b></span>';
+            echo '<span class="text-danger"><strong>承認見送り</strong></span>';
         break;
     }
 } else echo '未入力';

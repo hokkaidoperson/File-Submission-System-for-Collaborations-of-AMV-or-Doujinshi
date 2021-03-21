@@ -7,18 +7,7 @@ csrf_prevention_validate();
 
 //パスワード認証
 $userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
-if (!password_verify($_POST["password"], $userdata["pwhash"])) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>認証エラー</title>
-</head>
-<body>
-<p>現在のパスワードが誤っています。お手数ですが、入力をやり直して下さい。</p>
-<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、設定画面にお戻り下さい。</a></p>
-</body>
-</html>');
+if (!password_verify($_POST["password"], $userdata["pwhash"])) die();
 
 //提出期間外だとメールアドレス以外変更不可
 //disable属性を使用していて、値が送られてこない可能性があるのでそれを調べつつ

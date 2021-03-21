@@ -6,21 +6,11 @@ session_validation();
 if (no_access_right(array("p", "c", "g"))) redirect("./index.php");
 
 //zipモジュールチェック
-if (!extension_loaded('zip')) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>拡張機能エラー</title>
-</head>
-<body>
-<p>大変申し訳ございませんが、現在の状況ではZIPファイルを生成出来ません。<br>
-このZIPファイル生成機能では、PHPの拡張機能 <b>zip</b> を利用しますが、現在の環境では無効になっています。<br>
+if (!extension_loaded('zip')) die_error_html('拡張機能エラー', '<p>大変申し訳ございませんが、現在の状況ではZIPファイルを生成出来ません。<br>
+このZIPファイル生成機能では、PHPの拡張機能 <strong>zip</strong> を利用しますが、現在の環境では無効になっています。<br>
 システム管理者にお問い合わせ下さい。<br>
 もしあなた自身がシステム管理者であれば、PHPの設定を確認し、拡張機能を有効化もしくはインストールして下さい。</p>
-<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、前の画面にお戻り下さい。</a></p>
-</body>
-</html>');
+<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、前の画面にお戻り下さい。</a></p>');
 
 
 csrf_prevention_validate();

@@ -46,7 +46,7 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" class="form-control"><?php
+<textarea id="detail" name="detail" rows="5" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
 <small class="form-text">※選択欄の下に、このようにして小さく表示される文字です。<br>
@@ -56,7 +56,7 @@ if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["use
 </div>
 <div class="form-group">
 <label for="list">選択肢のリスト【必須】</label>
-<textarea id="list" name="list" rows="4" class="form-control"><?php
+<textarea id="list" name="list" rows="5" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["list"])) echo hsc($_SESSION["userformdata"][$number]["list"]);
 ?></textarea>
 <small class="form-text">※選択肢をこの入力欄に、1行につき1つ入力して下さい。選択肢は、ここで入力した順に並びます。<br>
@@ -104,7 +104,7 @@ if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userform
 </div>
 
 <script type="text/javascript">
-<!--
+
 // 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
 function check(){
 
@@ -196,7 +196,7 @@ if ( problem == 1 ) {
 
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

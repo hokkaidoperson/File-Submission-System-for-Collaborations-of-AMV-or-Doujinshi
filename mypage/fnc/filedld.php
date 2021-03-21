@@ -98,18 +98,8 @@ switch($_SESSION["state"]) {
     break;
 }
 
-if (!$allowed) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>権限エラー</title>
-</head>
-<body>
-<p>ファイルへのアクセス権がありません。</p>
-<p><a href="#" onClick="window.close();">クリックしてタブを閉じて下さい。</a></p>
-</body>
-</html>');
+if (!$allowed) die_error_html('権限エラー', '<p>ファイルへのアクセス権がありません。</p>
+<p><a href="#" onClick="window.close();">クリックしてタブを閉じて下さい。</a></p>');
 
 //参考　https://notepad-blog.com/content/14/　https://www.php.net/manual/ja/function.header.php
 

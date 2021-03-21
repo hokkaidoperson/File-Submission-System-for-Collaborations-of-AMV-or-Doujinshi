@@ -10,14 +10,14 @@ if (file_exists(DATAROOT . 'mail/invitation/_promoter.txt')) {
     if ($filedata["expire"] <= time()) unlink(DATAROOT . 'mail/invitation/_promoter.txt');
 }
 if (!file_exists(DATAROOT . 'users/_promoter.txt') and $_SESSION["admin"]) {
-    if (!file_exists(DATAROOT . 'mail/invitation/_promoter.txt')) echo_alert('<b>主催者が登録されていません。</b><br><a href="invite/index.php">こちらのリンクをクリックして、主催者にアカウント登録の招待メールを送信して下さい。</a>', "danger", TRUE);
+    if (!file_exists(DATAROOT . 'mail/invitation/_promoter.txt')) echo_alert('<strong>主催者が登録されていません。</strong><br><a href="invite/index.php">こちらのリンクをクリックして、主催者にアカウント登録の招待メールを送信して下さい。</a>', "danger", TRUE);
     else echo_alert('現在、主催者の登録を待機しています。<br><a href="invite/index.php">メールの送付先を誤った事に気付いた場合は、こちらのリンクをクリックして、正しい送付先にリンクを送り直して下さい。</a>', "warning", TRUE);
 }
 
 //フォーム登録してない場合
-if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/userinfo/done.txt')) echo_alert('<b>共通情報の記入事項が登録されていません。</b><br><a href="setting/userform/index.php">こちらのリンクをクリックして、記入事項を登録して下さい。</a>', "danger", TRUE);
-if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/submit/done.txt')) echo_alert('<b>ファイル提出時の記入事項や、ファイル提出期間が登録されていません。</b><br><a href="setting/submitform/index.php">こちらのリンクをクリックして、記入事項と提出期間を登録して下さい。</a>', "danger", TRUE);
-if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'examsetting.txt')) echo_alert('<b>ファイル確認に関する設定をしていません。</b><br><a href="setting/exam/index.php">こちらのリンクをクリックして、設定を完了させて下さい。</a>', "danger", TRUE);
+if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/userinfo/done.txt')) echo_alert('<strong>共通情報の記入事項が登録されていません。</strong><br><a href="setting/userform/index.php">こちらのリンクをクリックして、記入事項を登録して下さい。</a>', "danger", TRUE);
+if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'form/submit/done.txt')) echo_alert('<strong>ファイル提出時の記入事項や、ファイル提出期間が登録されていません。</strong><br><a href="setting/submitform/index.php">こちらのリンクをクリックして、記入事項と提出期間を登録して下さい。</a>', "danger", TRUE);
+if ($_SESSION["state"] == 'p' and !file_exists(DATAROOT . 'examsetting.txt')) echo_alert('<strong>ファイル確認に関する設定をしていません。</strong><br><a href="setting/exam/index.php">こちらのリンクをクリックして、設定を完了させて下さい。</a>', "danger", TRUE);
 
 if (file_exists(DATAROOT . 'form/submit/done.txt')) {
     //受付3日前・受付中・締め切り後の表示
@@ -105,7 +105,7 @@ foreach(glob(DATAROOT . 'messages/*.txt') as $filename) {
     $filedata = json_decode(file_get_contents_repeat($filename), true);
     if (isset($filedata[$_SESSION["userid"]]) and $filedata[$_SESSION["userid"]] == 0) $unread++;
 }
-if ($unread > 0) echo_alert('未読のメッセージが <b>' . $unread . '件</b> あります。<br>
+if ($unread > 0) echo_alert('未読のメッセージが <strong>' . $unread . '件</strong> あります。<br>
 「メッセージ機能」からご確認願います。', "primary", TRUE);
 
 ?>
@@ -113,35 +113,35 @@ if ($unread > 0) echo_alert('未読のメッセージが <b>' . $unread . '件</
 <h1>マイページ　トップ</h1>
 
 <h2>作品提出・閲覧・管理</h2>
-<div class="row system-mytop-spacer">
+<div class="system-mytop-spacer">
 <?php
 if ($_SESSION["state"] == 'p') echo '<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/upload.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-cloud-arrow-up-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="submit/index.php" class="stretched-link"><h5>作品を提出する</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/common.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-person-badge-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="common/index.php" class="stretched-link"><h5>共通情報の入力・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">共通情報の設定を行った場合は、こちらから入力・編集して下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/list.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="list/index.php" class="stretched-link"><h5>参加者・作品の一覧・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">参加者から提出された作品、及びご自身の作品はこちらから確認・ダウンロード出来ます。ご自身の作品の編集も行えます。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/exam.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-eye d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="exam/index.php" class="stretched-link"><h5>提出物の確認・承認</h5></a>
 </div></div><hr>
@@ -149,56 +149,56 @@ if ($_SESSION["state"] == 'p') echo '<div class="system-cardindv">
 </div>
 ';
 if ($_SESSION["state"] == 'c') echo '<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/upload.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-cloud-arrow-up-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="submit/index.php" class="stretched-link"><h5>作品を提出する</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/common.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-person-badge-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="common/index.php" class="stretched-link"><h5>共通情報の入力・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">必要に応じて、こちらの情報も入力・編集を行って下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/list.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="list/index.php" class="stretched-link"><h5>提出済み作品一覧・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。<br>主催者から特定の作品の閲覧権が与えられている場合、その作品も閲覧出来ます。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/exam.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-eye d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="exam/index.php" class="stretched-link"><h5>提出物の確認・承認</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品・情報が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
 </div>';
 if ($_SESSION["state"] == 'g') echo '<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/upload.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-cloud-arrow-up-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="submit/index.php" class="stretched-link"><h5>作品を提出する</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">作品の新規提出はこちらから行って下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/common.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-person-badge-fill text-dark d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="common/index.php" class="stretched-link"><h5>共通情報の入力・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">必要に応じて、こちらの情報も入力・編集を行って下さい。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/list.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="list/index.php" class="stretched-link"><h5>提出済み作品一覧・編集</h5></a>
 </div></div><hr>
@@ -208,10 +208,10 @@ if ($_SESSION["state"] == 'o') echo '<p class="system-mytop-spacer">表示可能
 ?>
 </div>
 <h2>やり取り</h2>
-<div class="row system-mytop-spacer">
+<div class="system-mytop-spacer">
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/message.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-chat-dots d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="message/index.php" class="stretched-link"><h5>メッセージ機能</h5></a>
 </div></div><hr>
@@ -219,43 +219,43 @@ if ($_SESSION["state"] == 'o') echo '<p class="system-mytop-spacer">表示可能
 </div>
 </div>
 <h2>各種設定・その他</h2>
-<div class="row system-mytop-spacer">
+<div class="system-mytop-spacer">
 <?php
 if ($_SESSION["state"] == 'p') echo '<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/acl.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-key-fill d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="auth/index.php" class="stretched-link"><h5>権限コントロール</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>共同運営者の他者ファイル閲覧権限 ／ 提出期間外のファイル提出・情報編集権限</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/edit.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-input-cursor-text d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="setting/index.php" class="stretched-link"><h5>イベント情報編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">以下の設定を行えます。<br>共通情報・ファイル提出時の記入事項 ／ ファイルの提出期間 ／ ファイル確認に関する設定</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/invite.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-person-plus-fill d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="invite/index.php" class="stretched-link"><h5>共同運営者の追加・招待</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">登録済みのユーザーを共同運営者にする事が出来ます。また、共同運営者の招待（アカウント作成）リンクをメール送信出来ます。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/mail.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-envelope d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="schedule/index.php" class="stretched-link"><h5>受付開始・締切メールの自動配信</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">提出受付開始前・開始直後、締切前・締切直後に、通知メールを送信出来ます。</span></p></div></div>
 </div>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/ban.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-slash-circle d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="ban/index.php" class="stretched-link"><h5>ブラックリスト・アカウント作成制限</h5></a>
 </div></div><hr>
@@ -263,17 +263,25 @@ if ($_SESSION["state"] == 'p') echo '<div class="system-cardindv">
 </div>';
 
 if ($_SESSION["admin"]) echo '<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/setting.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-gear-fill d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="system/index.php" class="stretched-link"><h5>システム設定</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">初期設定時に入力したシステム設定を変更出来ます。</span></p></div></div>
+</div>
+<div class="system-cardindv">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-box-seam d-inline-block mr-3"></i>
+<div class="media-body">
+<a href="transfer/index.php" class="stretched-link"><h5>引継ぎ用データ作成</h5></a>
+</div></div><hr>
+<p class="card-text"><span class="text-decoration-none text-body">他の提出システムへ引き継ぐ用のデータ（入力欄の設定項目や、アカウント情報などをまとめたデータ）を作成します。提出システムを設置する際にこの引継ぎ用データを設置すると、その内容を適用します。</span></p></div></div>
 </div>';
 ?>
 <div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="media d-flex align-items-center">
-<img class="align-self-center mr-3 system-mytop-icon" src="../images/account.svg">
+<div class="card"><div class="card-body"><div class="d-flex align-items-center">
+<i class="bi bi-person-fill d-inline-block mr-3"></i>
 <div class="media-body">
 <a href="account/index.php" class="stretched-link"><h5 class="card-title">アカウント情報編集</h5></a>
 </div></div><hr>

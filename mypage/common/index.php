@@ -81,7 +81,13 @@ if ($waiting) {
 現在、共通情報の確認待ちです。確認が完了するまでは、共通情報の編集が出来ません。
 </div>';
 }
-echo '<div class="border border-primary system-border-spacer">
+?>
+<form name="form" action="handle.php" method="post" <?php
+if ($includeattach) echo 'enctype="multipart/form-data" ';
+?> onSubmit="return check();">
+<div class="border border-primary system-border-spacer">
+<?php 
+echo '<div class="border-bottom border-primary table-primary system-border-spacecancel">
 共通情報の承認状態：';
 if (isset($entereddata["common_acceptance"])) {
     if (isset($entereddata["common_editing"]) and $entereddata["common_editing"] == 1) echo '項目編集の承認待ち<br>※変更後の内容は下記に反映されていません。';
@@ -90,28 +96,24 @@ if (isset($entereddata["common_acceptance"])) {
             echo '承認待ち';
         break;
         case 1:
-            echo '<span class="text-success"><b>承認</b></span>';
+            echo '<span class="text-success"><strong>承認</strong></span>';
         break;
         case 2:
-            echo '<span class="text-danger"><b>承認見送り</b></span>';
+            echo '<span class="text-danger"><strong>承認見送り</strong></span>';
         break;
     }
 } else echo '未入力';
 echo '</div>';
-?>
-<form name="form" action="handle.php" method="post" <?php
-if ($includeattach) echo 'enctype="multipart/form-data" ';
-?> onSubmit="return check();">
-<div class="border border-primary system-border-spacer">
-<?php csrf_prevention_in_form(); ?>
-<?php
+
+csrf_prevention_in_form();
+
 foreach ($userformdata as $number => $data) {
     //detail中のURLにリンクを振る（正規表現参考　https://www.megasoft.co.jp/mifes/seiki/s310.html）　あとHTMLタグが無いようにする・改行反映
     $data["detail"] = hsc($data["detail"]);
     $data["detail"] = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $data["detail"]);
     $data["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $data["detail"]);
     $data["detail"] = str_replace("\n", "<br>", $data["detail"]);
-    if ($data["recheck"] != "auto") $data["detail"] .= '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>';
+    if ($data["recheck"] != "auto") $data["detail"] .= '<div><strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong></div>';
     else $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
 
     switch ($data["type"]) {
@@ -121,7 +123,7 @@ foreach ($userformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], $disable);
+            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], $disable);
         break;
         case "textbox2":
             $parttitle = hsc($data["title"]);
@@ -134,7 +136,7 @@ foreach ($userformdata as $number => $data) {
             if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
             else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
             $horizontally = ($data["arrangement"] == "h");
-            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"], $disable);
+            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"], $disable);
         break;
         case "textarea":
             $parttitle = hsc($data["title"]);
@@ -142,7 +144,7 @@ foreach ($userformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', $data["width"], $data["height"], $disable);
+            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', $data["width"], $data["height"], $disable);
         break;
         case "radio":
             $choices = choices_array($data["list"], TRUE);
@@ -237,7 +239,7 @@ echo_modal_wait();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 var changed = false;
 function check_individual(id) {
   changed = true;
@@ -309,7 +311,7 @@ window.addEventListener('beforeunload', function (e) {
   }
 });
 
-// -->
+
 </script>
 <?php
 include(PAGEROOT . 'validate_script.php');

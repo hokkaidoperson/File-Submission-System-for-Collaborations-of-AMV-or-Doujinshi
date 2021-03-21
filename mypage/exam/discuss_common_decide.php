@@ -183,10 +183,10 @@ unlink(DATAROOT . "edit/$author/common.txt");
 
 switch ($_POST["ans"]){
     case 1:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<b>この内容を承認しました</b>。<br>情報の提出者に承認の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<strong>この内容を承認しました</strong>。<br>情報の提出者に承認の通知をしました。</p>", "success");
     break;
     case 2:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<b>この内容を拒否しました</b>。<br>情報の提出者に拒否の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<strong>この内容を拒否しました</strong>。<br>情報の提出者に拒否の通知をしました。</p>", "success");
     break;
 }
 

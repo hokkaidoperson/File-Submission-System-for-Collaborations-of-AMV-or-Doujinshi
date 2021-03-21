@@ -30,17 +30,7 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
     $response = curl_exec($ch);
     curl_close($ch);
 
-    if (json_decode($response)->success == FALSE) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>認証エラー</title>
-</head>
-<body>
-<p>reCAPTCHA認証に失敗しました。しばらくしてからもう一度お試し下さい。</p>
-</body>
-</html>');
+    if (json_decode($response)->success == FALSE) die_error_html("認証エラー", '<p>reCAPTCHA認証に失敗しました。</p><p>5秒後にログインページに自動的に移動します。<br><a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>', '<meta http-equiv="refresh" content="5; URL=\'index.php\'" />');
 }
 
 
@@ -82,19 +72,9 @@ $fileplace = DATAROOT . 'mail/search_id/' . md5($_POST["email"]) . '.txt';
 //24時間以内に送信してるんならはじく
 if (file_exists($fileplace)) {
     $filedata = json_decode(file_get_contents_repeat($fileplace), true);
-    if ($filedata["expire"] >= time()) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>メールを送信出来ません</title>
-</head>
-<body>
-<p>ご指定頂いたメールアドレスに紐づくユーザー情報は、24時間以内に送信されています。メールをご確認下さい。<br>
+    if ($filedata["expire"] >= time()) die_error_html('メールを送信出来ません', '<p>ご指定頂いたメールアドレスに紐づくユーザー情報は、24時間以内に送信されています。メールをご確認下さい。<br>
 無暗に大量のメールが送信されるのを防ぐため、この機能でアカウント情報を再送出来るのは、1アカウントにつき、24時間に1回とさせて頂いております。<br>
-メールを誤って削除してしまった場合は、しばらく待ってから、再度アカウント情報の再送を行って下さい。</p>
-</body>
-</html>');
+メールを誤って削除してしまった場合は、しばらく待ってから、再度アカウント情報の再送を行って下さい。</p>');
 }
 
 
@@ -132,65 +112,16 @@ $text
 //内部関数で送信
 sendmail($email, 'アカウント情報再送', $content);
 
+$titlepart = "ユーザーID・ニックネーム再送信";
+require_once(PAGEROOT . 'guest_header.php');
+
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<?php
-if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
-?>
-<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
-<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
-<title>ユーザーID・ニックネーム再送信 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
-<script type="text/javascript">
-<!--
-//Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
-var setCookie = function(cookieName, value){
-  var cookie = cookieName + "=" + value + ";";
-  document.cookie = cookie;
-}
 
-var getCookie = function(cookieName){
-  var l = cookieName.length + 1 ;
-  var cookieAry = document.cookie.split("; ") ;
-  var str = "" ;
-  for(i=0; i < cookieAry.length; i++){
-    if(cookieAry[i].substr(0, l) === cookieName + "="){
-      str = cookieAry[i].substr(l, cookieAry[i].length) ;
-      break ;
-    }
-  }
-  return str;
-}
-
-setCookie('check_cookie', true);
-var val = getCookie('check_cookie');
-
-// -->
-</script>
-</head>
-<body>
-<div id="noscript">
-<p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
-ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
-<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
-</div>
-<script>if (val) document.getElementById("noscript").style.display = "none";</script>
-
-<div id="scriptok" style="display:none;">
-<div class="container">
 <h1>ユーザーID・ニックネーム再送信 - メール送信完了</h1>
 <div class="border system-border-spacer">
 <p>お使いのアカウントの連絡メールアドレス宛に、アカウント情報が記載されたメールを送信しました。<br>
 メールをご確認下さい。</p>
 <p><a href="<?php echo $pageurl; ?>">パスワードの再発行はこちらから行えます。</a></p>
 </div>
-</div>
-</div>
-<script>if (val) document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
-</body>
-</html>
+<?php
+require_once(PAGEROOT . 'guest_footer.php');

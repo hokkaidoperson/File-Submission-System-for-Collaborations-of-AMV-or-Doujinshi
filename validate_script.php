@@ -1,5 +1,5 @@
 <script type="text/javascript">
-<!--
+
 //日付チェック（参考：https://web-designer.cman.jp/html_ref/abc_list/input_sample2/）
 function date_check(str){
   var ok = true;
@@ -441,5 +441,5 @@ function closesubmit() {
   document.form.submit();
 }
 
-// -->
+
 </script>

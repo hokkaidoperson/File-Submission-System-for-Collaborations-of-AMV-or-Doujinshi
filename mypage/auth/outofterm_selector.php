@@ -73,7 +73,7 @@ if (array_search('submit', $acldata) !== FALSE) echo ' checked="checked"';
 <th>
 <div class="form-check">
 <input id="tickall" class="form-check-input" type="checkbox" name="all" onClick="AllChecked();">
-<label class="form-check-label" for="tickall"><b>全て選択</b></label>
+<label class="form-check-label" for="tickall"><strong>全て選択</strong></label>
 </div>
 </th>
 <th>作品名</th><th>承認の状態</th>
@@ -92,13 +92,13 @@ foreach ($canshow as $id => $data) {
     if (isset($data["editing"]) and $data["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
     else switch ($data["exam"]) {
         case 1:
-            echo '<td class="text-success"><b>承認</b></td>';
+            echo '<td class="text-success"><strong>承認</strong></td>';
         break;
         case 2:
-            echo '<td class="text-warning"><b>修正待ち</b></td>';
+            echo '<td class="text-warning"><strong>修正待ち</strong></td>';
         break;
         case 3:
-            echo '<td class="text-danger"><b>承認見送り</b></td>';
+            echo '<td class="text-danger"><strong>承認見送り</strong></td>';
         break;
         default:
             echo '<td>承認待ち</td>';
@@ -113,7 +113,7 @@ if ($canshow == array()) echo '<tr><td colspan="3">現在、表示出来る作�
 <button type="submit" class="btn btn-primary" id="submitbtn">権限を変更する</button>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
   function AllChecked(){
     var all = document.form.all.checked;
     for (var i=0; i<document.form.elements['files[]'].length; i++){
@@ -178,7 +178,7 @@ if ( problem == 1 ) {
     return false;
   }
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

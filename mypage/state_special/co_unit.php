@@ -36,7 +36,7 @@ if ($deny) die_mypage('<h1>申請が見付かりません</h1>
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <button type="submit" class="btn btn-primary">共同運営者の辞退を実行する</button>
-<?php echo_modal_confirm("<p>手続きを開始してもよろしければ「OK」を押して下さい。この操作を取りやめる場合は「戻る」を押して下さい。</p><p><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。</p>", "最終確認", null, null, "OK"); ?>
+<?php echo_modal_confirm("<p>手続きを開始してもよろしければ「OK」を押して下さい。この操作を取りやめる場合は「戻る」を押して下さい。</p><p><strong>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</strong>。</p>", "最終確認", null, null, "OK"); ?>
 </form>
 
 <?php

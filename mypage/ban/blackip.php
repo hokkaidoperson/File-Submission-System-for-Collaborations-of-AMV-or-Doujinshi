@@ -8,7 +8,7 @@ no_access_right(array("p"), TRUE);
 
 ?>
 <h1>IPアドレス・リモートホスト名によるアカウント作成制限</h1>
-<p>ここで指定したIPアドレスもしくはリモートホスト名からの、<b>一般参加者の新規登録</b>が制限されます。<br>
+<p>ここで指定したIPアドレスもしくはリモートホスト名からの、<strong>一般参加者の新規登録</strong>が制限されます。<br>
 登録済みユーザーのログイン時、もしくは共同運営者の新規登録時にはこの制限は適用されません。</p>
 <p>リモートホスト名は、IPアドレスからの逆引き（PHPの gethostbyaddr 関数）によって取得します。</p>
 <p>制限の対象にするIPやホスト名を、1行ごとに1つ入力して下さい。<br>次のワイルドカードが使えます。</p>
@@ -24,7 +24,7 @@ no_access_right(array("p"), TRUE);
 <form name="form" action="blackip_handle.php" method="post" onSubmit="return check()" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
-<textarea id="setting" name="setting" rows="4" class="form-control"><?php
+<textarea id="setting" name="setting" rows="5" class="form-control"><?php
 if (file_exists(DATAROOT . 'blackip.txt')) echo hsc(file_get_contents_repeat(DATAROOT . 'blackip.txt'));
 ?></textarea>
 </div>
@@ -32,7 +32,7 @@ if (file_exists(DATAROOT . 'blackip.txt')) echo hsc(file_get_contents_repeat(DAT
 <button type="submit" class="btn btn-primary" id="submitbtn">設定変更</button>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
 function check(){
 
   if(window.confirm('現在の入力内容を送信します。よろしいですか？')){
@@ -44,7 +44,7 @@ function check(){
     return false;
   }
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

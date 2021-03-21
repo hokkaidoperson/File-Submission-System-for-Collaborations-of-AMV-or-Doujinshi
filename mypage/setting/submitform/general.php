@@ -60,7 +60,7 @@ if (isset($_SESSION["submitformdata"]["general"]["until"])) echo date('H:i', $_S
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" class="form-control"><?php
+<textarea id="detail" name="detail" rows="5" class="form-control"><?php
 if (isset($_SESSION["submitformdata"]["general"]["detail"])) echo hsc($_SESSION["submitformdata"]["general"]["detail"]);
 ?></textarea>
 <small class="form-text">※ファイル提出欄の下に、このようにして小さく表示される文字です。<br>
@@ -132,7 +132,7 @@ if (isset($_SESSION["submitformdata"]["general"]["worknumber"])) echo hsc($_SESS
 
 <script src="../../../js/calendar_script.js" charset="utf-8"></script>
 <script type="text/javascript">
-<!--
+
 // 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
 function check(){
 
@@ -380,7 +380,7 @@ function time_check(time){
 
   return(ok);
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

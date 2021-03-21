@@ -68,7 +68,7 @@ if (!$printed) die_mypage('<tr><td colspan="3">現在、表示出来るユーザ
 <button type="submit" class="btn btn-primary" id="submitbtn">選択したユーザーを共同運営者に任命する</button>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
 function check(){
 
   problem = 0;
@@ -107,7 +107,7 @@ if ( problem == 1 ) {
     return false;
   }
 }
-// -->
+
 </script>
 <?php
 

@@ -217,11 +217,11 @@ $_SESSION['nickname'] = $nickname;
 $_SESSION['email'] = $email;
 $_SESSION['state'] = $state;
 $_SESSION['admin'] = 1;
-$_SESSION['expire'] = time() + (30 * 60);
+$_SESSION['expire'] = time() + (60 * 60);
 $_SESSION['useragent'] = $browser;
 $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $url . '_' . $userid;
 
-$_SESSION["alerts_holder"] = array(array("body" => '<p>ユーザー登録が完了しました。</p><p>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。</p>', "class" => "primary"), array("body" => '当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。', "class" => "warning"));
+$_SESSION["alerts_holder"] = array(array("body" => '<p>ユーザー登録が完了しました。</p><p>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。</p>', "class" => "primary"), array("body" => '当サイトでは、1時間以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。', "class" => "warning"));
 
 header("Location: ../mypage/index.php");
 exit;

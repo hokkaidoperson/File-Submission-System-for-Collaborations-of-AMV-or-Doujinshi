@@ -92,7 +92,7 @@ if (!$nopermission) {
 if ($filedata["_state"] == 1 and $author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
     echo '<div class="border border-warning system-border-spacer">
-<b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
+<strong>【第三者のファイルをダウンロードするにあたっての注意事項】</strong><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
@@ -265,10 +265,10 @@ if (isset($filedata["_result"])) {
     echo '<tr class="table-primary"><th>最終結果</th>';
     switch ($filedata["_result"]["opinion"]) {
       case 1:
-          echo '<td><b>承認</b></td>';
+          echo '<td><strong>承認</strong></td>';
       break;
       case 2:
-          echo '<td><b>拒否</b></td>';
+          echo '<td><strong>拒否</strong></td>';
       break;
     }
     echo '<td>' . give_br_tag($filedata["_result"]["reason"]) . '</td>';
@@ -292,7 +292,7 @@ if ($discussdata["comments"] != array()) {
         else $nickname = hsc(nickname($comid));
 
         echo "<li>";
-        echo "<b>" . $nickname . "</b>（" . date('Y/m/d H:i:s', $date) . "）<br>" . $log;
+        echo "<strong>" . $nickname . "</strong>（" . date('Y/m/d H:i:s', $date) . "）<br>" . $log;
         echo "</li>";
     }
     echo "</ul>";
@@ -306,7 +306,7 @@ else {
 <input type="hidden" name="subject" value="<?php echo $examfilename; ?>">
 <div class="form-group">
 <label for="add">新規コメント追加（500文字以内）</label>
-<textarea id="add" name="add" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;add-counter&quot;);" onBlur="check_individual();"></textarea>
+<textarea id="add" name="add" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;add-counter&quot;);" onChange="check_individual();"></textarea>
 <div id="add-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="add-errortext" class="system-form-error"></div>
 <small class="form-text">※改行は反映されます（この入力欄で改行すると実際のコメントでも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -318,7 +318,7 @@ else {
 <?php } ?>
 </div>
 <script type="text/javascript">
-<!--
+
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
@@ -370,7 +370,7 @@ function check(){
     return true;
 
 }
-// -->
+
 </script>
 
 <?php
@@ -400,11 +400,11 @@ if ($leader != NULL) {
 </div>
 <div class="form-group">
 <label for="reason">「拒否する」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onBlur="check_decide_individual(&quot;reason&quot;);"></textarea>
+<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onChange="check_decide_individual(&quot;reason&quot;);"></textarea>
 <div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="reason-errortext" class="system-form-error"></div>
 <small class="form-text"><?php
-if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載されます。</b>";
+if ($examsetting["reason"] == "notice") echo "※<strong>ここで記入した理由は、ファイル提出者本人宛に送信するメールに記載されます。</strong>";
 else echo "※ここで記入した理由は、ファイル提出者本人宛に送信するメールに直接的に記載されません。";
 ?></small>
 </div>
@@ -416,7 +416,7 @@ echo_modal_confirm("<p>入力内容に問題は見つかりませんでした。
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_decide_individual(id){
     var valid = 1;
 
@@ -513,7 +513,7 @@ function check_decide(){
     return false;
 
 }
-// -->
+
 </script>
 
 <?php

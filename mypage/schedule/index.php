@@ -43,11 +43,11 @@ $current = time();
 <h1>受付開始・締切メールの自動配信</h1>
 <p>以下のうち希望する日時を選択すると、全ユーザー（ファイル提出を行わないシステム管理者（非参加者）を除く）に、通知メールを配信出来ます。<br>
 メールの内容は、「提出受付開始（締切）○日前になりました」、「提出受付を開始しました」、「提出を締め切りました」といったものです。</p>
-<p><b>メールの自動配信を行うには、サーバーOSのスケジュール機能（Windowsの場合はタスクスケジューラー、Linuxの場合はCron）と連携させる必要があります</b>。<br>
+<p><strong>メールの自動配信を行うには、サーバーOSのスケジュール機能（Windowsの場合はタスクスケジューラー、Linuxの場合はCron）と連携させる必要があります</strong>。<br>
 もしあなたがシステム管理者でない場合、スケジュール機能について、以下の青枠の中に記載している内容と、メールの配信日時をシステム管理者にお伝え下さい。<br>
 設定方法がよく分からない場合は、メールの配信日時を過ぎた後にシステムのページ（ログイン画面など）にアクセスする事でもメールを配信出来ます（その際、ログインは不要です）。</p>
 <div class="border border-primary system-border-spacer">
-<b>【メール自動配信の設定方法】</b><br>
+<strong>【メール自動配信の設定方法】</strong><br>
 メールの配信日時を迎えた際に、以下のPHPファイルを実行するように、タスクスケジューラーやCronを設定して下さい。<br>
 実行するPHPファイル：<code><?php echo PAGEROOT; ?>mail_scheduler.php</code>
 </div>
@@ -72,7 +72,7 @@ foreach ($roop as $key => $value) {
 </form>
 
 <script type="text/javascript">
-<!--
+
 // 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
 function check(){
 
@@ -86,7 +86,7 @@ function check(){
 
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

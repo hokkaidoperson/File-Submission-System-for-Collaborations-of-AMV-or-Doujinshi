@@ -178,13 +178,13 @@ sendmail(email($author), $authorsubject, $content);
 
 switch ($_POST["ans"]){
     case 1:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<b>この作品を承認しました</b>。<br>作品の提出者に承認の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<strong>この作品を承認しました</strong>。<br>作品の提出者に承認の通知をしました。</p>", "success");
     break;
     case 2:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>軽微な修正が必要であるという結論になったため、<b>この作品を修正待ち状態にしました</b>。<br>作品の提出者に、修正依頼の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>軽微な修正が必要であるという結論になったため、<strong>この作品を修正待ち状態にしました</strong>。<br>作品の提出者に、修正依頼の通知をしました。</p>", "success");
     break;
     case 3:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>このイベントに相応しくないという結論になったため、<b>この作品を拒否しました</b>。<br>作品の提出者に拒否の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>このイベントに相応しくないという結論になったため、<strong>この作品を拒否しました</strong>。<br>作品の提出者に拒否の通知をしました。</p>", "success");
     break;
 }
 

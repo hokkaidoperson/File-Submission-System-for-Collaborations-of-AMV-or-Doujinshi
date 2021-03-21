@@ -7,21 +7,22 @@ if (!defined('DATAROOT')) die();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap-filesys.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap-icons.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="<?php echo $siteurl; ?>css/style.css?<?php echo urlencode(VERSION); ?>">
 <title><?php
 if (isset($titlepart)) echo $titlepart . ' - ';
 echo 'ヘルプ - ' . $eventname;
 ?>　ファイル提出用ポータルサイト</title>
 <script type="text/javascript">
-<!--
+
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
 var setCookie = function(cookieName, value){
   var cookie = cookieName + "=" + value + ";";
@@ -44,10 +45,10 @@ var getCookie = function(cookieName){
 setCookie('check_cookie', true);
 var val = getCookie('check_cookie');
 
-// -->
+
 </script>
 </head>
-<body>
+<body class="system-helppage">
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
@@ -56,7 +57,8 @@ var val = getCookie('check_cookie');
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
-<nav class="navbar navbar-light system-help-navcolor">
-<a class="navbar-brand text-truncate d-flex align-items-center system-link-helpicon" href="<?php echo $siteurl; ?>open/index.php">ヘルプ機能（<?php echo $eventname; ?>）</a>
+<nav class="navbar navbar-light system-nav-help">
+<a class="navbar-brand text-truncate" href="<?php echo $siteurl; ?>open/index.php"><i class="bi bi-question-circle-fill"></i>&nbsp;ヘルプ機能（<?php echo $eventname; ?>）</a>
 </nav>
-<div class="container">
+<div class="container-md">
+<div class="py-2">

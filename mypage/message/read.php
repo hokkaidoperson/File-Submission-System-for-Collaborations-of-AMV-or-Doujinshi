@@ -38,11 +38,11 @@ if (blackuser($from)) echo '<div class="border border-danger system-border-space
 
 <h1>メッセージ詳細</h1>
 <div class="table-responsive-md">
-<table class="table table-hover table-bordered">
+<table class="table table-bordered">
 <tr>
-<th width="20%">詳細情報</th>
-<td width="80%" class="system-lastp-nospacer">
-<p><b>送信者：</b><br>
+<th width="20%" class="system-cell-serialize bg-light">詳細情報</th>
+<td width="80%" class="system-lastp-nospacer system-cell-serialize">
+<p><strong>送信者：</strong><br>
 <?php echo hsc(nickname($from)); 
 if (state($from) == "p") echo ' <span class="badge badge-success text-wrap">
 主催者
@@ -55,7 +55,7 @@ if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
 </span>';?>
 </p>
 <?php if ($from == $_SESSION["userid"]) { ?>
-<p><b>送信先・既読状態：</b><br>
+<p><strong>送信先・既読状態：</strong><br>
 <?php foreach ($data as $userid => $read) {
     if ($userid == "_subject") continue;
     if ($userid == "_replyof") continue;
@@ -78,10 +78,10 @@ if (id_admin() == $from) echo ' <span class="badge badge-danger text-wrap">
 }?>
 </p>
 <?php } ?>
-<p><b>送信日時：</b><br>
+<p><strong>送信日時：</strong><br>
 <?php echo date('Y年n月j日G時i分s秒', $time); ?>
 </p>
-<p><b>件名：</b><br><?php echo hsc($data["_subject"]); ?></p>
+<p><strong>件名：</strong><br><?php echo hsc($data["_subject"]); ?></p>
 <?php
 if (isset($data["_replyof"])) {
     if (file_exists(DATAROOT . 'messages/' . $data["_replyof"] . '.txt')) {
@@ -92,7 +92,7 @@ if (isset($data["_replyof"])) {
 ?>
 </td>
 </tr>
-<tr><th>本文</th><td><?php
+<tr><th class="system-cell-serialize bg-light">本文</th><td class="system-cell-serialize"><?php
 $log = hsc($data["_content"]);
 $log = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $log);
 $log = str_replace(array("\r\n", "\r", "\n"), "\n", $log);
@@ -110,7 +110,7 @@ echo str_replace("\n", "<br>", $log);
 <div class="border border-primary system-border-spacer">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
-<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="Re: <?php echo hsc($data["_subject"]); ?>" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
+<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="Re: <?php echo hsc($data["_subject"]); ?>" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onChange="check_individual(&quot;subject&quot;);">
 <div id="subject-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="subject-errortext" class="system-form-error"></div>
 <small class="form-text">※必要に応じて変更して下さい。<br>
@@ -118,7 +118,7 @@ echo str_replace("\n", "<br>", $log);
 </div>
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
-<textarea id="msg_content" name="msg_content" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
+<textarea id="msg_content" name="msg_content" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onChange="check_individual(&quot;msg_content&quot;);"></textarea>
 <div id="msg_content-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="msg_content-errortext" class="system-form-error"></div>
 <small class="form-text">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -132,7 +132,7 @@ echo_modal_confirm("このメッセージを送信してもよろしければ「
 ?>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
 function check_individual(id){
     var valid = 1;
 
@@ -218,7 +218,7 @@ function check(){
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
-// -->
+
 </script>
 <?php
     die_mypage();

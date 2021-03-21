@@ -16,7 +16,7 @@ if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいませ�
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-3E-1');
+define('VERSION', 'Gamma-3E-2');
 
 $initdata = json_decode(file_get_contents_repeat(DATAROOT . 'init.txt'), true);
 define('FILE_MAX_SIZE', (int)$initdata["maxsize"]);
@@ -42,7 +42,10 @@ require_once('mail_scheduler.php');
 $file_remover = array(
     "register/invitation/co_useridcheck.php",
     "register/invitation/prom_useridcheck.php",
-    "state_special/"
+    "state_special/",
+    "images/",
+    "css/bootstrap.css",
+    "css/bootstrap.css.map"
 );
 
 foreach ($file_remover as $filename) {
@@ -283,6 +286,49 @@ function remove_directory($dir) {
     }
     // 指定したディレクトリを削除
     return rmdir($dir);
+}
+
+//ディレクトリコピー　引用　https://tyama-blog.blog.ss-blog.jp/2016-03-27
+function dir_copy($dir_name, $new_dir){
+    if (!is_dir($new_dir)) {
+        mkdir($new_dir, 0777, true);
+    }
+
+    if (is_dir($dir_name)) {
+        if ($dh = opendir($dir_name)) {
+            while (($file = readdir($dh)) !== false) {
+                if ($file == "." || $file == "..") {
+                    continue;
+                }
+                if (is_dir($dir_name . "/" . $file)) {
+                    dir_copy($dir_name . "/" . $file, $new_dir . "/" . $file);
+                } else {
+                    copy($dir_name . "/" . $file, $new_dir . "/" . $file);
+                }
+            }
+            closedir($dh);
+        }
+    }
+    return true;
+}
+
+//ZIPパック　引用　https://blog.ver001.com/php-zip-archive/
+function zipSub($za, $path, $parentPath = '') {
+    $dh = opendir($path);
+    while (($entry = readdir($dh)) !== false) {
+        if ($entry == '.' || $entry == '..') {
+        } else {
+            $localPath = $parentPath.$entry;
+            $fullpath = $path.'/'.$entry;
+            if (is_file($fullpath)) {
+                $za->addFile($fullpath, $localPath);
+            } else if (is_dir($fullpath)) {
+                $za->addEmptyDir($localPath);
+                zipSub($za, $fullpath, $localPath.'/');
+            }
+        }
+    }
+    closedir($dh);
 }
 
 //配列をjsonにパックして保存（ファイルの場所、配列の順）
@@ -1079,38 +1125,17 @@ function session_validation($goback = FALSE, $boolean = FALSE) {
         session_destroy();
 
         if ($boolean) return FALSE;
-        die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="10; URL=\'' . $siteurl . 'index.php\'" />
-<title>セッション・エラー（タイムアウト）</title>
-</head>
-<body>
-<p>しばらくの間アクセスが無かったため、セキュリティの観点から接続を中断しました。<br>
+        die_error_html('セッション・エラー（タイムアウト）', '<p>しばらくの間アクセスが無かったため、セキュリティの観点から接続を中断しました。<br>
 再度ログインして下さい。</p>
 <p>10秒後にログインページに自動的に移動します。<br>
-<a href="' . $siteurl . 'index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
-</body>
-</html>');
-    } else $_SESSION['expire'] = time() + (30 * 60);
+<a href="' . $siteurl . 'index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>', '<meta http-equiv="refresh" content="10; URL=\'' . $siteurl . 'index.php\'" />');
+    } else $_SESSION['expire'] = time() + (60 * 60);
 
     //ブラウザがなぜか変わってたりしない？（セッションハイジャック？）
     if ($_SESSION['useragent'] != $_SERVER['HTTP_USER_AGENT']) {
         if ($boolean) return FALSE;
-        die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ユーザーエージェント認証失敗</title>
-</head>
-<body>
-<p>ログイン時のユーザーエージェントと異なるため、接続出来ません。<br>
-不正ログインしようとした可能性があります（セッション・ハイジャック　など）。</p>
-</body>
-</html>');
+        die_error_html('ユーザーエージェント認証失敗', '<p>ログイン時のユーザーエージェントと異なるため、接続出来ません。<br>
+不正ログインしようとした可能性があります（セッション・ハイジャック　など）。</p>');
     }
 
     //ログイン情報更新
@@ -1128,7 +1153,7 @@ function no_access_right($allowed, $echo_message = FALSE) {
     if (array_search($_SESSION["state"], $allowed) === FALSE) {
         if ($echo_message) {
             $state_text = implode("、", $allowed);
-            $state_text = str_replace(array("p", "c", "g", "o"), array("<b>主催者</b>", "<b>共同運営者</b>", "<b>一般参加者</b>", "<b>非参加者</b>"), $state_text);
+            $state_text = str_replace(array("p", "c", "g", "o"), array("<strong>主催者</strong>", "<strong>共同運営者</strong>", "<strong>一般参加者</strong>", "<strong>非参加者</strong>"), $state_text);
             http_response_code(403);
             die_mypage('<h1>権限エラー</h1>
 <p>この機能にアクセス出来るのは、' . $state_text . 'のみです。</p>
@@ -1263,6 +1288,21 @@ $body
 EOT;
 }
 
+//エラー表示
+function die_error_html($title, $body, $head_include = "") {
+    echo '<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">';
+    if (isset($head_include)) echo $head_include;
+    echo '<title>' . $title . '</title>
+</head>
+<body>' . $body . '</body>
+</html>';
+    die();
+}
+
 //セッションのセットアップ・スタート（Cookie名、セキュアなど）
 function setup_session() {
     session_name("filesystemsessid");
@@ -1380,33 +1420,13 @@ function check_attach($array, $uploadedfs, $currentsize) {
 
     for ($j=0; $j<count($_FILES["custom-" . $array["id"]]['name']); $j++) {
         if ($_FILES["custom-" . $array["id"]]['error'][$j] == 4) break;
-        else if ($_FILES["custom-" . $array["id"]]['error'][$j] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
+        else if ($_FILES["custom-" . $array["id"]]['error'][$j] == 1) die_error_html('ファイル　アップロードエラー', '<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
 お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
 <p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["custom-" . $array["id"]]['error'][$j] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
+<strong>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
+php.ini の設定を見直して下さい。</strong></p>');
+        else if ($_FILES["custom-" . $array["id"]]['error'][$j] == 3) die_error_html('ファイル　アップロードエラー', '<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
+通信環境を見直したのち、再度送信願います。</p>');
         else if ($_FILES["custom-" . $array["id"]]['error'][$j] == 0) {
             if (!preg_match($reg, $_FILES["custom-" . $array["id"]]['name'][$j])) return TRUE;
             $sizesum += $_FILES["custom-" . $array["id"]]['size'][$j];
@@ -1443,33 +1463,13 @@ function check_submitfile($array, $uploadedfs, $currentsize) {
 
     for ($j=0; $j<count($_FILES["submitfile"]['name']); $j++) {
         if ($_FILES["submitfile"]['error'][$j] == 4) break;
-        else if ($_FILES["submitfile"]['error'][$j] == 1) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
+        else if ($_FILES["submitfile"]['error'][$j] == 1) die_error_html('ファイル　アップロードエラー', '<p>ファイルのアップロードに失敗しました。アップロードしようとしたファイルのサイズが、サーバーで扱えるファイルサイズを超えていました。<br>
 お手数ですが、サーバーの管理者にお問い合わせ下さい。</p>
 <p>問い合わせの際、サーバーの管理者に以下の事項をお伝え下さい。<br>
-<b>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
-php.ini の設定を見直して下さい。</b></p>
-</body>
-</html>');
-        else if ($_FILES["submitfile"]['error'][$j] == 3) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ファイル　アップロードエラー</title>
-</head>
-<body>
-<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
-通信環境を見直したのち、再度送信願います。</p>
-</body>
-</html>');
+<strong>ユーザーがアップロードしようとしたファイルのサイズが、php.ini の upload_max_filesize ディレクティブの値を超えていたため、アップロードが遮断されました。<br>
+php.ini の設定を見直して下さい。</strong></p>');
+        else if ($_FILES["submitfile"]['error'][$j] == 3) die_error_html('ファイル　アップロードエラー', '<p>ファイルのアップロードに失敗しました。通信環境が悪かったために、アップロードが中止された可能性があります。<br>
+通信環境を見直したのち、再度送信願います。</p>');
         else if ($_FILES["submitfile"]['error'][$j] == 0) {
             if (!preg_match($reg, $_FILES["submitfile"]['name'][$j])) return TRUE;
             $sizesum += $_FILES["submitfile"]['size'][$j];
@@ -1494,16 +1494,18 @@ php.ini の設定を見直して下さい。</b></p>
 //タイトルと接頭・接尾辞、詳細はHTMLタグ使える（呼び出す側でエスケープ）
 function echo_textbox($title, $name, $id, $prefill = "", $showcounter = FALSE, $detail = "", $jspart = "", $prefix = "", $suffix = "", $width = "", $disabled = FALSE) {
     echo '<div class="form-group"><label for="' . hsc($id) . '">' . $title . '</label>';
-    if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
+    if ($width != "") echo '<div class="system-variable-input-out"><div class="input-group system-variable-input-in">';
     else echo '<div class="input-group">';
     if ($prefix != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix . '</span></div>';
-    echo '<input type="text" name="' . hsc($name) . '" class="form-control" id="' . hsc($id) . '" value="' . hsc($prefill) . '"';
+    echo '<input type="text" name="' . hsc($name) . '" class="form-control system-variable-input-toggle" id="' . hsc($id) . '" value="' . hsc($prefill) . '"';
+    if ($width != "") echo ' style="width:' . hsc($width) . 'em;"';
     if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-counter&quot;);"';
     if ($disabled) echo ' disabled="disabled"';
     if ($jspart != "") echo ' ' . $jspart;
     echo ">";
     if ($suffix != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix . '</span></div>';
-    echo '</div>';
+    if ($width != "") echo '</div></div>';
+    else echo "</div>";
     if ($showcounter) echo '<div id="' . hsc($id) . '-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
     echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
     if ($detail != "") echo '<small class="form-text">' . $detail . '</small>';
@@ -1513,28 +1515,32 @@ function echo_textbox($title, $name, $id, $prefill = "", $showcounter = FALSE, $
 function echo_textbox2($title, $name, $id, $prefill = "", $prefill2 = "", $showcounter = FALSE, $horizontally = FALSE, $detail = "", $jspart = "", $prefix = "", $suffix = "", $width = "", $prefix2 = "", $suffix2 = "", $width2 = "", $disabled = FALSE) {
     echo '<div class="form-group">' . $title;
     if ($horizontally) echo '<div class="form-row"><div class="col">';
-    if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
+    if ($width != "") echo '<div class="system-variable-input-out"><div class="input-group system-variable-input-in">';
     else echo '<div class="input-group">';
     if ($prefix != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix . '</span></div>';
-    echo '<input type="text" name="' . hsc($name) . '-1" class="form-control" id="' . hsc($id) . '-1" value="' . hsc($prefill) . '"';
+    echo '<input type="text" name="' . hsc($name) . '-1" class="form-control system-variable-input-toggle" id="' . hsc($id) . '-1" value="' . hsc($prefill) . '"';
+    if ($width != "") echo ' style="width:' . hsc($width) . 'em;"';
     if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-1-counter&quot;);"';
     if ($disabled) echo ' disabled="disabled"';
     if ($jspart != "") echo ' ' . $jspart;
     echo ">";
     if ($suffix != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix . '</span></div>';
-    echo '</div>';
+    if ($width != "") echo '</div></div>';
+    else echo "</div>";
     if ($showcounter) echo '<div id="' . hsc($id) . '-1-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
     if ($horizontally) echo '</div><div class="col">';
-    if ($width2 != "") echo '<div class="input-group" style="width:' . hsc($width2) . 'em;">';
+    if ($width2 != "") echo '<div class="system-variable-input-out"><div class="input-group system-variable-input-in">';
     else echo '<div class="input-group">';
     if ($prefix2 != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $prefix2 . '</span></div>';
-    echo '<input type="text" name="' . hsc($name) . '-2" class="form-control" id="' . hsc($id) . '-2" value="' . hsc($prefill2) . '"';
+    echo '<input type="text" name="' . hsc($name) . '-2" class="form-control system-variable-input-toggle" id="' . hsc($id) . '-2" value="' . hsc($prefill2) . '"';
+    if ($width2 != "") echo ' style="width:' . hsc($width2) . 'em;"';
     if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-2-counter&quot;);"';
     if ($disabled) echo ' disabled="disabled"';
     if ($jspart != "") echo ' ' . $jspart;
     echo ">";
     if ($suffix2 != "") echo '<div class="input-group-append"><span class="input-group-text">' . $suffix2 . '</span></div>';
-    echo '</div>';
+    if ($width2 != "") echo '</div></div>';
+    else echo "</div>";
     if ($showcounter) echo '<div id="' . hsc($id) . '-2-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>';
     if ($horizontally) echo '</div></div>';
     echo '<div id="' . hsc($id) . '-errortext" class="system-form-error"></div>';
@@ -1546,7 +1552,7 @@ function echo_textarea($title, $name, $id, $prefill, $showcounter = FALSE, $deta
     echo '<div class="form-group"><label for="' . hsc($id) . '">' . $title . '</label>';
     if ($width != "") echo '<div class="input-group" style="width:' . hsc($width) . 'em;">';
     else echo '<div class="input-group">';
-    if ($height == "") $height = "4";
+    if ($height == "") $height = "5";
     echo '<textarea id="' . hsc($id) . '" name="' . hsc($name) . '" rows="' . hsc($height) . '" class="form-control"';
     if ($showcounter) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-counter&quot;);"';
     if ($disabled) echo ' disabled="disabled"';

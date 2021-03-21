@@ -129,11 +129,11 @@ if ($method == 'direct') {
     echo ' onChange="check_individual(&quot;submitfile&quot;);">';
     echo '<div id="submitfile-errortext" class="system-form-error"></div>';
     if ($submitformdata["general"]["detail"] != "") echo '<small class="form-text">' . $submitformdata["general"]["detail"];
-    echo '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>';
+    echo '<div><strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong></div>';
     echo '</small></div>';
 } else {
-    echo_textbox("提出ファイルのダウンロードURL【必須】", "url", "url", $entereddata["url"], FALSE, $submitformdata["general"]["detail"] . '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>', 'onBlur="check_individual(&quot;url&quot;);"');
-    echo_textbox("ファイルのダウンロードに必要なパスワード（あれば）", "dldpw", "dldpw", isset($entereddata["dldpw"]) ? $entereddata["dldpw"] : "", FALSE, "※サービスによってパスワードの名称が異なります（「復号キー」など）。<div>※この項目の変更は自動承認されます。</div>", 'onBlur="check_individual(&quot;dldpw&quot;);"');
+    echo_textbox("提出ファイルのダウンロードURL【必須】", "url", "url", $entereddata["url"], FALSE, $submitformdata["general"]["detail"] . '<div><strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong></div>', 'onChange="check_individual(&quot;url&quot;);"');
+    echo_textbox("ファイルのダウンロードに必要なパスワード（あれば）", "dldpw", "dldpw", isset($entereddata["dldpw"]) ? $entereddata["dldpw"] : "", FALSE, "※サービスによってパスワードの名称が異なります（「復号キー」など）。<div>※この項目の変更は自動承認されます。</div>", 'onChange="check_individual(&quot;dldpw&quot;);"');
     ?>
 <div class="form-group">
 <label for="email">ファイルのダウンロード期限（あれば）</label>
@@ -143,7 +143,7 @@ if ($method == 'direct') {
 </label>
 <input type="date" cmanCLDat="USE:ON" name="due_date" class="form-control" id="due_date" value="<?php
 if (isset($entereddata["due"])) echo date('Y-m-d', $entereddata["due"]);
-?>" onBlur="check_individual(&quot;due&quot;);">
+?>" onChange="check_individual(&quot;due&quot;);">
 </div>
 <div>
 <label for="from_time">
@@ -151,7 +151,7 @@ if (isset($entereddata["due"])) echo date('Y-m-d', $entereddata["due"]);
 </label>
 <input type="time" name="due_time" id="due_time" value="<?php
 if (isset($entereddata["due"])) echo date('H:i', $entereddata["due"]);
-?>" onBlur="check_individual(&quot;due&quot;);">
+?>" onChange="check_individual(&quot;due&quot;);">
 </div>
 <div id="due-errortext" class="system-form-error"></div>
 <small class="form-text">※ダウンロードURLに有効期限がある場合は必ず入力して下さい。入力が無い場合は、URLに有効期限が無いものとして扱います。<br>
@@ -163,7 +163,7 @@ if (isset($entereddata["due"])) echo date('H:i', $entereddata["due"]);
 <?php
 }
 
-echo_textbox("タイトル（50文字以内）【必須】", "title", "title", $entereddata["title"], TRUE, "<b>※この項目の変更には、運営メンバーによる承認が必要です。</b>", 'onBlur="check_individual(&quot;title&quot;);"');
+echo_textbox("タイトル（50文字以内）【必須】", "title", "title", $entereddata["title"], TRUE, "<strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong>", 'onChange="check_individual(&quot;title&quot;);"');
 
 foreach ($submitformdata as $number => $data) {
     if ($data["type"] == "general") continue;
@@ -172,7 +172,7 @@ foreach ($submitformdata as $number => $data) {
     $data["detail"] = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $data["detail"]);
     $data["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $data["detail"]);
     $data["detail"] = str_replace("\n", "<br>", $data["detail"]);
-    if ($data["recheck"] != "auto") $data["detail"] .= '<div><b>※この項目の変更には、運営メンバーによる承認が必要です。</b></div>';
+    if ($data["recheck"] != "auto") $data["detail"] .= '<div><strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong></div>';
     else $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
 
     switch ($data["type"]) {
@@ -182,7 +182,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
+            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
         break;
         case "textbox2":
             $parttitle = hsc($data["title"]);
@@ -195,7 +195,7 @@ foreach ($submitformdata as $number => $data) {
             if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
             else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
             $horizontally = ($data["arrangement"] == "h");
-            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
+            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
         break;
         case "textarea":
             $parttitle = hsc($data["title"]);
@@ -203,7 +203,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', $data["width"], $data["height"]);
+            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', $data["width"], $data["height"]);
         break;
         case "radio":
             $choices = choices_array($data["list"], TRUE);
@@ -294,7 +294,7 @@ echo_modal_wait();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 var changed = false;
 function check_individual(id) {
   changed = true;
@@ -511,7 +511,7 @@ window.addEventListener('beforeunload', function (e) {
   }
 });
 
-// -->
+
 </script>
 <?php
 include(PAGEROOT . 'validate_script.php');

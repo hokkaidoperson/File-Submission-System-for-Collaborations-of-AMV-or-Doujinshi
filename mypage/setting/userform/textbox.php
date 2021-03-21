@@ -46,7 +46,7 @@ if (isset($_SESSION["userformdata"][$number]["required"]) and $_SESSION["userfor
 </div>
 <div class="form-group">
 <label for="detail">項目詳細（500文字以内）</label>
-<textarea id="detail" name="detail" rows="4" class="form-control"><?php
+<textarea id="detail" name="detail" rows="5" class="form-control"><?php
 if (isset($_SESSION["userformdata"][$number]["detail"])) echo hsc($_SESSION["userformdata"][$number]["detail"]);
 ?></textarea>
 <small class="form-text">※入力欄の下に、このようにして小さく表示される文字です。<br>
@@ -83,7 +83,7 @@ if (isset($_SESSION["userformdata"][$number]["width"])) echo hsc($_SESSION["user
 <small class="form-text">※指定が無い場合は、入力欄は画面の端から端まで表示されます。<br>
 　数文字を入力するだけの欄など、入力欄が短くてもよい場合は、ここで調節して下さい。<br>
 ※「em」はフォントサイズを基準とした単位です（1em＝大体1文字分　と認識してよいと思います）。<br>
-※この後設定する「接頭辞」もしくは「接尾辞」と組み合わせる場合、その接頭辞・接尾辞と組み合わせた入力欄の幅が上記の値となります。幅が狭すぎる場合、入力しづらくなったり、表示が崩れたりする可能性があります。
+※スマートフォンなど画面の横幅が狭い場合には、レイアウト崩れ等を防ぐためこの設定は適用されません。
 </small>
 </div>
 <div class="form-group">
@@ -124,7 +124,7 @@ if (isset($_SESSION["userformdata"][$number]["recheck"]) and $_SESSION["userform
 </div>
 
 <script type="text/javascript">
-<!--
+
 // 内容確認　problem変数で問題があるかどうか確認　probidなどで個々の内容について確認
 function check(){
 
@@ -251,7 +251,7 @@ if ( problem == 1 ) {
 
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

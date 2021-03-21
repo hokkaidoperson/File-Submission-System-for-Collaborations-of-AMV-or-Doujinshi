@@ -1,20 +1,104 @@
 <?php
+//ディレクトリコピー　引用　https://tyama-blog.blog.ss-blog.jp/2016-03-27
+function dir_copy($dir_name, $new_dir){
+    if (!is_dir($new_dir)) {
+        mkdir($new_dir, 0777, true);
+    }
+
+    if (is_dir($dir_name)) {
+        if ($dh = opendir($dir_name)) {
+            while (($file = readdir($dh)) !== false) {
+                if ($file == "." || $file == "..") {
+                    continue;
+                }
+                if (is_dir($dir_name . "/" . $file)) {
+                    dir_copy($dir_name . "/" . $file, $new_dir . "/" . $file);
+                } else {
+                    copy($dir_name . "/" . $file, $new_dir . "/" . $file);
+                }
+            }
+            closedir($dh);
+        }
+    }
+    return true;
+}
+//再帰的にディレクトリを削除する関数（引用：https://www.sejuku.net/blog/78776）
+function remove_directory($dir) {
+    $files = array_diff(scandir($dir), array('.','..'));
+    foreach ($files as $file) {
+        // ファイルかディレクトリによって処理を分ける
+        if (is_dir("$dir/$file")) {
+            // ディレクトリなら再度同じ関数を呼び出す
+            remove_directory("$dir/$file");
+        } else {
+            // ファイルなら削除
+            unlink("$dir/$file");
+        }
+    }
+    // 指定したディレクトリを削除
+    return rmdir($dir);
+}
+
 if (file_exists('../dataplace.php')) require_once('../dataplace.php'); else define('DATAROOT', dirname(__FILE__).'/../data/');
 if (file_exists(DATAROOT . 'init.txt')) die('初期設定が既に終わっています。');
-?>
 
+if (file_exists(DATAROOT . 'data-transfer.zip')) {
+    $zip = new ZipArchive;
+    if ($zip->open(DATAROOT . 'data-transfer.zip') === TRUE) {
+        $zip->extractTo(DATAROOT . 'tmp/');
+        $zip->close();
+
+        dir_copy(DATAROOT . 'tmp/', DATAROOT);
+        remove_directory(DATAROOT . 'tmp/');
+        unlink(DATAROOT . 'data-transfer.zip');
+        $url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+        $url = preg_replace('/index\.php$/', '', $url);
+        $url = preg_replace('/initial\/$/', '', $url);
+        if (file_put_contents(DATAROOT . 'siteurl.txt', $url) === FALSE) die('サイトURLの書き込みに失敗しました。');
+        die('
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/bootstrap-filesys.css">
+<link rel="stylesheet" href="../css/style.css">
+<title>初期設定</title>
+</head>
+<body>
+<div class="container">
+<h1>引継ぎ完了</h1>
+<div class="border system-border-spacer">
+<p>引継ぎ用ファイルより設定・アカウントの引継ぎが完了しました。</p>
+<p>システムのトップページから、以前使用していた管理者アカウントでログインし、提出期間など、必要な設定を行って下さい。</p>
+<p><a href="' . $url . '">システムのトップページはこちら</a></p>
+</div>
+</div>
+<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+');
+    } else {
+        die('引継ぎ用ファイルの解凍に失敗しました。');
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../css/bootstrap-filesys.css">
+<link rel="stylesheet" href="../css/bootstrap-icons.css">
 <link rel="stylesheet" href="../css/style.css">
 <title>初期設定</title>
 </head>
 <script type="text/javascript">
-<!--
+
 function check_individual(id){
 
     var valid = 1;
@@ -579,7 +663,7 @@ setCookie('check_cookie', true);
 var val = getCookie('check_cookie');
 
 
-// -->
+
 </script>
 <body>
 <div id="noscript">
@@ -594,7 +678,7 @@ var val = getCookie('check_cookie');
 <h1>初期設定</h1>
 <div class="border system-border-spacer">
 <p>管理者のアカウント、およびシステムの最低限必要な事項を設定します。「【必須】」と記載されている項目は必ず入力して下さい。</p>
-<p><b>パスワードは絶対に外部に漏れないようにして下さい。</b>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<b>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</b></p>
+<p><strong>パスワードは絶対に外部に漏れないようにして下さい。</strong>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<strong>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</strong></p>
 <p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（ただし、あなたの立場の変更に際しては、他人による承認が必要になる場合があります）。<br>
 ニックネームなどについては、マイページトップ画面の「アカウント情報編集」、システムの設定事項については「システム設定」から編集出来ます。</p>
 <p>当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。</p>
@@ -604,40 +688,40 @@ var val = getCookie('check_cookie');
 <div class="border border-primary system-border-spacer">
 <h2>管理者アカウントの情報</h2>
 <div class="form-group">
-<label for="userid">ユーザーID（半角英数字のみ　20文字以内　<b>後から変更出来ません</b>）【必須】</label>
-<input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onBlur="check_individual(&quot;userid&quot;);">
+<label for="userid">ユーザーID（半角英数字のみ　20文字以内　<strong>後から変更出来ません</strong>）【必須】</label>
+<input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onChange="check_individual(&quot;userid&quot;);">
 <div id="userid-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="userid-errortext" class="system-form-error"></div>
 <small class="form-text">※ログインの際にこのユーザーIDを使用します。</small>
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
-<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
+<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
 <div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="nickname-errortext" class="system-form-error"></div>
 <small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
 </div>
 <div class="form-group">
 <label for="email">メールアドレス【必須】</label>
-<input type="email" name="email" class="form-control" id="email" value="" onBlur="check_individual(&quot;email&quot;);">
+<input type="email" name="email" class="form-control" id="email" value="" onChange="check_individual(&quot;email&quot;);">
 <div id="email-errortext" class="system-form-error"></div>
 <small class="form-text">※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</small>
 </div>
 <div class="form-group">
 <label for="emailagn">メールアドレス（確認の為再入力）【必須】</label>
-<input type="email" name="emailagn" class="form-control" id="emailagn" onBlur="check_individual(&quot;emailagn&quot;);">
+<input type="email" name="emailagn" class="form-control" id="emailagn" onChange="check_individual(&quot;emailagn&quot;);">
 <div id="emailagn-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
 <label for="password">パスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
 <div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="password-errortext" class="system-form-error"></div>
 <small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
 </div>
 <div class="form-group">
 <label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
-<input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
+<input type="password" name="passwordagn" class="form-control" id="passwordagn" onChange="check_individual(&quot;passwordagn&quot;);">
 <div id="passwordagn-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
@@ -664,7 +748,7 @@ var val = getCookie('check_cookie');
 <h2>システムの設定事項</h2>
 <div class="form-group">
 <label for="eventname">イベント名（50文字以内）【必須】</label><br/>
-<input type="text" name="eventname" id="eventname" class="form-control" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onBlur="check_individual(&quot;eventname&quot;);">
+<input type="text" name="eventname" id="eventname" class="form-control" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
 <div id="eventname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="eventname-errortext" class="system-form-error"></div>
 <small class="form-text">※イベント名は、サイトのトップページなど、随所に表示されます。</small>
@@ -672,7 +756,7 @@ var val = getCookie('check_cookie');
 <div class="form-group">
 <label for="filesize">1つの入力欄でアップロード可能な最大ファイルサイズ（1以上の半角数字）【必須】</label>
 <div class="input-group" style="width:8em;">
-<input type="text" name="filesize" class="form-control" id="filesize" onBlur="check_individual(&quot;filesize&quot;);">
+<input type="text" name="filesize" class="form-control" id="filesize" onChange="check_individual(&quot;filesize&quot;);">
 <div class="input-group-append">
 <span class="input-group-text">MB</span>
 </div>
@@ -684,13 +768,13 @@ var val = getCookie('check_cookie');
 　用途を考え、最大サイズをあまり大きくし過ぎないようにして下さい。<br>
 ※以下に、ファイルアップロードの制限に関する、サーバーの設定値を表示します。<br>
 　これらを上回る最大サイズを指定すると、送信中にエラーが返される事があります（単位は「バイト」、「M」は「メガ」の事です）。<br>
-　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<b><?php echo ini_get('upload_max_filesize'); ?></b></u><br>
-　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<b><?php echo ini_get('post_max_size'); ?></b></u></small>
+　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></u><br>
+　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></u></small>
 </div>
 <div class="form-group">
 <label for="accounts">メールアドレス1つ当たりの最大アカウント数（1～10の半角数字）【必須】</label>
 <div class="input-group" style="width:8em;">
-<input type="text" name="accounts" class="form-control" id="accounts" value="1" onBlur="check_individual(&quot;accounts&quot;);">
+<input type="text" name="accounts" class="form-control" id="accounts" value="1" onChange="check_individual(&quot;accounts&quot;);">
 <div class="input-group-append">
 <span class="input-group-text">個</span>
 </div>
@@ -701,7 +785,7 @@ var val = getCookie('check_cookie');
 </div>
 <div class="form-group">
 <label for="system">システムが送信するメールの送信元アドレス</label>
-<input type="email" name="system" class="form-control" id="system" onBlur="check_individual(&quot;system&quot;);">
+<input type="email" name="system" class="form-control" id="system" onChange="check_individual(&quot;system&quot;);">
 <div class="form-check">
 <input id="systemsend" class="form-check-input" type="checkbox" name="systemsend" value="1">
 <label class="form-check-label" for="systemsend">「このアドレスは送信専用です」という旨のメッセージを追記したい場合は、左のチェックボックスにチェックして下さい。</label>
@@ -712,7 +796,7 @@ var val = getCookie('check_cookie');
 </div>
 <div class="form-group">
 <label for="systemfrom">システムが送信するメールの差出人名（30文字以内）</label>
-<input type="text" name="systemfrom" class="form-control" id="systemfrom" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onBlur="check_individual(&quot;systemfrom&quot;);">
+<input type="text" name="systemfrom" class="form-control" id="systemfrom" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
 <div id="systemfrom-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systemfrom-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの送信元（From）の差出人名を指定する場合はここで指定して下さい。<br>
@@ -721,7 +805,7 @@ var val = getCookie('check_cookie');
 </div>
 <div class="form-group">
 <label for="systempre">システムが送信するメールの接頭辞（15文字以内）</label>
-<input type="text" name="systempre" class="form-control" id="systempre" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onBlur="check_individual(&quot;systempre&quot;);">
+<input type="text" name="systempre" class="form-control" id="systempre" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
 <div id="systempre-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systempre-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの件名の頭に、ここで指定した接頭辞が付きます。接頭辞は括弧【】で囲われます。<br>
@@ -734,13 +818,13 @@ reCAPTCHA v2（非表示reCAPTCHAバッジ）の設定
 <div class="input-group-prepend">
 <span class="input-group-text">サイトキー：</span>
 </div>
-<input type="text" name="recaptcha_site" class="form-control" id="recaptcha_site" onBlur="check_individual(&quot;recaptcha&quot;);">
+<input type="text" name="recaptcha_site" class="form-control" id="recaptcha_site" onChange="check_individual(&quot;recaptcha&quot;);">
 </div>
 <div class="input-group">
 <div class="input-group-prepend">
 <span class="input-group-text">シークレットキー：</span>
 </div>
-<input type="text" name="recaptcha_sec" class="form-control" id="recaptcha_sec" onBlur="check_individual(&quot;recaptcha&quot;);">
+<input type="text" name="recaptcha_sec" class="form-control" id="recaptcha_sec" onChange="check_individual(&quot;recaptcha&quot;);">
 </div>
 <div id="recaptcha-errortext" class="system-form-error"></div>
 <small class="form-text">※reCAPTCHA v2（非表示reCAPTCHAバッジ／Invisible reCAPTCHA）を利用出来ます。ログイン画面やユーザー登録画面など、ログインしていない状態で利用可能な入力画面を、ロボットなどによる攻撃から保護出来ます。<br>
@@ -749,7 +833,7 @@ reCAPTCHA v2（非表示reCAPTCHAバッジ）の設定
 ※特に、シークレットキーは外部に漏れてはいけません。データの保管先が外部から見られないように十分注意して下さい（<a href="https://www.hkdyukkuri.space/filesystem/doc/security#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E4%BF%9D%E7%AE%A1%E3%81%99%E3%82%8B%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E3%81%AE%E5%AE%89%E5%85%A8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" target="_blank" rel="noopener">詳細</a>）。<br>
 ※reCAPTCHA v2（非表示reCAPTCHAバッジ）を利用するには、PHPの拡張モジュール Client URL Library（cURL）が有効になっている必要があります。<?php
 if (extension_loaded('curl')) echo '<br>　現在、Client URL Libraryが有効になっているため、reCAPTCHA v2をご利用になれます。';
-else echo '<br>　<b>現在、Client URL Libraryが無効になっているため、このままではreCAPTCHA v2をご利用になれません。reCAPTCHA v2を利用するには、Client URL Libraryをインストール・有効化して下さい。</b>';
+else echo '<br>　<strong>現在、Client URL Libraryが無効になっているため、このままではreCAPTCHA v2をご利用になれません。reCAPTCHA v2を利用するには、Client URL Libraryをインストール・有効化して下さい。</strong>';
 ?></small>
 </div>
 <div class="form-group">
@@ -763,7 +847,6 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 ※送信前に、入力内容の確認をお願い致します。<br>
 <button type="submit" class="btn btn-primary">送信する</button>
 </div>
-<!-- エラーModal -->
 <div class="modal fade" id="errormodal" tabindex="-1" role="dialog" aria-labelledby="errormodaltitle" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
 <div class="modal-content">
@@ -784,7 +867,6 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 </div>
 </div>
 </div>
-<!-- 送信確認Modal -->
 <div class="modal fade" id="confirmmodal" tabindex="-1" role="dialog" aria-labelledby="confirmmodaltitle" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
 <div class="modal-content">
@@ -798,7 +880,7 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 <p>入力内容に問題は見つかりませんでした。</p>
 <p>現在の入力内容を送信してもよろしければ「送信する」を押して下さい。<br>
 入力内容の修正を行う場合は「戻る」を押して下さい。</p>
-<p>※「送信する」を押下すると、<b>ユーザーIDはこれ以降変更出来なくなります</b>のでご注意下さい。</p>
+<p>※「送信する」を押下すると、<strong>ユーザーIDはこれ以降変更出来なくなります</strong>のでご注意下さい。</p>
 </div>
 <div class="modal-footer">
 <button type="button" class="btn btn-secondary" data-dismiss="modal">戻る</button>
@@ -812,6 +894,6 @@ else echo '<br>　<b>現在、Client URL Libraryが無効になっているた�
 </div>
 <script>if (val) document.getElementById("scriptok").style.display = "block";</script>
 <script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js"></script>
+<script type="text/javascript" src="../js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

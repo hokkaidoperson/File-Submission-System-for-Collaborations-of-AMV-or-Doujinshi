@@ -9,22 +9,12 @@ if ($_SESSION['authinfo'] === 'MAD合作・合同誌向けファイル提出シ�
 csrf_prevention_validate();
 
 if (blackip(0, "g")) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>アクセスが制限されています</title>
-</head>
-<body>
-<p>現在ご利用のアクセス元（IPアドレス）からのユーザー登録が制限されているため、ユーザー登録出来ません。<br>
+    die_error_html('アクセスが制限されています', '<p>現在ご利用のアクセス元（IPアドレス）からのユーザー登録が制限されているため、ユーザー登録出来ません。<br>
 あなた、もしくは同じアクセス元を利用する他の誰かが、イベントの運営を妨害するなどしたために主催者により制限されています。<br>
 もしそのような事をした覚えが無い場合は、以下のブロック情報を添えて主催者にご相談下さい。</p>
 <p>【ブロック情報】<br>
 IPアドレス：' . getenv("REMOTE_ADDR") . '<br>
-リモートホスト名：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>
-</body>
-</html>');
+リモートホスト名：' . gethostbyaddr(getenv("REMOTE_ADDR")) . '</p>');
 }
 
 //ロボット認証チェック 参考　https://webbibouroku.com/Blog/Article/invisible-recaptcha
@@ -49,18 +39,7 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
     $response = curl_exec($ch);
     curl_close($ch);
 
-    if (json_decode($response)->success == FALSE) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="5; URL=\'index.php\'" />
-<title>認証エラー</title>
-</head>
-<body>
-<p>reCAPTCHA認証に失敗しました。しばらくしてからもう一度お試し下さい。</p>
-</body>
-</html>');
+    if (json_decode($response)->success == FALSE) die_error_html("認証エラー", '<p>reCAPTCHA認証に失敗しました。しばらくしてからもう一度お試し下さい。</p>');
 }
 
 
@@ -100,19 +79,9 @@ foreach (glob(DATAROOT . 'users/*.txt') as $filename) {
     }
 }
 
-if ($conflict) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ユーザーID重複</title>
-</head>
-<body>
-<p>大変申し訳ございませんが、このユーザーIDは既に使用されているため、登録出来ません。<br>
+if ($conflict) die_error_html('ユーザーID重複', '<p>大変申し訳ございませんが、このユーザーIDは既に使用されているため、登録出来ません。<br>
 お手数をお掛けしますが、別のユーザーIDをご利用願います。</p>
-<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、ユーザーID入力画面にお戻り下さい。</a></p>
-</body>
-</html>');
+<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、ユーザーID入力画面にお戻り下さい。</a></p>');
 
 //必須の場合のパターン 文字数
 if($_POST["nickname"] == "") $invalid = TRUE;
@@ -232,11 +201,11 @@ $_SESSION['nickname'] = $nickname;
 $_SESSION['email'] = $email;
 $_SESSION['state'] = $state;
 $_SESSION['admin'] = 0;
-$_SESSION['expire'] = time() + (30 * 60);
+$_SESSION['expire'] = time() + (60 * 60);
 $_SESSION['useragent'] = $browser;
 $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 
 register_alert("<p>ユーザー登録が完了しました。</p><p>登録メールアドレス宛に、確認の為のメールを送信しました（「迷惑メール」「プロモーション」などに振り分けられている可能性もあるため、メールが見当たらない場合はそちらもご確認下さい）。メールアドレスが誤っている場合は、速やかに変更をお願いします（「アカウント情報編集」から変更出来ます）。</p>");
-register_alert("当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
+register_alert("当サイトでは、1時間以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
 
 redirect("../../mypage/index.php");

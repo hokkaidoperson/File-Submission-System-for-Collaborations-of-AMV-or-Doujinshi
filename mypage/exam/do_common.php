@@ -83,7 +83,7 @@ else echo '<h1>共通情報の確認・承認 - 回答履歴</h1>
 if ($filedata["_state"] == 0 and $author != $_SESSION["userid"]) {
 if (!isset($_SESSION["dld_caution"])) {
     echo '<div class="border border-warning system-border-spacer">
-<b>【第三者のファイルをダウンロードするにあたっての注意事項】</b><br>
+<strong>【第三者のファイルをダウンロードするにあたっての注意事項】</strong><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
 <u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
@@ -268,10 +268,10 @@ if (isset($filedata["_result"])) {
     echo '<tr class="table-primary"><th>最終結果</th>';
     switch ($filedata["_result"]["opinion"]) {
       case 1:
-          echo '<td><b>承認</b></td>';
+          echo '<td><strong>承認</strong></td>';
       break;
       case 2:
-          echo '<td><b>拒否</b></td>';
+          echo '<td><strong>拒否</strong></td>';
       break;
     }
     echo '<td>' . give_br_tag($filedata["_result"]["reason"]) . '</td>';
@@ -305,13 +305,13 @@ if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["us
 </div>
 <div class="form-group">
 <label for="reason">「問題がある」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onBlur="check_individual(&quot;reason&quot;);"><?php
+<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onChange="check_individual(&quot;reason&quot;);"><?php
 if (isset($filedata[$_SESSION["userid"]]["reason"])) echo hsc($filedata[$_SESSION["userid"]]["reason"]);
 ?></textarea>
 <div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="reason-errortext" class="system-form-error"></div>
 <small class="form-text"><?php
-if ($examsetting["reason"] == "notice") echo "※<b>ここで記入した理由は、情報提出者本人宛に送信するメールに記載される可能性があります。</b>";
+if ($examsetting["reason"] == "notice") echo "※<strong>ここで記入した理由は、情報提出者本人宛に送信するメールに記載される可能性があります。</strong>";
 else echo "※ここで記入した理由は、情報提出者本人宛に送信するメールに直接的に記載されません。";
 ?></small>
 </div>
@@ -341,20 +341,20 @@ if ($leader != NULL) {
 
 if ($echoforceclose) { ?>
 <h2>投票を強制的に締め切る</h2>
-<p><b>原則としては、メンバー全員の投票が終わるのを待って下さい。</b><br>
+<p><strong>原則としては、メンバー全員の投票が終わるのを待って下さい。</strong><br>
 <u>メンバーの誰かが投票をしておらず、かつそのメンバーと連絡が取れない場合</u>は、作業を長引かせないために、以下のボタンを押して、投票を終了して下さい。</p>
-<p><b>この機能は、あくまでも最終手段としてご利用願います。</b></p>
+<p><strong>この機能は、あくまでも最終手段としてご利用願います。</strong></p>
 <p>※この機能は、原則としてファイル確認のリーダー（リーダーが設定されていない場合は主催者）にのみ開放されています。ファイル確認メンバーにリーダーも主催者もいない場合には、共同運営者に開放されています。</p>
 <form name="form_forceclose" action="do_common_forceclose.php" method="post" onSubmit="$('#forceclosemodal').modal(); return false;" class="system-form-spacer">
 <?php csrf_prevention_in_form(); ?>
 <input type="hidden" name="examname" value="<?php echo $examfilename; ?>">
 <button type="submit" class="btn btn-danger">投票を強制的に締め切る</button>
-<?php echo_modal_confirm("<p>投票を強制的に締め切ります。よろしければ「OK」を押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。</p><p><b>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</b>。</p>", "操作確認", null, null, "OK", "danger", "forceclosemodal", "forceclosebtn", 'document.getElementById("forceclosebtn").disabled = "disabled"; document.form_forceclose.submit();'); ?>
+<?php echo_modal_confirm("<p>投票を強制的に締め切ります。よろしければ「OK」を押して下さい。<br>この操作を取りやめる場合は「戻る」を押して下さい。</p><p><strong>一旦OKボタンを押下すると、この操作を取り消す事が出来なくなりますので、ご注意下さい</strong>。</p>", "操作確認", null, null, "OK", "danger", "forceclosemodal", "forceclosebtn", 'document.getElementById("forceclosebtn").disabled = "disabled"; document.form_forceclose.submit();'); ?>
 </form>
 <?php }
 ?>
 <script type="text/javascript">
-<!--
+
 function check_individual(id){
     var valid = 1;
 
@@ -456,7 +456,7 @@ function check(){
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

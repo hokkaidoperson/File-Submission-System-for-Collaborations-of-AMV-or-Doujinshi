@@ -78,8 +78,8 @@ $submitformdata["general"]["detail"] = hsc($submitformdata["general"]["detail"])
 $submitformdata["general"]["detail"] = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $submitformdata["general"]["detail"]);
 $submitformdata["general"]["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $submitformdata["general"]["detail"]);
 $submitformdata["general"]["detail"] = str_replace("\n", "<br>", $submitformdata["general"]["detail"]);
-echo_textbox("提出ファイルのダウンロードURL【必須】", "url", "url", "", FALSE, $submitformdata["general"]["detail"], 'onBlur="check_individual(&quot;url&quot;);"');
-echo_textbox("ファイルのダウンロードに必要なパスワード（あれば）", "dldpw", "dldpw", "", FALSE, "※サービスによってパスワードの名称が異なります（「復号キー」など）。", 'onBlur="check_individual(&quot;dldpw&quot;);"');
+echo_textbox("提出ファイルのダウンロードURL【必須】", "url", "url", "", FALSE, $submitformdata["general"]["detail"], 'onChange="check_individual(&quot;url&quot;);"');
+echo_textbox("ファイルのダウンロードに必要なパスワード（あれば）", "dldpw", "dldpw", "", FALSE, "※サービスによってパスワードの名称が異なります（「復号キー」など）。", 'onChange="check_individual(&quot;dldpw&quot;);"');
 ?>
 <div class="form-group">
 ファイルのダウンロード期限（あれば）
@@ -87,13 +87,13 @@ echo_textbox("ファイルのダウンロードに必要なパスワード（あ
 <label for="from_date">
 日付：
 </label>
-<input type="date" cmanCLDat="USE:ON" name="due_date" class="form-control" id="due_date" value="" onBlur="check_individual(&quot;due&quot;);">
+<input type="date" cmanCLDat="USE:ON" name="due_date" class="form-control" id="due_date" value="" onChange="check_individual(&quot;due&quot;);">
 </div>
 <div>
 <label for="from_time">
 時刻（24時間制）：
 </label>
-<input type="time" name="due_time" id="due_time" value="" onBlur="check_individual(&quot;due&quot;);">
+<input type="time" name="due_time" id="due_time" value="" onChange="check_individual(&quot;due&quot;);">
 </div>
 <div id="due-errortext" class="system-form-error"></div>
 <small class="form-text">※ダウンロードURLに有効期限がある場合は必ず入力して下さい。入力が無い場合は、URLに有効期限が無いものとして扱います。<br>
@@ -102,7 +102,7 @@ echo_textbox("ファイルのダウンロードに必要なパスワード（あ
 　時刻の欄をクリックしても何も出ない（通常のテキストボックスのようになっている）場合は、「時:分」の形で、半角で入力して下さい。</small>
 </div>
 <?php
-echo_textbox("タイトル（50文字以内）【必須】", "title", "title", "", TRUE, "", 'onBlur="check_individual(&quot;title&quot;);"');
+echo_textbox("タイトル（50文字以内）【必須】", "title", "title", "", TRUE, "", 'onChange="check_individual(&quot;title&quot;);"');
 
 foreach ($submitformdata as $number => $data) {
     if ($data["type"] === "general") continue;
@@ -119,7 +119,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
+            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
         break;
         case "textbox2":
             $parttitle = hsc($data["title"]);
@@ -132,7 +132,7 @@ foreach ($submitformdata as $number => $data) {
             if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
             else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
             $horizontally = ($data["arrangement"] == "h");
-            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", "", TRUE, $horizontally, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
+            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", "", TRUE, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
         break;
         case "textarea":
             $parttitle = hsc($data["title"]);
@@ -140,7 +140,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', $data["width"], $data["height"]);
+            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', $data["width"], $data["height"]);
         break;
         case "radio":
             $choices = choices_array($data["list"], TRUE);
@@ -212,7 +212,7 @@ echo_modal_wait();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 var changed = false;
 function check_individual(id) {
   changed = true;
@@ -415,7 +415,7 @@ window.addEventListener('beforeunload', function (e) {
   }
 });
 
-// -->
+
 </script>
 <?php
 include(PAGEROOT . 'validate_script.php');

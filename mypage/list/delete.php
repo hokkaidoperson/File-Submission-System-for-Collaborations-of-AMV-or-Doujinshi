@@ -39,9 +39,9 @@ $formsetting["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/
 ?>
 
 <h1>ファイル削除</h1>
-<p>作品 <b><?php echo hsc($formdata["title"]); ?></b> を削除します。</p>
+<p>作品 <strong><?php echo hsc($formdata["title"]); ?></strong> を削除します。</p>
 <p>入力情報を削除し、サーバーにアップロードしたファイルがあればそれも削除されます。<br>
-<b>この操作を取り消す事は出来ませんのでご注意願います。</b></p>
+<strong>この操作を取り消す事は出来ませんのでご注意願います。</strong></p>
 <p>削除しようとしている作品を今一度ご確認願います。</p>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
@@ -55,7 +55,7 @@ if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
     echo '<tr>
 <th>提出ファイルダウンロード先</th><td><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
     if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <b>' . date('Y年n月j日G時i分', $formdata["due"]) . '</b> までです。お早めにダウンロード願います。</span>';
+    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
     echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
     echo '</td></tr>';
 }
@@ -122,13 +122,13 @@ else switch ($formdata["exam"]) {
         echo '<td>承認待ち</td>';
     break;
     case 1:
-        echo '<td class="text-success"><b>承認</b></td>';
+        echo '<td class="text-success"><strong>承認</strong></td>';
     break;
     case 2:
-        echo '<td class="text-warning"><b>修正待ち</b></td>';
+        echo '<td class="text-warning"><strong>修正待ち</strong></td>';
     break;
     case 3:
-        echo '<td class="text-danger"><b>承認見送り</b></td>';
+        echo '<td class="text-danger"><strong>承認見送り</strong></td>';
     break;
 }
 echo "</tr>";
@@ -143,7 +143,7 @@ echo "</tr>";
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <div class="form-group">
 <label for="password">現在のパスワード</label>
-<input type="password" name="password" class="form-control" id="password" onBlur="check_individual()">
+<input type="password" name="password" class="form-control" id="password" onChange="check_individual()">
 <div id="password-errortext" class="system-form-error"></div>
 </div>
 <br>
@@ -155,7 +155,7 @@ echo_modal_confirm("作品の削除を行います。これが最後の確認で
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_individual() {
     var valid = 1;
     document.getElementById("password-errortext").innerHTML = "";
@@ -262,7 +262,7 @@ function check(){
 
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

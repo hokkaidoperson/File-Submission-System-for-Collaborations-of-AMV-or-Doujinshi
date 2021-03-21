@@ -5,7 +5,7 @@ $titlepart = 'メッセージ新規送信（一斉送信）';
 require_once(PAGEROOT . 'mypage_header.php');
 
 if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者</b>、<b>システム管理者</b>のみです。</p>
+<p>この機能にアクセス出来るのは、<strong>主催者</strong>、<strong>システム管理者</strong>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 ?>
@@ -18,14 +18,14 @@ if ($_SESSION["state"] != 'p' and !$_SESSION["admin"]) die_mypage('<h1>権限エ
 <div class="border border-primary system-border-spacer">
 <div class="form-group">
 <label for="msg_subject">件名（50文字以内）</label>
-<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onBlur="check_individual(&quot;subject&quot;);">
+<input type="text" name="msg_subject" class="form-control" id="msg_subject" value="" onkeyup="ShowLength(value, &quot;subject-counter&quot;);" onChange="check_individual(&quot;subject&quot;);">
 <div id="subject-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="subject-errortext" class="system-form-error"></div>
 <small class="form-text">※空欄の場合、メッセージ本文の最初の30文字が件名に利用されます（30文字を超えた分は省略されます）。</small>
 </div>
 <div class="form-group">
 <label for="msg_content">メッセージ本文（1000文字以内）</label>
-<textarea id="msg_content" name="msg_content" rows="4" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onBlur="check_individual(&quot;msg_content&quot;);"></textarea>
+<textarea id="msg_content" name="msg_content" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;msg_content-counter&quot;);" onChange="check_individual(&quot;msg_content&quot;);"></textarea>
 <div id="msg_content-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="msg_content-errortext" class="system-form-error"></div>
 <small class="form-text">※改行は反映されます（この入力欄で改行すると実際のメッセージでも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -39,7 +39,7 @@ echo_modal_confirm("このメッセージを送信してもよろしければ「
 ?>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
 function check_individual(id){
     var valid = 1;
 
@@ -125,7 +125,7 @@ function check(){
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

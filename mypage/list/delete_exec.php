@@ -27,18 +27,7 @@ if (!in_term() and !$outofterm) die('現在、ファイル提出期間外のた�
 
 //今のパスワードで認証
 $userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
-if (!password_verify($_POST["password"], $userdata["pwhash"])) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>認証エラー</title>
-</head>
-<body>
-<p>現在のパスワードが誤っています。お手数ですが、入力をやり直して下さい。</p>
-<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、設定画面にお戻り下さい。</a></p>
-</body>
-</html>');
+if (!password_verify($_POST["password"], $userdata["pwhash"])) die();
 
 
 //色々削除

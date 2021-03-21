@@ -31,21 +31,7 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
     $response = curl_exec($ch);
     curl_close($ch);
 
-    if (json_decode($response)->success == FALSE) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="5; URL=\'index.php\'" />
-<title>認証エラー</title>
-</head>
-<body>
-<p>reCAPTCHA認証に失敗しました。</p>
-
-<p>5秒後にログインページに自動的に移動します。<br>
-<a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
-</body>
-</html>');
+    if (json_decode($response)->success == FALSE) die_error_html("認証エラー", '<p>reCAPTCHA認証に失敗しました。</p><p>5秒後にログインページに自動的に移動します。<br><a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>', '<meta http-equiv="refresh" content="5; URL=\'index.php\'" />');
 }
 
 
@@ -68,41 +54,12 @@ else {
 
 //認証失敗の時
 if ($invalid) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="5; URL=\'index.php\'" />
-<title>認証エラー</title>
-</head>
-<body>
-<p>ユーザーIDもしくはパスワードに誤りがあるため、ログイン出来ませんでした。</p>
-
-<p>5秒後にログインページに自動的に移動します。<br>
-<a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
-</body>
-</html>');
+    die_error_html("認証エラー", '<p>ユーザーIDもしくはパスワードに誤りがあるため、ログイン出来ませんでした。</p><p>5秒後にログインページに自動的に移動します。<br><a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>', '<meta http-equiv="refresh" content="5; URL=\'index.php\'" />');
 }
 
 //ブラックリスト？
 if (blackuser($userid)) {
-    die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="10; URL=\'index.php\'" />
-<title>アカウントが凍結されています</title>
-</head>
-<body>
-<p>現在、このアカウントは凍結されているため、ログイン出来ませんでした。<br>
-凍結の理由や、不服申し立てなどについては、「アカウント凍結のお知らせ」という件名のメールをご参照願います。</p>
-
-<p>10秒後にログインページに自動的に移動します。<br>
-<a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>
-</body>
-</html>');
+    die_error_html("アカウントが凍結されています", '<p>現在、このアカウントは凍結されているため、ログイン出来ませんでした。<br>凍結の理由や、不服申し立てなどについては、「アカウント凍結のお知らせ」という件名のメールをご参照願います。</p><p>10秒後にログインページに自動的に移動します。<br><a href="index.php">移動しない場合、あるいはお急ぎの場合はこちらをクリックして下さい。</a></p>', '<meta http-equiv="refresh" content="10; URL=\'index.php\'" />');
 }
 
 //↓セッションハイジャック対策
@@ -114,7 +71,7 @@ $_SESSION['nickname'] = $nickname;
 $_SESSION['email'] = $email;
 $_SESSION['state'] = $state;
 $_SESSION['admin'] = $userdata["admin"];
-$_SESSION['expire'] = time() + (30 * 60);
+$_SESSION['expire'] = time() + (60 * 60);
 $_SESSION['useragent'] = $browser;
 $_SESSION['authinfo'] = 'MAD合作・合同誌向けファイル提出システム_' . $siteurl . '_' . $userid;
 
@@ -171,10 +128,21 @@ $eventname のポータルサイトに、あなたのアカウントでログイ
     if (json_pack(DATAROOT . 'users/' . $userid . '.txt', $userdata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
 }
 
+//引継ぎ通知
+$transferred = '';
+if (isset($userdata["transferred"])) {
+    $transferred = $userdata["transferred"];
+    unset($userdata["transferred"]);
+    if (json_pack(DATAROOT . 'users/' . $userid . '.txt', $userdata) === FALSE) die('ユーザーデータの書き込みに失敗しました。');
+}
+
 if (isset($_SESSION['guest_redirto'])) $redirto = $_SESSION['guest_redirto'];
 else $redirto = 'mypage/index.php';
 
 register_alert("ログインしました。", "success");
-register_alert("当サイトでは、30分以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
+if ($transferred !== '') {
+    register_alert("<strong>$transferred より、提出用ポータルサイトのアカウントを引き継ぎました</strong>。<br>共通情報の入力事項もそのまま引き継がれていますので、必要に応じて入力事項の変更をお願い致します。", "primary");
+}
+register_alert("当サイトでは、1時間以上サーバーへの接続が無い場合は、セキュリティの観点から自動的にログアウトします。<br>特に、情報入力画面など、同じページにしばらく留まり続ける場面ではご注意願います。", "warning");
 
 redirect("./$redirto");

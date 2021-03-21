@@ -49,7 +49,7 @@ if (isset($_SESSION["submitformdata"]["general"])) {
 <p>ファイルの提出時に求める入力事項や、提出期間などを設定します。<br>
 ユーザーは、後から入力内容を変更出来ますが、変更時には原則として主催者の承認が必要です（自動承認してもよい項目を個別に設定可能）。</p>
 <p>「提出ファイル」「タイトル」の2項目は、システム上必要になるため、ファイル提出時に必ず入力を求めます。</p>
-<p>それら以外で、<b>最大10個まで</b>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
+<p>それら以外で、<strong>最大10個まで</strong>入力事項を追加出来ます。各項目について、入力必須かそうでないかを設定出来ます。</p>
 <p>※求める入力事項が特に無い場合は、何も設定せずに下の「変更内容を保存し適用する」ボタンを押して下さい。</p>
 <?php
 if (file_exists(DATAROOT . 'form/submit/done.txt')) echo '<div class="border border-warning system-border-spacer">
@@ -81,7 +81,7 @@ else echo '<div class="border border-warning system-border-spacer">
 </ul>
 </div>
 </div>
-<p class="small">※公開前の設定内容は一時ファイルに保存されます。途中でブラウザを閉じてしまってもその一時ファイルを基に作業を再開出来ますが、<b>最終的に「変更内容を保存し適用する」ボタンを押さないと実際の入力画面に反映されません。</b></p>
+<p class="small">※公開前の設定内容は一時ファイルに保存されます。途中でブラウザを閉じてしまってもその一時ファイルを基に作業を再開出来ますが、<strong>最終的に「変更内容を保存し適用する」ボタンを押さないと実際の入力画面に反映されません。</strong></p>
 <h2>ファイル提出画面の項目一覧</h2>
 <p>変更したい項目の項目名をクリックして下さい（「タイトル」は変更出来ません）。</p>
 <p>実際のファイル提出画面では、下表の順番で項目が並びます。</p>
@@ -103,7 +103,7 @@ else echo '<tr class="table-info"><td colspan="3"><a href="general.php">提出�
 <?php
 for ($i = 0; $i <= 10; $i++) {
     if (!isset($_SESSION["submitformdata"][$i])) {
-        if ($i != 10) echo '<tr class="table-primary"><td><b>項目の新規追加</b></td><td colspan="2">
+        if ($i != 10) echo '<tr class="table-primary"><td><strong>項目の新規追加</strong></td><td colspan="2">
 <form class="form-inline" name="form" action="add.php" method="get" onSubmit="return check()">
 <input type="hidden" name="number" value="' . "$i" . '">
 <select name="type" class="form-control" id="type">
@@ -117,7 +117,7 @@ for ($i = 0; $i <= 10; $i++) {
 <option value="attach">添付ファイル</option>
 </select>
 <button type="submit" class="btn btn-primary" id="submitbtn">新規追加</button></td></tr>';
-        else echo '<tr class="table-primary"><td><b>項目の新規追加</b></td><td colspan="2">※項目数が最大に達しているため、新規追加出来ません。</td></tr>';
+        else echo '<tr class="table-primary"><td><strong>項目の新規追加</strong></td><td colspan="2">※項目数が最大に達しているため、新規追加出来ません。</td></tr>';
         echo '<tr class="table-success"><td colspan="3"><a href="orderanddel.php">項目の順番変更 ／ 項目の削除</a></td></tr>';
         break;
     }
@@ -169,7 +169,7 @@ else echo '<a href="#" class="btn btn-primary disabled" tabindex="-1" role="butt
 ?>
 <a href="dispose.php" class="btn btn-secondary" role="button" onclick="return window.confirm('現在の設定内容を、保存せず削除します。実際のファイル提出画面は変更されません。よろしいですか？')">変更内容を保存せず破棄する</a></p>
 <script type="text/javascript">
-<!--
+
 function check(){
 
   problem = 0;
@@ -191,7 +191,7 @@ if ( problem == 1 ) {
 
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

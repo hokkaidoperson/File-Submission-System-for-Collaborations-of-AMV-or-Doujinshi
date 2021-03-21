@@ -16,35 +16,43 @@ if (file_exists($fileplace)) {
     if ($filedata["sectok"] !== $_GET["sectok"]) $deny = TRUE;
 } else $deny = TRUE;
 
-if ($deny) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>認証エラー</title>
-</head>
-<body>
-<p>認証に失敗しました。以下が原因として考えられます。<br>
+if ($deny) die_error_html('認証エラー', '<p>認証に失敗しました。以下が原因として考えられます。<br>
 1. 設定リンクの有効期限が切れている。<br>
-2. 設定リンクのURLのうち一部分だけが切り取られ、サーバー側で正常に認識されなかった。</p>
-</body>
-</html>');
+2. 設定リンクのURLのうち一部分だけが切り取られ、サーバー側で正常に認識されなかった。</p>');
+
+$titlepart = "パスワード再発行";
+require_once(PAGEROOT . 'guest_header.php');
 
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<h1>パスワード再発行</h1>
+<div class="border system-border-spacer">
+新しいパスワードを入力して下さい。
+</div>
+<form name="form" action="special_handle.php" method="post" onSubmit="return check()">
+<div class="border border-primary system-border-spacer">
+<input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
+<input type="hidden" name="userid" value="<?php echo $userid; ?>">
+<div class="form-group">
+<label for="password">パスワード（8文字以上72文字以内）【必須】</label>
+<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
+<div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
+<div id="password-errortext" class="system-form-error"></div>
+<small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
+</div>
+<div class="form-group">
+<label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
+<input type="password" name="passwordagn" class="form-control" id="passwordagn" onChange="check_individual(&quot;passwordagn&quot;);">
+<div id="passwordagn-errortext" class="system-form-error"></div>
+</div>
+<button type="submit" class="btn btn-primary">入力したパスワードで設定する</button>
+</div>
 <?php
-if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
+echo_modal_confirm("入力したパスワードで再発行を行います。<br>よろしければ「再発行する」を押して下さい。<br>別のパスワードにする場合は「戻る」を押して下さい。", "変更確認", null, null, "再発行する");
 ?>
-<link rel="stylesheet" href="../css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
-<link rel="stylesheet" href="../css/style.css?<?php echo urlencode(VERSION); ?>">
-<title>パスワード再発行 - <?php echo $eventname; ?>　ファイル提出用ポータルサイト</title>
+</form>
 <script type="text/javascript">
-<!--
+
 function check_individual(id) {
     var valid = 1;
     if (id === "password") {
@@ -135,70 +143,7 @@ function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
-//Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
-var setCookie = function(cookieName, value){
-  var cookie = cookieName + "=" + value + ";";
-  document.cookie = cookie;
-}
-
-var getCookie = function(cookieName){
-  var l = cookieName.length + 1 ;
-  var cookieAry = document.cookie.split("; ") ;
-  var str = "" ;
-  for(i=0; i < cookieAry.length; i++){
-    if(cookieAry[i].substr(0, l) === cookieName + "="){
-      str = cookieAry[i].substr(l, cookieAry[i].length) ;
-      break ;
-    }
-  }
-  return str;
-}
-
-setCookie('check_cookie', true);
-var val = getCookie('check_cookie');
-// -->
 </script>
-</head>
-<body>
-<div id="noscript">
-<p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
-ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
-<p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
-</div>
-<script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
-<div id="scriptok" style="display:none;">
-<div class="container">
-<h1>パスワード再発行</h1>
-<div class="border system-border-spacer">
-新しいパスワードを入力して下さい。
-</div>
-<form name="form" action="special_handle.php" method="post" onSubmit="return check()">
-<div class="border border-primary system-border-spacer">
-<input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
-<input type="hidden" name="userid" value="<?php echo $userid; ?>">
-<div class="form-group">
-<label for="password">パスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onBlur="check_individual(&quot;password&quot;);">
-<div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
-<div id="password-errortext" class="system-form-error"></div>
-<small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
-</div>
-<div class="form-group">
-<label for="passwordagn">パスワード（確認の為再入力）【必須】</label>
-<input type="password" name="passwordagn" class="form-control" id="passwordagn" onBlur="check_individual(&quot;passwordagn&quot;);">
-<div id="passwordagn-errortext" class="system-form-error"></div>
-</div>
-<button type="submit" class="btn btn-primary">入力したパスワードで設定する</button>
-</div>
 <?php
-echo_modal_confirm("入力したパスワードで再発行を行います。<br>よろしければ「再発行する」を押して下さい。<br>別のパスワードにする場合は「戻る」を押して下さい。", "変更確認", null, null, "再発行する");
-?>
-</form>
-</div>
-</div>
-<script>if (val) document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.js?<?php echo urlencode(VERSION); ?>"></script>
-</body>
-</html>
+require_once(PAGEROOT . 'guest_footer.php');

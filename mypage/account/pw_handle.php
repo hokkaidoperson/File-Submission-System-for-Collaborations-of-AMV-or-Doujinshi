@@ -7,18 +7,7 @@ csrf_prevention_validate();
 
 //今のパスワードで認証
 $userdata = json_decode(file_get_contents_repeat(DATAROOT . 'users/' . $_SESSION['userid'] . '.txt'), true);
-if (!password_verify($_POST["oldpassword"], $userdata["pwhash"])) die('<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>認証エラー</title>
-</head>
-<body>
-<p>現在のパスワードが誤っています。お手数ですが、入力をやり直して下さい。</p>
-<p><a href="#" onclick="javascript:window.history.back(-1);return false;">こちらをクリックして、設定画面にお戻り下さい。</a></p>
-</body>
-</html>');
+if (!password_verify($_POST["oldpassword"], $userdata["pwhash"])) die();
 
 //送られた値をチェック　ちゃんとフォーム経由で送ってきてたら引っかからないはず（POST直接リクエストによる不正アクセスの可能性も考えて）
 $invalid = FALSE;

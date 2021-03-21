@@ -61,7 +61,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="4">現在、表示出来�
 </div>
 <div class="form-group">
 <label for="add">メッセージ（500文字以内・省略可能）</label>
-<textarea id="message_mail" name="message_mail" rows="4" class="form-control"></textarea>
+<textarea id="message_mail" name="message_mail" rows="5" class="form-control"></textarea>
 <small class="form-text">※本人宛に通知するメールに記載するメッセージです。<br>
 ※例1：「あなたはイベント運営を著しく妨害しているため、アカウントを凍結する運びとなりました。」<br>
 ※例2：「諸問題の解決が確認出来たため、アカウントの凍結を解除致しました。」
@@ -71,7 +71,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="4">現在、表示出来�
 <button type="submit" class="btn btn-primary" id="submitbtn">実行</button>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
 function check(){
 
   problem = 0;
@@ -122,7 +122,7 @@ if ( problem == 1 ) {
     return false;
   }
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

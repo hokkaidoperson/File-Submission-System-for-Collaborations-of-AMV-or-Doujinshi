@@ -13,9 +13,10 @@ require_once(PAGEROOT . 'help_header.php');
 ?>
 
 <h1>FAQ（よくある質問） - 回答</h1>
-<div class="border border-primary system-border-spacer">
-<h3>Q：<?php echo $title; ?></h3>
-<span class="system-tags">
+<h2 class="h3 d-flex"><span>Q：</span><span><?php echo $title; ?></span></h2>
+<div class="mt-n2 mb-3 ml-2 d-flex">
+<i class="bi bi-tags text-dark pr-1"></i>
+<span>
 <?php
 foreach ($tags as $tag) echo '<a href="faq_search.php?tag%5B%5D=' . urlencode($tag) . '" class="badge badge-secondary">' . hsc($tag) . '</a>' . "\n";
 ?>

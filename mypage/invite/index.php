@@ -13,7 +13,7 @@ if (!file_exists(DATAROOT . 'users/_promoter.txt') and $_SESSION["admin"]) $acce
 if ($_SESSION["state"] == 'p') $accessok = 'c';
 
 if ($accessok == 'none') die_mypage('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>主催者が登録されていないシステムの管理者</b>、もしくは<b>主催者</b>のみです。</p>
+<p>この機能にアクセス出来るのは、<strong>主催者が登録されていないシステムの管理者</strong>、もしくは<strong>主催者</strong>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 ?>
@@ -47,7 +47,7 @@ switch ($accessok) {
         }
         break;
     case 'c':
-        echo '<p><a href="selector.php"><b>登録済みのユーザーを共同運営者として追加する場合はこちらをクリックして下さい。</b></a></p>
+        echo '<p><a href="selector.php"><strong>登録済みのユーザーを共同運営者として追加する場合はこちらをクリックして下さい。</strong></a></p>
 <p>もしくは、未登録の共同運営者に対し、メールで招待リンクを送付出来ます。<br>
 招待リンクを受信する共同運営者は、招待リンクからアカウントを作成し、イベントの運営に合流出来ます。</p>
 <p>以下に、共同運営者の連絡先メールアドレスを入力し、「送信」を押して下さい。</p>';
@@ -58,7 +58,7 @@ switch ($accessok) {
 <div class="border border-primary system-border-spacer">
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
-<input type="email" name="email" class="form-control" id="email" onBlur="check_individual()">
+<input type="email" name="email" class="form-control" id="email" onChange="check_individual()">
 <div id="email-errortext" class="system-form-error"></div>
 </div>
 ※送信前に、入力内容の確認をお願い致します。<br>
@@ -70,7 +70,7 @@ echo_modal_confirm("入力したメールアドレス宛てに招待リンクを
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_individual() {
     var valid = 1;
     document.getElementById("email-errortext").innerHTML = "";
@@ -185,7 +185,7 @@ function check(){
 }
 
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

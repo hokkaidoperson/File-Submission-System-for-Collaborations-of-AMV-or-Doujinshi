@@ -172,7 +172,7 @@ echo_modal_confirm("入力内容に問題は見つかりませんでした。<br
 </form>
 
 <script type="text/javascript">
-<!--
+
 function check_individual(id) {
     if (id === "submitmem") {
         document.getElementById("submitmem-errortext").innerHTML = "";
@@ -344,7 +344,7 @@ function check(){
     return false;
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

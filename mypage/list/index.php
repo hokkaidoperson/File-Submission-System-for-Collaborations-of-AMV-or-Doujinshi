@@ -45,7 +45,7 @@ if ($_SESSION["state"] == 'p') echo '<h1>参加者・作品の一覧 - 提出済
 提出者の名前をクリックすると、提出者が共通情報として入力した内容を確認出来ます。<br>
 作品名をクリックすると作品の情報（ファイル提出時に入力された情報）を確認出来ます。</p>
 <p>あなた自身の作品については、作品情報のページから編集を行えます。<br>
-他者および他者の作品については編集出来ません（メッセージ機能で、該当者に編集を依頼して下さい。<b>該当者のユーザーIDやパスワードを直接尋ねる行為はおやめ下さい。</b>）。</p>
+他者および他者の作品については編集出来ません（メッセージ機能で、該当者に編集を依頼して下さい。<strong>該当者のユーザーIDやパスワードを直接尋ねる行為はおやめ下さい。</strong>）。</p>
 <p><a href="users.php">参加者の一覧（ファイル未提出者も含む）はこちら</a></p>
 <p><a href="generatezip.php">提出者情報・提出ファイル・ファイル情報の一括ダウンロード（ZIPファイル）はこちら</a></p>
 ';
@@ -112,13 +112,13 @@ foreach ($canshow as $author => $array) {
                 echo '<td>承認待ち</td>';
             break;
             case 1:
-                echo '<td class="text-success"><b>承認</b></td>';
+                echo '<td class="text-success"><strong>承認</strong></td>';
             break;
             case 2:
-                echo '<td class="text-warning"><b>修正待ち</b></td>';
+                echo '<td class="text-warning"><strong>修正待ち</strong></td>';
             break;
             case 3:
-                echo '<td class="text-danger"><b>承認見送り</b></td>';
+                echo '<td class="text-danger"><strong>承認見送り</strong></td>';
             break;
         }
         echo "</tr>\n";

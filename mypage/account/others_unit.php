@@ -37,7 +37,7 @@ else {
 <?php csrf_prevention_in_form(); ?>
 <div class="form-group">
 <label for="password">現在のパスワード（本人確認の為ご入力願います）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onBlur="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onChange="check_individual(&quot;password&quot;);">
 <div id="password-errortext" class="system-form-error"></div>
 </div>
 <div class="form-group">
@@ -48,7 +48,7 @@ else {
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
 <input type="text" name="nickname" class="form-control" id="nickname" value="<?php
 if (isset($entereddata["nickname"])) echo hsc($entereddata["nickname"]);
-?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onBlur="check_individual(&quot;nickname&quot;);">
+?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
 <div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="nickname-errortext" class="system-form-error"></div>
 <small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
@@ -57,7 +57,7 @@ if (isset($entereddata["nickname"])) echo hsc($entereddata["nickname"]);
 <label for="email">メールアドレス【必須】</label>
 <input type="email" name="email" class="form-control" id="email" value="<?php
 if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
-?>" onBlur="check_individual(&quot;email&quot;);">
+?>" onChange="check_individual(&quot;email&quot;);">
 <div id="email-errortext" class="system-form-error"></div>
 <small class="form-text">※このイベントに関する連絡に使用します。イベント期間中は、メールが届いているかどうかを定期的に確認して下さい。</small>
 </div>
@@ -65,7 +65,7 @@ if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
 <label for="emailagn">メールアドレス（確認の為再入力）【必須】</label>
 <input type="email" name="emailagn" class="form-control" id="emailagn" value="<?php
 if (isset($entereddata["email"])) echo hsc($entereddata["email"]);
-?>" onBlur="check_individual(&quot;emailagn&quot;);">
+?>" onChange="check_individual(&quot;emailagn&quot;);">
 <div id="emailagn-errortext" class="system-form-error"></div>
 </div>
 <br>
@@ -79,7 +79,7 @@ echo_modal_confirm();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 function check_individual(id){
     var valid = 1;
     if (id === "password") {
@@ -350,7 +350,7 @@ function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');

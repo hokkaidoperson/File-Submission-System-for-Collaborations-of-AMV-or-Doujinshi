@@ -8,21 +8,22 @@ session_validation(TRUE);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <?php
 if (META_NOFOLLOW) echo '<meta name="robots" content="noindex, nofollow, noarchive">';
 ?>
-<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap-filesys.css?<?php echo urlencode(VERSION); ?>">
+<link rel="stylesheet" href="<?php echo $siteurl; ?>css/bootstrap-icons.css?<?php echo urlencode(VERSION); ?>">
 <link rel="stylesheet" href="<?php echo $siteurl; ?>css/style.css?<?php echo urlencode(VERSION); ?>">
 <title><?php
 if (isset($titlepart)) echo $titlepart . ' - ';
 echo $eventname;
 ?>　ファイル提出用ポータルサイト</title>
 <script type="text/javascript">
-<!--
+
 //Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
 var setCookie = function(cookieName, value){
   var cookie = cookieName + "=" + value + ";";
@@ -45,10 +46,10 @@ var getCookie = function(cookieName){
 setCookie('check_cookie', true);
 var val = getCookie('check_cookie');
 
-// -->
+
 </script>
 </head>
-<body>
+<body class="system-mypage">
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
@@ -57,18 +58,12 @@ var val = getCookie('check_cookie');
 <script>if (val) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
-<nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-light system-nav-mypage">
 <a class="navbar-brand text-truncate" href="<?php echo $siteurl; ?>mypage/index.php"><?php echo $eventname; ?></a>
 <div class="d-flex flex-row-reverse">
-<div class="dropdown">
-<button type="button" id="dropdownMenuButton"
-class="btn btn-primary dropdown-toggle"
-data-toggle="dropdown"
-aria-haspopup="true"
-aria-expanded="false">
-ログイン中
-</button>
-<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="z-index:9999;">
+<div class="dropdown d-flex align-items-center">
+<button type="button" id="dropdownMenuButton" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ログイン中</button>
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 <h6 class="dropdown-header text-wrap">
 <?php echo $_SESSION["nickname"]; ?>
 </h6>
@@ -101,15 +96,16 @@ if ($_SESSION["admin"]) echo '</p><p class="text-right system-menu-badge"><span 
 ?>
 </p>
 <div class="dropdown-divider"></div>
-<a class="dropdown-item system-link-accounticon" href="<?php echo $siteurl; ?>mypage/account/index.php">アカウント情報編集</a>
-<a class="dropdown-item system-link-logouticon" href="<?php echo $siteurl; ?>mypage/logout.php">ログアウト</a>
+<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/account/index.php"><i class="bi bi-person-fill text-dark"></i> アカウント情報編集</a>
+<a class="dropdown-item" href="<?php echo $siteurl; ?>mypage/logout.php"><i class="bi bi-door-closed-fill text-dark"></i> ログアウト</a>
 </div>
 </div>
 <ul class="navbar-nav mr-3">
-<li><a class="nav-link system-link-helpicon" href='<?php echo $siteurl; ?>open/index.php' target="_blank">ヘルプ</a></li>
+<li><a class="nav-link" href='<?php echo $siteurl; ?>open/index.php' target="_blank"><i class="bi bi-question-circle-fill text-dark"></i> ヘルプ</a></li>
 </ul>
 </div>
 </nav>
-<div class="container">
+<div class="container-md">
+<div class="py-2">
 <?php
 output_alert();

@@ -95,7 +95,7 @@ echo '<div id="submitfile-errortext" class="system-form-error"></div>';
 if ($submitformdata["general"]["detail"] != "") echo '<small class="form-text">' . $submitformdata["general"]["detail"] . '</small>';
 echo '</div>';
 
-echo_textbox("タイトル（50文字以内）【必須】", "title", "title", "", TRUE, "", 'onBlur="check_individual(&quot;title&quot;);"');
+echo_textbox("タイトル（50文字以内）【必須】", "title", "title", "", TRUE, "", 'onChange="check_individual(&quot;title&quot;);"');
 
 foreach ($submitformdata as $number => $data) {
     if ($data["type"] === "general") continue;
@@ -112,7 +112,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
+            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"]);
         break;
         case "textbox2":
             $parttitle = hsc($data["title"]);
@@ -125,7 +125,7 @@ foreach ($submitformdata as $number => $data) {
             if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
             else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
             $horizontally = ($data["arrangement"] == "h");
-            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", "", TRUE, $horizontally, $data["detail"], 'onBlur="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
+            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", "", TRUE, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"]);
         break;
         case "textarea":
             $parttitle = hsc($data["title"]);
@@ -133,7 +133,7 @@ foreach ($submitformdata as $number => $data) {
             else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
             else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
             if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onBlur="check_individual(' . $number . ');"', $data["width"], $data["height"]);
+            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', $data["width"], $data["height"]);
         break;
         case "radio":
             $choices = choices_array($data["list"], TRUE);
@@ -205,7 +205,7 @@ echo_modal_wait();
 ?>
 </form>
 <script type="text/javascript">
-<!--
+
 var changed = false;
 function check_individual(id) {
   changed = true;
@@ -327,7 +327,7 @@ window.addEventListener('beforeunload', function (e) {
   }
 });
 
-// -->
+
 </script>
 <?php
 include(PAGEROOT . 'validate_script.php');

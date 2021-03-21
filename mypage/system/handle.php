@@ -4,7 +4,7 @@ setup_session();
 session_validation();
 
 if (!$_SESSION["admin"]) die('<h1>権限エラー</h1>
-<p>この機能にアクセス出来るのは、<b>システム管理者</b>のみです。</p>
+<p>この機能にアクセス出来るのは、<strong>システム管理者</strong>のみです。</p>
 <p><a href="../index.php">マイページトップに戻る</a></p>');
 
 csrf_prevention_validate();

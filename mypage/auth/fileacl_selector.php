@@ -43,7 +43,7 @@ else $acldata = array();
 <div class="form-group">
 <div class="form-check">
 <input id="tickall1" class="form-check-input" type="checkbox" name="all1" onClick="AllChecked1();">
-<label class="form-check-label" for="tickall1"><b>【全て選択】</b></label>
+<label class="form-check-label" for="tickall1"><strong>【全て選択】</strong></label>
 </div>
 <?php
 foreach ($canshow as $author => $array) {
@@ -69,7 +69,7 @@ if ($canshow == array()) echo '現在、表示出来るユーザーはありま�
 <th>
 <div class="form-check">
 <input id="tickall2" class="form-check-input" type="checkbox" name="all2" onClick="AllChecked2();">
-<label class="form-check-label" for="tickall2"><b>全て選択</b></label>
+<label class="form-check-label" for="tickall2"><strong>全て選択</strong></label>
 </div>
 </th>
 <th>提出者</th><th>作品名</th><th>承認の状態</th>
@@ -93,13 +93,13 @@ foreach ($canshow as $author => $array) {
         if (isset($data["editing"]) and $data["editing"] == 1) echo '<td>項目編集の承認待ち</td>';
         else switch ($data["exam"]) {
             case 1:
-                echo '<td class="text-success"><b>承認</b></td>';
+                echo '<td class="text-success"><strong>承認</strong></td>';
             break;
             case 2:
-                echo '<td class="text-warning"><b>修正待ち</b></td>';
+                echo '<td class="text-warning"><strong>修正待ち</strong></td>';
             break;
             case 3:
-                echo '<td class="text-danger"><b>承認見送り</b></td>';
+                echo '<td class="text-danger"><strong>承認見送り</strong></td>';
             break;
             default:
                 echo '<td>承認待ち</td>';
@@ -116,7 +116,7 @@ if ($canshow == array()) die_mypage('<tr><td colspan="4">現在、表示出来�
 <button type="submit" class="btn btn-primary" id="submitbtn">権限を変更する</button>
 </form>
 <script language="JavaScript" type="text/javascript">
-<!--
+
   function AllChecked1(){
     var all = document.form.all1.checked;
     for (var i=0; i<document.form.elements['users[]'].length; i++){
@@ -169,7 +169,7 @@ function check(){
     return false;
   }
 }
-// -->
+
 </script>
 <?php
 require_once(PAGEROOT . 'mypage_footer.php');
