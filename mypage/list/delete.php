@@ -43,98 +43,78 @@ $formsetting["general"] = json_decode(file_get_contents_repeat(DATAROOT . 'form/
 <p>入力情報を削除し、サーバーにアップロードしたファイルがあればそれも削除されます。<br>
 <strong>この操作を取り消す事は出来ませんのでご注意願います。</strong></p>
 <p>削除しようとしている作品を今一度ご確認願います。</p>
-<div class="table-responsive-md">
-<table class="table table-hover table-bordered">
 <?php
-if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
-    echo '<tr><th width="30%">提出ファイル</th><td width="70%">ファイル名をクリックするとそのファイルをダウンロードします。<br>';
-    foreach ($formdata["submit"] as $filename => $title)
-    echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
-    echo '</td></tr>';
-} else {
-    echo '<tr>
-<th>提出ファイルダウンロード先</th><td><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
-    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
-    echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
-    echo '</td></tr>';
-}
-?>
-<tr>
-<th>タイトル</th><td><?php echo hsc($formdata["title"]); ?></td>
-</tr>
-<tr>
-<th>提出日時</th><td><?php echo date('Y年n月j日G時i分s秒', $id); ?></td>
-</tr>
-<tr>
-<th>最終更新日時</th><td><?php if (isset($formdata["editdate"])) echo date('Y年n月j日G時i分s秒', $formdata["editdate"]); else echo date('Y年n月j日G時i分s秒', $id); ?></td>
-</tr>
-<?php
-foreach ($formsetting as $key => $array) {
-    if ($key === "general") continue;
-    echo "<tr>\n";
-    echo "<th>" . hsc($array["title"]) . "</th>";
-    echo "<td>";
-    if (!isset($formdata[$array["id"]]) and !isset($formdata[$array["id"] . "-1"]) and !isset($formdata[$array["id"] . "-2"])) {
-        echo '</td>';
-        echo "</tr>\n";
-        continue;
+$lists = [];
+
+    $lists[] = ['提出者', hsc(nickname($author))];
+    $lists[] = ['提出日時', date('Y年n月j日G時i分s秒', $id)];
+    $lists[] = ['最終更新日時', isset($formdata["editdate"]) ? date('Y年n月j日G時i分s秒', $formdata["editdate"]) : date('Y年n月j日G時i分s秒', $id)];
+    if (isset($formdata["editing"]) and $formdata["editing"] == 1) $echotext = '項目編集の承認待ち<br>※変更後の内容は上記表に反映されていません。';
+    else switch ($formdata["exam"]) {
+        case 0:
+            $echotext = '承認待ち';
+        break;
+        case 1:
+            $echotext = '<strong class="text-success">承認</strong>';
+        break;
+        case 2:
+            $echotext = '<strong class="text-warning">修正待ち</strong>';
+        break;
+        case 3:
+            $echotext = '<strong class="text-danger">承認見送り</strong>';
+        break;
     }
-    if ($array["type"] == "attach") {
-        if ($formdata[$array["id"]] != array()) {
-            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
-            foreach ($formdata[$array["id"]] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
-        }
+    $lists[] = ['承認の状態', $echotext];
+
+    if (isset($formdata["author_ip"]) and $_SESSION["state"] == 'p') {
+        $status = $formdata["author_ip"] . "／";
+        $remotesearch = gethostbyaddr($formdata["author_ip"]);
+        if ($formdata["author_ip"] !== $remotesearch) $status .= $remotesearch;
+        else $status .= '（リモートホスト名の検索に失敗しました）';
+        $lists[] = ['最終更新時のIPアドレス／リモートホスト名（主催者にのみ表示されています）', $status];
     }
-    else if ($array["type"] == "check") {
-        $dsp = implode("\n", $formdata[$array["id"]]);
-        $dsp = hsc($dsp);
-        echo str_replace("\n", '<br>', $dsp);
-    } else if ($array["type"] == "textbox2") {
-        if ($formdata[$array["id"] . "-1"] != "") {
-            echo '<div>';
-            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-            echo hsc($formdata[$array["id"] . "-1"]);
-            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
-            echo '</div>';
-        }
-        if ($formdata[$array["id"] . "-2"] != "") {
-            echo '<div>';
-            if (isset($array["prefix_b"]) and $array["prefix_b"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_b"]) . '</span> ';
-            echo hsc($formdata[$array["id"] . "-2"]);
-            if (isset($array["suffix_b"]) and $array["suffix_b"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_b"]) . '</span> ';
-            echo '</div>';
-        }
+
+    if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
+        $echotext = 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+        foreach ($formdata["submit"] as $filename => $title)
+        $echotext .= '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
+        $lists[] = ['提出ファイル', $echotext];
     } else {
-        if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-        echo give_br_tag($formdata[$array["id"]]);
-        if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+        $echotext = '<a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
+        if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") $echotext .= '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
+        if (isset($formdata["due"]) and $formdata["due"] != "") $echotext .= '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
+        $echotext .= '<br><span class="small">※<span class="text-decoration-underline">このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</span>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
+        $lists[] = ['提出ファイルダウンロード先', $echotext];
     }
-    echo '</td>';
-    echo "</tr>\n";
-}
+
+    foreach ($formsetting as $key => $array) {
+        if ($key === "general") continue;
+        if (!isset($formdata[$array["id"]])) {
+            $lists[] = [hsc($array["title"]), ''];
+            continue;
+        }
+        if ($array["type"] == "attach") {
+            if ($formdata[$array["id"]] != array()) {
+                $echotext = 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
+                foreach ($formdata[$array["id"]] as $filename => $title)
+                $echotext .= '<a href="../fnc/filedld.php?author=' . $author . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
+            }
+        }
+        else {
+            $echotext = '';
+            for ($answer = 0; $answer < count($formdata[$array["id"]]); $answer++) {
+                $echotext .= '<div>';
+                if (isset($array["prefix"][$answer]) and $array["prefix"][$answer] != "") $echotext .= '<span class="badge badge-secondary">' . hsc($array["prefix"][$answer]) . '</span> ';
+                $echotext .= give_br_tag($formdata[$array["id"]][$answer]);
+                if (isset($array["suffix"][$answer]) and $array["suffix"][$answer] != "") $echotext .= ' <span class="badge badge-secondary">' . hsc($array["suffix"][$answer]) . '</span> ';
+                $echotext .= '</div>';
+            }
+        }
+        $lists[] = [hsc($array["title"]), $echotext];
+    }
+
+echo_desc_list($lists);
 ?>
-<tr><th>承認の状態</th><?php
-if (isset($formdata["editing"]) and $formdata["editing"] == 1) echo '<td>項目編集の承認待ち<br>※変更後の内容は上記表に反映されていません。</td>';
-else switch ($formdata["exam"]) {
-    case 0:
-        echo '<td>承認待ち</td>';
-    break;
-    case 1:
-        echo '<td class="text-success"><strong>承認</strong></td>';
-    break;
-    case 2:
-        echo '<td class="text-warning"><strong>修正待ち</strong></td>';
-    break;
-    case 3:
-        echo '<td class="text-danger"><strong>承認見送り</strong></td>';
-    break;
-}
-echo "</tr>";
-?>
-</table>
-</div>
 <p>削除してもよろしければ、現在のパスワードを入力して「削除する」ボタンを押して下さい。</p>
 <form name="form" action="delete_exec.php" method="post" onSubmit="return check()">
 <div class="border border-primary system-border-spacer">

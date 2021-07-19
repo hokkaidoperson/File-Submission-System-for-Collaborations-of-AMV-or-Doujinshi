@@ -165,6 +165,11 @@ switch ($genre) {
     break;
 }
 
+if ($exam and exam_anonymous()) {
+    preg_match('/\.([0-9a-zA-Z]+)$/i', $ext, $tmp);
+    $ext = 'ダウンロード.' . $tmp[1];
+}
+
 //ファイルダウンロードさせる
 header('Content-Type: application/force-download');
 header('Content-Type: application/octet-stream');

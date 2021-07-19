@@ -3,40 +3,29 @@ require_once('../../../set.php');
 setup_session();
 session_validation();
 
+csrf_prevention_validate();
+
 if (no_access_right(array("p"))) redirect("./index.php");
 
+if (!isset($_SESSION["submitformdata"])) redirect("./index.php");
+if (!isset($_SESSION["submitformdata"]["general"])) redirect("./index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/draft/')) {
-    if (!mkdir(DATAROOT . 'form/submit/draft/')) die('ディレクトリの作成に失敗しました。');
-    for ($i = 0; $i <= 9; $i++) {
-        if (!file_exists(DATAROOT . 'form/submit/' . "$i" . '.txt')) break;
-        copy(DATAROOT . 'form/submit/' . "$i" . '.txt', DATAROOT . 'form/submit/draft/' . "$i" . '.txt');
-    }
-    copy(DATAROOT . 'form/submit/general.txt', DATAROOT . 'form/submit/draft/general.txt');
-}
 
-//一時ファイルを実際の設定ファイルにする
 for ($i = 0; $i <= 9; $i++) {
     $fileplace = DATAROOT . 'form/submit/' . $i . '.txt';
-    if (file_exists(DATAROOT . 'form/submit/draft/' . "$i" . '.txt')) {
+    if (isset($_SESSION["submitformdata"][$i])) {
         //ファイル内容
-        $filedata = file_get_contents_repeat(DATAROOT . 'form/submit/draft/' . "$i" . '.txt');
+        $filedata = $_SESSION["submitformdata"][$i];
 
-        if (file_put_contents_repeat($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
+        if (json_pack($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
     } else {
         if (file_exists($fileplace)) unlink($fileplace);
     }
 }
-
 $fileplace = DATAROOT . 'form/submit/general.txt';
-//ファイル内容
-$filedata = file_get_contents_repeat(DATAROOT . 'form/submit/draft/general.txt');
+$filedata = $_SESSION["submitformdata"]["general"];
+if (json_pack($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
 
-if (file_put_contents_repeat($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
-
-
-//一時ファイルを消す
-remove_directory(DATAROOT . 'form/submit/draft');
 
 unset($_SESSION["submitformdata"]);
 

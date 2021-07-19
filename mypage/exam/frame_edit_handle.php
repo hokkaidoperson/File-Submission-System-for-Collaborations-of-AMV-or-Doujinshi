@@ -18,10 +18,10 @@ if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
 $leader = id_leader($answerdata["_membermode"]);
 if ($leader != NULL) {
-    if ($leader != $_SESSION["userid"]) redirect("./index.php");
-} else redirect("./index.php");
+    if ($leader != $_SESSION["userid"]) redirect("../list/index.php");
+} else redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 csrf_prevention_validate();
@@ -45,6 +45,35 @@ if (file_put_contents_repeat(DATAROOT . 'exam_edit/' . $subject . '.txt', $filed
 //入力内容を読み込んで書き換え
 $formdata = json_decode(file_get_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt"), true);
 $formdata["editing"] = 0;
+$changeddata = json_decode(file_get_contents_repeat(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
+//総再生時間の処理
+foreach($changeddata as $key => $data) {
+    if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
+        $tmp = explode("_", $key);
+        $partid = $tmp[0];
+        if ($partid === "submit") $saveid = "main";
+        else continue;
+        $old_length = $formdata["length_sum"];
+        if ($tmp[1] === "add") {
+            foreach ($data as $fileplace => $name) {
+                if (preg_match('/\.mp4$/i', $name)) {
+                    $formdata["length_sum"] -= get_playtime(DATAROOT . 'edit_files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace");
+                }
+            }
+        }
+        if ($tmp[1] === "delete") {
+            foreach ($data as $name) {
+                if (preg_match('/\.mp4$/i', $formdata["submit"][$name])) {
+                    $formdata["length_sum"] += get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$name");
+                }
+            }
+        }
+        //合計再生時間
+        $userprofile = new JsonRW(user_file_path());
+        $userprofile->array["length_sum"] += $formdata["length_sum"] - $old_length;
+        $userprofile->write();
+    }
+}
 $filedatajson = json_encode($formdata);
 if (file_put_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $filedatajson) === FALSE) die('作品データの書き込みに失敗しました。');
 
@@ -75,4 +104,4 @@ unlink(DATAROOT . "edit/" . $author . "/" . $id . ".txt");
 
 register_alert("提出者への通知が完了しました。", "success");
 
-redirect("./index.php");
+redirect("../list/index.php");

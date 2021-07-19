@@ -26,7 +26,7 @@ require_once(PAGEROOT . 'guest_header.php');
 <div class="border system-border-spacer">
 <p>最初に、主催者アカウントの登録をします。募集期間など、イベントの詳細事項については、アカウントの登録後に行えるようになります。</p>
 <p><strong>パスワードは絶対に外部に漏れないようにして下さい。</strong>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。</p>
-<p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。</p>
+<p><span class="text-decoration-underline">ユーザーID以外の項目は、後から変更する事が出来ます</span>（マイページトップ画面の「アカウント情報編集」から編集出来ます）。</p>
 <p>当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。</p>
 </div>
 <form name="form" action="prom_handle.php" method="post" onSubmit="return check()">
@@ -413,11 +413,6 @@ function check(){
     })
 
     return false;
-}
-
-//文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
-   document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
 </script>

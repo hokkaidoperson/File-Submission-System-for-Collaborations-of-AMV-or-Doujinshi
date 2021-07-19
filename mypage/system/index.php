@@ -49,8 +49,8 @@ if (isset($entereddata["filesize"])) echo hsc($entereddata["filesize"]);
 　用途を考え、最大サイズをあまり大きくし過ぎないようにして下さい。<br>
 ※以下に、ファイルアップロードの制限に関する、サーバーの設定値を表示します。<br>
 　これらを上回る最大サイズを指定すると、送信中にエラーが返される事があります（単位は「バイト」、「M」は「メガ」の事です）。<br>
-　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></u><br>
-　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></u></small>
+　<span class="text-decoration-underline">ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></span><br>
+　<span class="text-decoration-underline">他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></span></small>
 </div>
 <div class="form-group">
 <label for="accounts">メールアドレス1つ当たりの最大アカウント数（1～10の半角数字）【必須】</label>
@@ -421,11 +421,6 @@ function check(){
   }
   return false;
 
-}
-
-//文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
-   document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
 

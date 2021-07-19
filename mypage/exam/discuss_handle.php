@@ -3,9 +3,9 @@ require_once('../../set.php');
 setup_session();
 session_validation();
 
-if (no_access_right(array("p", "c"))) redirect("./index.php");
+if (no_access_right(array("p", "c"))) redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 $subject = basename($_POST["subject"]);
 

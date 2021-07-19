@@ -25,7 +25,7 @@ require_once(PAGEROOT . 'guest_header.php');
 <div class="border system-border-spacer">
 <p>パスワードの再発行を行うためのURLを、お使いのアカウントのメールアドレスに送信します。</p>
 <p>確認の為、お使いのアカウントの情報を以下に入力して下さい。</p>
-<p class="system-asterisk-indent">※<a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a></p>
+<p class="d-flex"><span class="pr-1">※</span><span><a href="../search_id/index.php">ユーザーID・ニックネームが分からない場合は、このままではパスワードを再発行出来ないのでこちらをご覧下さい。</a></span></p>
 </div>
 <div class="border border-primary system-border-spacer">
 <form name="form" action="auth.php" method="post" onSubmit="return check()">
@@ -47,7 +47,7 @@ require_once(PAGEROOT . 'guest_header.php');
 </div>
 <?php
 if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
-<button class="btn btn-primary" type="submit">URLを送信</button><div class="small text-muted system-asterisk-indent">※「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</div>';
+<button class="btn btn-primary" type="submit">URLを送信</button><div class="small text-muted d-flex"><span class="pr-1">※</span>「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</div>';
 else echo '<button type="submit" class="btn btn-primary" id="submitbtn">URLを送信</button>';
 ?>
 <div id="neterrortext" style="display: none;"><span class="small text-danger">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「URLを送信」を押して下さい。</span></div>

@@ -36,9 +36,9 @@ if ($leader != NULL) {
     if (isset($answerdata[$_SESSION["userid"]]["opinion"]) and $answerdata[$_SESSION["userid"]]["opinion"] != 0) $echoforceclose = TRUE;
 }
 
-if (!$echoforceclose) redirect("./index.php");
+if (!$echoforceclose) redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 //〆処理
@@ -46,14 +46,14 @@ $result = exam_totalization_edit($examfilename, TRUE);
 
 switch ($result){
     case 0:
-        register_alert("<p>投票を強制的に締め切りました。</p><p>既に投票されていたデータを集計しました。<br>メンバー間で意見が分かれたため、<strong>この変更の承認・拒否について議論する必要があります</strong>。<br>以下の「議論中の作品・情報」の項目から、簡易チャット画面に移って下さい。</p>", "success");
+        register_alert("<p>投票を強制的に締め切りました。</p><p>既に投票されていたデータを集計しました。<br>メンバー間で意見が分かれたため、<strong>この変更の承認可否について議論する必要があります</strong>。<br>以下の「確認未完了の提出物」の項目から、簡易チャット画面に移って下さい。</p>", "success");
     break;
     case 1:
         register_alert("<p>投票を強制的に締め切りました。</p><p>既に投票されていたデータを集計しました。<br>承認しても問題無いという意見で一致したため、<strong>この変更を承認しました</strong>。<br>作品の提出者に承認の通知をしました。</p>", "success");
     break;
     case 2:
-        register_alert("<p>投票を強制的に締め切りました。</p><p>既に投票されていたデータを集計しました。<br>問題があるという意見で一致したため、<strong>この変更を拒否しました</strong>。<br>作品の提出者に拒否の通知をします。</p>", "success");
+        register_alert("<p>投票を強制的に締め切りました。</p><p>既に投票されていたデータを集計しました。<br>問題があるという意見で一致したため、<strong>この変更の承認を見送りました</strong>。<br>作品の提出者に承認見送りの通知をします。</p>", "success");
     break;
 }
 
-redirect("./index.php");
+redirect("../list/index.php");

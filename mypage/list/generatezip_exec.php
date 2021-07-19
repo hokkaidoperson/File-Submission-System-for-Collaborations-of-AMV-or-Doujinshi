@@ -134,20 +134,16 @@ foreach ($zipuser as $userid => $data) {
                 }
                 $export .= implode("\n", $exportarray);
             }
-        } else if (isset($data["common_acceptance"]) and $array["type"] == "check") {
-            $export .= implode("\n", (array)$data[$array["id"]]);
-        } else if (isset($data["common_acceptance"]) and $array["type"] == "textbox2") {
-            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
-            $export .= $data[$array["id"] . "-1"];
-            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
-            $export .= "\n";
-            if (isset($array["prefix_b"]) and $array["prefix_b"] != "") $export .= "（" . $array["prefix_b"] . "）";
-            $export .= $data[$array["id"] . "-2"];
-            if (isset($array["suffix_b"]) and $array["suffix_b"] != "") $export .= "（" . $array["suffix_b"] . "）";
         } else if (isset($data["common_acceptance"])) {
-            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
-            $export .= $data[$array["id"]];
-            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
+            $exportarray = array();
+            for ($answer = 0; $answer < count($data[$array["id"]]); $answer++) {
+                $exportpart = '';
+                if (isset($array["prefix"][$answer]) and $array["prefix"][$answer] != "") $exportpart .= '（' . hsc($array["prefix"][$answer]) . '）';
+                $exportpart .= $data[$array["id"]][$answer];
+                if (isset($array["suffix"][$answer]) and $array["suffix"][$answer] != "") $exportpart .= '（' . hsc($array["suffix"][$answer]) . '）';
+                $exportarray[] = $exportpart;
+            }
+            $export .= implode("\n", $exportarray);
         }
         $usercsv[$i][] = $export;
     }
@@ -196,20 +192,16 @@ foreach ($zipdata as $userid => $works) {
                     }
                     $export .= implode("\n", $exportarray);
                 }
-            } else if ($array["type"] == "check") {
-                $export .= implode("\n", (array)$data[$array["id"]]);
-            } else if ($array["type"] == "textbox2") {
-                if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
-                $export .= $data[$array["id"] . "-1"];
-                if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
-                $export .= "\n";
-                if (isset($array["prefix_b"]) and $array["prefix_b"] != "") $export .= "（" . $array["prefix_b"] . "）";
-                $export .= $data[$array["id"] . "-2"];
-                if (isset($array["suffix_b"]) and $array["suffix_b"] != "") $export .= "（" . $array["suffix_b"] . "）";
             } else {
-                if (isset($array["prefix_a"]) and $array["prefix_a"] != "") $export .= "（" . $array["prefix_a"] . "）";
-                $export .= $data[$array["id"]];
-                if (isset($array["suffix_a"]) and $array["suffix_a"] != "") $export .= "（" . $array["suffix_a"] . "）";
+                $exportarray = array();
+                for ($answer = 0; $answer < count($data[$array["id"]]); $answer++) {
+                    $exportpart = '';
+                    if (isset($array["prefix"][$answer]) and $array["prefix"][$answer] != "") $exportpart .= '（' . hsc($array["prefix"][$answer]) . '）';
+                    $exportpart .= $data[$array["id"]][$answer];
+                    if (isset($array["suffix"][$answer]) and $array["suffix"][$answer] != "") $exportpart .= '（' . hsc($array["suffix"][$answer]) . '）';
+                    $exportarray[] = $exportpart;
+                }
+                $export .= implode("\n", $exportarray);
             }
             $submitcsv[$i][] = $export;
         }

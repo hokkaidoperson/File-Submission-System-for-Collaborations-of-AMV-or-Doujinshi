@@ -96,7 +96,7 @@ if ($_SESSION["state"] == 'p' or $_SESSION["state"] == 'c') {
     if (isset($echotext[0])) $inalert .= $echotext[0];
     if (isset($echotext[1])) $inalert .= "また、" . $echotext[1];
     if (isset($echotext[2])) $inalert .= "更に、" . $echotext[2];
-    if ($inalert != "") echo_alert($inalert . '<br>「提出物の確認・承認」からご確認願います。', "primary", TRUE);
+    if ($inalert != "") echo_alert($inalert . '<br>「提出物の一覧・編集・承認」からご確認願います。', "primary", TRUE);
 }
 
 //未読メッセージ
@@ -135,19 +135,10 @@ if ($_SESSION["state"] == 'p') echo '<div class="system-cardindv">
 <div class="card"><div class="card-body"><div class="d-flex align-items-center">
 <i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
-<a href="list/index.php" class="stretched-link"><h5>参加者・作品の一覧・編集</h5></a>
+<a href="list/index.php" class="stretched-link"><h5>提出物の一覧・編集・承認</h5></a>
 </div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">参加者から提出された作品、及びご自身の作品はこちらから確認・ダウンロード出来ます。ご自身の作品の編集も行えます。</span></p></div></div>
-</div>
-<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="d-flex align-items-center">
-<i class="bi bi-eye d-inline-block mr-3"></i>
-<div class="media-body">
-<a href="exam/index.php" class="stretched-link"><h5>提出物の確認・承認</h5></a>
-</div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">作品・情報が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
-</div>
-';
+<p class="card-text"><span class="text-decoration-none text-body">参加者から提出された作品、及びご自身の作品はこちらから確認・ダウンロード出来ます。<br>提出物の承認作業もこちらから行って下さい。<br>ご自身の作品の編集も行えます。</span></p></div></div>
+</div>';
 if ($_SESSION["state"] == 'c') echo '<div class="system-cardindv">
 <div class="card"><div class="card-body"><div class="d-flex align-items-center">
 <i class="bi bi-cloud-arrow-up-fill text-dark d-inline-block mr-3"></i>
@@ -168,17 +159,9 @@ if ($_SESSION["state"] == 'c') echo '<div class="system-cardindv">
 <div class="card"><div class="card-body"><div class="d-flex align-items-center">
 <i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
-<a href="list/index.php" class="stretched-link"><h5>提出済み作品一覧・編集</h5></a>
+<a href="list/index.php" class="stretched-link"><h5>提出物の一覧・編集・承認</h5></a>
 </div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。<br>主催者から特定の作品の閲覧権が与えられている場合、その作品も閲覧出来ます。</span></p></div></div>
-</div>
-<div class="system-cardindv">
-<div class="card"><div class="card-body"><div class="d-flex align-items-center">
-<i class="bi bi-eye d-inline-block mr-3"></i>
-<div class="media-body">
-<a href="exam/index.php" class="stretched-link"><h5>提出物の確認・承認</h5></a>
-</div></div><hr>
-<p class="card-text"><span class="text-decoration-none text-body">作品・情報が提出されたら、こちらから確認・承認を行って下さい。</span></p></div></div>
+<p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。<br>主催者から特定の作品の閲覧権が与えられている場合、その作品も閲覧出来ます。<br>提出物の承認作業もこちらから行って下さい。</span></p></div></div>
 </div>';
 if ($_SESSION["state"] == 'g') echo '<div class="system-cardindv">
 <div class="card"><div class="card-body"><div class="d-flex align-items-center">
@@ -200,7 +183,7 @@ if ($_SESSION["state"] == 'g') echo '<div class="system-cardindv">
 <div class="card"><div class="card-body"><div class="d-flex align-items-center">
 <i class="bi bi-list-ul d-inline-block mr-3"></i>
 <div class="media-body">
-<a href="list/index.php" class="stretched-link"><h5>提出済み作品一覧・編集</h5></a>
+<a href="list/index.php" class="stretched-link"><h5>提出物の一覧・編集</h5></a>
 </div></div><hr>
 <p class="card-text"><span class="text-decoration-none text-body">提出済みのご自身の作品はこちらから確認・ダウンロード・編集出来ます。</span></p></div></div>
 </div>';

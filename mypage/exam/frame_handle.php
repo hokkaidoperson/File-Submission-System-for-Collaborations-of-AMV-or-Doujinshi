@@ -9,10 +9,10 @@ if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
 $leader = id_leader("submit");
 if ($leader != NULL) {
-    if ($leader != $_SESSION["userid"]) redirect("./index.php");
-} else redirect("./index.php");
+    if ($leader != $_SESSION["userid"]) redirect("../list/index.php");
+} else redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 csrf_prevention_validate();
@@ -105,4 +105,4 @@ sendmail(email($author), $authorsubject, $content);
 
 register_alert("提出者への通知が完了しました。", "success");
 
-redirect("./index.php");
+redirect("../list/index.php");

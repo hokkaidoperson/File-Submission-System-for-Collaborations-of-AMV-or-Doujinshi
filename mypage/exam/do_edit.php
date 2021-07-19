@@ -62,7 +62,7 @@ if ($author == $_SESSION["userid"]) {
 if ($filedata["_state"] == 0) echo '<h1>提出物（項目変更）の確認・承認 - 回答画面</h1>
 <p>下記の作品について、変更内容をご確認下さい。<br>
 その後、変更内容への判断について、下記の入力フォームに回答して下さい。<br>
-変更内容が承認されれば、変更をファイルに適用します。変更内容が拒否されれば、変更は適用されず、変更前のファイル内容が維持されます。</p>
+変更内容が承認されれば、変更をファイルに適用します。変更内容の承認が見送られれば、変更は適用されず、変更前のファイル内容が維持されます。</p>
 <p>回答済みの場合、保存されている回答内容が入力されています。変更する場合は、新しい回答内容に変更し、送信して下さい。</p>
 ';
 else if ($filedata["_state"] == 1) echo '<h1>提出物（項目変更）の確認・承認 - 回答履歴</h1>
@@ -86,193 +86,170 @@ if (!isset($_SESSION["dld_caution"])) {
 <strong>【第三者のファイルをダウンロードするにあたっての注意事項】</strong><br>
 第三者が作成したファイルのダウンロードには、セキュリティ上のリスクを孕んでいる可能性があります。<br>
 アップロード出来るファイルの拡張子を制限する事により、悪意あるファイルをある程度防いでいますが、悪意あるファイルの全てを防げる訳ではありません。<br>
-<u>第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</u>。
+<span class="text-decoration-underline">第三者が作成したファイルをダウンロードする際は、ウイルス対策ソフトなど、セキュリティを万全に整える事をお勧め致します</span>。
 </div>';
     $_SESSION["dld_caution"] = 'ok';
 }
 }
 
-if ($filedata["_state"] == 0) echo '<h2>作品の詳細（変更前）</h2>';
-else echo '<h2>作品の詳細</h2>';
-?>
-<div class="table-responsive-md">
-<table class="table table-hover table-bordered">
-<?php
-if ($filedata["_state"] == 0) {
+echo '<h2>作品の詳細</h2>';
+if ($filedata["_state"] == 0) echo '<h3>変更前</h3>';
 
-if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
-    echo '<tr><th>提出ファイル</th><td>ファイル名をクリックするとそのファイルをダウンロードします。<br>';
-    foreach ($formdata["submit"] as $filename => $title)
-    echo '<a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
-    echo '</td></tr>';
-} else {
-    echo '<tr>
-<th>提出ファイルダウンロード先</th><td><a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
-    if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
-    if (isset($formdata["due"]) and $formdata["due"] != "") echo '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
-    echo '<br><span class="small">※<u>このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
-    echo '</td></tr>';
-}
+$lists = [];
 
-}
-?>
-<tr>
-<th width="30%">提出者</th><td width="70%"><?php
-if (exam_anonymous() and ($filedata["_state"] == 0 or $filedata["_state"] == 1)) echo '<span class="text-muted">（主催者が、ファイル確認時に提出者名を表示しない設定にしています。）</span>';
-else echo hsc(nickname($author));
-?></td>
-</tr>
-<tr>
-<th>タイトル</th><td><?php echo hsc($formdata["title"]); ?></td>
-</tr>
-<?php
+$lists[] = ['タイトル', hsc($formdata["title"])];
+$lists[] = ['提出者', (exam_anonymous() and ($filedata["_state"] == 0 or $filedata["_state"] == 1)) ? '<span class="text-muted">（主催者が、ファイル確認時に提出者名を表示しない設定にしています。）</span>' : hsc(nickname($author))];
 if (isset($filedata["_ip"]) and $_SESSION["state"] == 'p') {
-    echo '<tr><th>提出時のIPアドレス／リモートホスト名（主催者にのみ表示されています）</th><td>';
-    echo $filedata["_ip"] . "／";
+    $status = $filedata["_ip"] . "／";
     $remotesearch = gethostbyaddr($filedata["_ip"]);
-    if ($filedata["_ip"] !== $remotesearch) echo $remotesearch;
-    else echo '（リモートホスト名の検索に失敗しました）';
-    echo '</td></tr>';
+    if ($filedata["_ip"] !== $remotesearch) $status .= $remotesearch;
+    else $status .= '（リモートホスト名の検索に失敗しました）';
+    $lists[] = ['提出時のIPアドレス／リモートホスト名（主催者にのみ表示されています）', $status];
 }
 
 if ($filedata["_state"] == 0) {
-
-foreach ($formsetting as $key => $array) {
-    if ($key === "general") continue;
-    echo "<tr>\n";
-    echo "<th>" . hsc($array["title"]) . "</th>";
-    echo "<td>";
-    if (!isset($formdata[$array["id"]]) and !isset($formdata[$array["id"] . "-1"]) and !isset($formdata[$array["id"] . "-2"])) {
-        echo '</td>';
-        echo "</tr>\n";
-        continue;
-    }
-    if ($array["type"] == "attach") {
-        if (isset($formdata[$array["id"]]) and $formdata[$array["id"]] != array()) {
-            echo 'ファイル名をクリックするとそのファイルをダウンロードします。<br>';
-            foreach ($formdata[$array["id"]] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
+    if (isset($formdata["submit"]) and $formdata["submit"] != array()) {
+        $echotext = 'ファイル名をクリックするとそのファイルをダウンロードします。';
+        if (exam_anonymous()) $echotext .= '<br>※ファイル確認時に提出者名を表示しない設定になっているため、ファイル名を伏せています。';
+        foreach ($formdata["submit"] as $filename => $title){
+            if (exam_anonymous()) {
+                preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                $title = $tmp[1] . 'ファイル_' . $filename;
+            }
+            $echotext .= '<br><a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitmain&id=' . $id . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a>';
         }
-    }
-    else if ($array["type"] == "check") {
-        $dsp = implode("\n", $formdata[$array["id"]]);
-        $dsp = hsc($dsp);
-        echo str_replace("\n", '<br>', $dsp);
-    } else if ($array["type"] == "textbox2") {
-        if ($formdata[$array["id"] . "-1"] != "") {
-            echo '<div>';
-            if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-            echo hsc($formdata[$array["id"] . "-1"]);
-            if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
-            echo '</div>';
-        }
-        if ($formdata[$array["id"] . "-2"] != "") {
-            echo '<div>';
-            if (isset($array["prefix_b"]) and $array["prefix_b"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_b"]) . '</span> ';
-            echo hsc($formdata[$array["id"] . "-2"]);
-            if (isset($array["suffix_b"]) and $array["suffix_b"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_b"]) . '</span> ';
-            echo '</div>';
-        }
+        $lists[] = ['提出ファイル', $echotext];
     } else {
-        if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-        echo give_br_tag($formdata[$array["id"]]);
-        if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
+        $echotext = '<a href="' . hsc($formdata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
+        if (isset($formdata["dldpw"]) and $formdata["dldpw"] != "") $echotext .= '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($formdata["dldpw"]) . '</code></span>';
+        if (isset($formdata["due"]) and $formdata["due"] != "") $echotext .= '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $formdata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
+        $echotext .= '<br><span class="small">※<span class="text-decoration-underline">このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</span>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
+        $lists[] = ['提出ファイルダウンロード先', $echotext];
     }
-    echo '</td>';
-    echo "</tr>\n";
-}
 
-}
-?>
-</table>
-</div>
-<?php
-if ($filedata["_state"] == 0) {
-    echo '<h2>変更内容</h2>';
-    echo '<div class="table-responsive-md">
-<table class="table table-hover table-bordered">';
-    if (isset($changeddata["submit_add"]) or isset($changeddata["submit_delete"])) {
-        echo '<tr>
-<th width="30%">提出ファイル</th><td width="70%">';
-        if (isset($changeddata["submit_delete"]) and $changeddata["submit_delete"] != array()) {
-            echo '以下のファイルを削除：<br>';
-            foreach ($changeddata["submit_delete"] as $filename)
-            echo $formdata["submit"][$filename] . '<br>';
-            echo '<br>';
-        }
-        if (isset($changeddata["submit_add"]) and $changeddata["submit_add"] != array()) {
-            echo '以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：<br>';
-            foreach ($changeddata["submit_add"] as $filename => $title)
-            echo '<a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitmain_edit&id=' . $id . '&edit=' . $editid . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a><br>';
-        }
-        echo '</td></tr>';
-    }
-    else if (isset($changeddata["url"])) {
-        echo '<tr>
-<th width="30%">提出ファイルダウンロード先</th><td width="70%"><a href="' . hsc($changeddata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
-        if (isset($changeddata["dldpw"])) echo '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($changeddata["dldpw"]) . '</code></span>';
-        if (isset($changeddata["due"])) echo '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $changeddata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
-        echo '<br><span class="small">※<u>このファイルは、作品一覧画面の一括ダウンロード機能でダウンロードする事が出来ません</u>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
-        echo '</td></tr>';
-    }
-    if (isset($changeddata["title"])) echo '<tr>
-<th width="30%">タイトル</th><td width="70%">' . hsc($changeddata["title"]) . '</td>
-</tr>';
     foreach ($formsetting as $key => $array) {
         if ($key === "general") continue;
-        if (isset($changeddata[$array["id"]]) or isset($changeddata[$array["id"] . "-1"]) or isset($changeddata[$array["id"] . "-2"]) or isset($changeddata[$array["id"] . "_add"]) or isset($changeddata[$array["id"] . "_delete"])) {
-            echo "<tr>\n";
-            echo "<th width=\"30%\">" . hsc($array["title"]) . "</th>";
-            echo "<td width=\"70%\">";
+        if (!isset($formdata[$array["id"]])) {
+            $lists[] = [hsc($array["title"]), ''];
+            continue;
+        }
+        if ($array["type"] == "attach") {
+            if ($formdata[$array["id"]] != array()) {
+                $echotext = 'ファイル名をクリックするとそのファイルをダウンロードします。';
+                if (exam_anonymous()) $echotext .= '<br>※ファイル確認時に提出者名を表示しない設定になっているため、ファイル名を伏せています。';
+                foreach ($formdata[$array["id"]] as $filename => $title){
+                    if (exam_anonymous()) {
+                        preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                        $title = $tmp[1] . 'ファイル_' . $filename;
+                    }
+                    $echotext .= '<br><a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitform&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '" target="_blank">' . hsc($title) . '</a>';
+                }
+            }
+        }
+        else {
+            $echotext = '';
+            for ($answer = 0; $answer < count($formdata[$array["id"]]); $answer++) {
+                $echotext .= '<div>';
+                if (isset($array["prefix"][$answer]) and $array["prefix"][$answer] != "") $echotext .= '<span class="badge badge-secondary">' . hsc($array["prefix"][$answer]) . '</span> ';
+                $echotext .= give_br_tag($formdata[$array["id"]][$answer]);
+                if (isset($array["suffix"][$answer]) and $array["suffix"][$answer] != "") $echotext .= ' <span class="badge badge-secondary">' . hsc($array["suffix"][$answer]) . '</span> ';
+                $echotext .= '</div>';
+            }
+        }
+        $lists[] = [hsc($array["title"]), $echotext];
+    }
+}
+
+echo_desc_list($lists);
+
+
+if ($filedata["_state"] == 0) {
+    $lists = [];
+    echo '<h3>変更内容</h3>';
+    if (isset($changeddata["title"])) $lists[] = ['タイトル', hsc($changeddata["title"])];
+    if (isset($changeddata["submit_add"]) or isset($changeddata["submit_delete"])) {
+        $echotext = '';
+        if (isset($changeddata["submit_delete"]) and $changeddata["submit_delete"] != array()) {
+            $echotext .= '<div>以下のファイルを削除：';
+            foreach ($changeddata["submit_delete"] as $filename){
+                $title = $formdata["submit"][$filename];
+                if (exam_anonymous()) {
+                    preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                    $title = $tmp[1] . 'ファイル_' . $filename;
+                }
+                $echotext .= '<br>' . $title;
+            }
+            $echotext .= '</div>';
+        }
+        if (isset($changeddata["submit_add"]) and $changeddata["submit_add"] != array()) {
+            $echotext .= '<div>以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：';
+            if (exam_anonymous()) $echotext .= '<br>※ファイル確認時に提出者名を表示しない設定になっているため、ファイル名を伏せています。';
+            foreach ($changeddata["submit_add"] as $filename => $title){
+                if (exam_anonymous()) {
+                    preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                    $title = $tmp[1] . 'ファイル_' . $filename;
+                }
+                $echotext .= '<br><a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitmain_edit&id=' . $id . '&edit=' . $editid . '&partid=' . $filename . '" target="_blank">' . hsc($title) . '</a>';
+            }
+            $echotext .= '</div>';
+        }
+        $lists[] = ['提出ファイル', $echotext];
+    } else if (isset($changeddata["url"])) {
+        $echotext = '<a href="' . hsc($changeddata["url"]) . '" target="_blank" rel="noopener">クリックすると新しいウィンドウで開きます</a>';
+        if (isset($changeddata["dldpw"]) and $changeddata["dldpw"] != "") $echotext .= '<br><span class="small">※パスワード等の入力を求められた場合は、次のパスワードを入力して下さい。<code>' . hsc($changeddata["dldpw"]) . '</code></span>';
+        if (isset($changeddata["due"]) and $changeddata["due"] != "") $echotext .= '<br><span class="small">※ダウンロードURLの有効期限は <strong>' . date('Y年n月j日G時i分', $changeddata["due"]) . '</strong> までです。お早めにダウンロード願います。</span>';
+        $echotext .= '<br><span class="small">※<span class="text-decoration-underline">このファイルは、一括ダウンロード機能でダウンロードする事が出来ません</span>。ダウンロードが必要な場合は、必ずリンク先からダウンロードして下さい。</span>';
+        $lists[] = ['提出ファイルダウンロード先', $echotext];
+    }
+
+    foreach ($formsetting as $key => $array) {
+        if ($key === "general") continue;
+        if (isset($changeddata[$array["id"]]) or isset($changeddata[$array["id"] . "_add"]) or isset($changeddata[$array["id"] . "_delete"])) {
             if ($array["type"] == "attach") {
+                $echotext = '';
                 if (isset($changeddata[$array["id"] . "_delete"]) and $changeddata[$array["id"] . "_delete"] != array()) {
-                    echo '以下のファイルを削除：<br>';
-                    foreach ($changeddata[$array["id"] . "_delete"] as $filename)
-                    echo $formdata[$array["id"]][$filename] . '<br>';
-                    echo '<br>';
+                    $echotext .= '<div>以下のファイルを削除：';
+                    foreach ($changeddata[$array["id"] . "_delete"] as $filename){
+                        $title = $formdata[$array["id"]][$filename];
+                        if (exam_anonymous()) {
+                            preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                            $title = $tmp[1] . 'ファイル_' . $filename;
+                        }
+                        $echotext .= '<br>' . $title;
+                    }
+                    $echotext .= '</div>';
                 }
                 if (isset($changeddata[$array["id"] . "_add"]) and $changeddata[$array["id"] . "_add"] != array()) {
-                    echo '以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：<br>';
-                    foreach ($changeddata[$array["id"] . "_add"] as $filename => $title)
-                    echo '<a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitform_edit&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '&edit=' . $editid . '" target="_blank">' . hsc($title) . '</a><br>';
+                    $echotext .= '<div>以下のファイルを追加（ファイル名をクリックするとそのファイルをダウンロードします）：';
+                    if (exam_anonymous()) $echotext .= '<br>※ファイル確認時に提出者名を表示しない設定になっているため、ファイル名を伏せています。';
+                    foreach ($changeddata[$array["id"] . "_add"] as $filename => $title){
+                        if (exam_anonymous()) {
+                            preg_match('/\.([0-9a-zA-Z]+)$/i', $title, $tmp);
+                            $title = $tmp[1] . 'ファイル_' . $filename;
+                        }
+                        $echotext .= '<br><a href="../fnc/filedld.php?author=_exam-e-' . $examfilename . '&genre=submitform_edit&id=' . $id . '&partid=' . $array["id"] . '_' . $filename . '&edit=' . $editid . '" target="_blank">' . hsc($title) . '</a>';
+                    }
+                    $echotext .= '</div>';
                 }
             }
-            else if ($array["type"] == "check") {
-                $dsp = implode("\n", $changeddata[$array["id"]]);
-                $dsp = hsc($dsp);
-                echo str_replace("\n", '<br>', $dsp);
-            } else if ($array["type"] == "textbox2") {
-                if ($changeddata[$array["id"] . "-1"] != "") {
-                    echo '<div>';
-                    if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-                    echo hsc($changeddata[$array["id"] . "-1"]);
-                    if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
-                    echo '</div>';
+            else {
+                $echotext = '';
+                for ($answer = 0; $answer < count($changeddata[$array["id"]]); $answer++) {
+                    $echotext .= '<div>';
+                    if (isset($array["prefix"][$answer]) and $array["prefix"][$answer] != "") $echotext .= '<span class="badge badge-secondary">' . hsc($array["prefix"][$answer]) . '</span> ';
+                    $echotext .= give_br_tag($changeddata[$array["id"]][$answer]);
+                    if (isset($array["suffix"][$answer]) and $array["suffix"][$answer] != "") $echotext .= ' <span class="badge badge-secondary">' . hsc($array["suffix"][$answer]) . '</span> ';
+                    $echotext .= '</div>';
                 }
-                if ($changeddata[$array["id"] . "-2"] != "") {
-                    echo '<div>';
-                    if (isset($array["prefix_b"]) and $array["prefix_b"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_b"]) . '</span> ';
-                    echo hsc($changeddata[$array["id"] . "-2"]);
-                    if (isset($array["suffix_b"]) and $array["suffix_b"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_b"]) . '</span> ';
-                    echo '</div>';
-                }
-            } else {
-                if (isset($array["prefix_a"]) and $array["prefix_a"] != "") echo '<span class="badge badge-secondary">' . hsc($array["prefix_a"]) . '</span> ';
-                echo give_br_tag($changeddata[$array["id"]]);
-                if (isset($array["suffix_a"]) and $array["suffix_a"] != "") echo ' <span class="badge badge-secondary">' . hsc($array["suffix_a"]) . '</span> ';
             }
-            echo '</td>';
-            echo "</tr>\n";
+            $lists[] = [hsc($array["title"]), $echotext];
         }
     }
-    echo '</table>
-</div>';
+    echo_desc_list($lists);
 }
 ?>
-<h2>回答状況</h2>
-<p><a class="btn btn-primary" data-toggle="collapse" href="#toggle" role="button" aria-expanded="false" aria-controls="toggle">
-展開する
-</a></p>
+<h2><a data-toggle="collapse" href="#toggle" role="button" aria-expanded="false" aria-controls="detail" class="system-foldable-content-link collapsed">
+<i class="bi bi-chevron-double-down"></i> 回答状況（クリック／タップで開閉）</a></h2>
 <div class="table-responsive-md collapse" id="toggle">
 <table class="table table-hover table-bordered">
 <tr>
@@ -306,7 +283,7 @@ if ($filedata["_state"] == 0) foreach ($submitmem as $key) {
             echo '<td>承認する</td>';
         break;
         case 2:
-            echo '<td>拒否する</td>';
+            echo '<td>承認を見送る</td>';
         break;
         default:
             echo '<td>未回答</td>';
@@ -322,7 +299,7 @@ if (isset($filedata["_result"])) {
           echo '<td><strong>承認</strong></td>';
       break;
       case 2:
-          echo '<td><strong>拒否</strong></td>';
+          echo '<td><strong>承認見送り</strong></td>';
       break;
     }
     echo '<td>' . give_br_tag($filedata["_result"]["reason"]) . '</td>';
@@ -393,7 +370,7 @@ if ($leader != NULL) {
 if ($echoforceclose) { ?>
 <h2>投票を強制的に締め切る</h2>
 <p><strong>原則としては、メンバー全員の投票が終わるのを待って下さい。</strong><br>
-<u>メンバーの誰かが投票をしておらず、かつそのメンバーと連絡が取れない場合</u>は、作業を長引かせないために、以下のボタンを押して、投票を終了して下さい。</p>
+<span class="text-decoration-underline">メンバーの誰かが投票をしておらず、かつそのメンバーと連絡が取れない場合</span>は、作業を長引かせないために、以下のボタンを押して、投票を終了して下さい。</p>
 <p><strong>この機能は、あくまでも最終手段としてご利用願います。</strong></p>
 <p>※この機能は、原則としてファイル確認のリーダー（リーダーが設定されていない場合は主催者）にのみ開放されています。ファイル確認メンバーにリーダーも主催者もいない場合には、共同運営者に開放されています。</p>
 <form name="form_forceclose" action="do_edit_forceclose.php" method="post" onSubmit="$('#forceclosemodal').modal(); return false;" class="system-form-spacer">
@@ -501,11 +478,6 @@ function check(){
     }
     return false;
 
-}
-
-//文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
-   document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
 </script>

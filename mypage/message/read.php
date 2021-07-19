@@ -214,11 +214,6 @@ function check(){
     return false;
 }
 
-//文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
-   document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
-}
-
 </script>
 <?php
     die_mypage();

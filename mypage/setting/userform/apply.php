@@ -3,33 +3,25 @@ require_once('../../../set.php');
 setup_session();
 session_validation();
 
+csrf_prevention_validate();
+
 if (no_access_right(array("p"))) redirect("./index.php");
 
+if (!isset($_SESSION["userformdata"])) redirect("./index.php");
 
-if (!file_exists(DATAROOT . 'form/userinfo/draft/')) {
-    if (!mkdir(DATAROOT . 'form/userinfo/draft/')) die('ディレクトリの作成に失敗しました。');
-    for ($i = 0; $i <= 9; $i++) {
-        if (!file_exists(DATAROOT . 'form/userinfo/' . "$i" . '.txt')) break;
-        copy(DATAROOT . 'form/userinfo/' . "$i" . '.txt', DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt');
-    }
-}
 
-//一時ファイルを実際の設定ファイルにする
 for ($i = 0; $i <= 9; $i++) {
     $fileplace = DATAROOT . 'form/userinfo/' . $i . '.txt';
-    if (file_exists(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt')) {
+    if (isset($_SESSION["userformdata"][$i])) {
         //ファイル内容
-        $filedata = file_get_contents_repeat(DATAROOT . 'form/userinfo/draft/' . "$i" . '.txt');
+        $filedata = $_SESSION["userformdata"][$i];
 
-        if (file_put_contents_repeat($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
+        if (json_pack($fileplace, $filedata) === FALSE) die('設定内容の書き込みに失敗しました。');
     } else {
         if (file_exists($fileplace)) unlink($fileplace);
     }
 }
 
-
-//一時ファイルを消す
-remove_directory(DATAROOT . 'form/userinfo/draft');
 
 unset($_SESSION["userformdata"]);
 

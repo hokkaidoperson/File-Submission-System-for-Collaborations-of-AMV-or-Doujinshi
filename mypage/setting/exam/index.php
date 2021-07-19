@@ -23,9 +23,9 @@ else $editmem = array();
 <p>最低でも1人は、ファイル確認のメンバーが必要となります。共同運営者からの辞退などでファイル確認者が誰もいなくなった場合、主催者がファイル確認担当者として自動的に追加されます。</p>
 <p>担当者のうち1名をリーダーとして指定出来ます。リーダーがいる場合、リーダーは下記機能の権限を持ちます。共同運営者からの辞退などでリーダーが運営チームを外れる場合、リーダーがいない設定に変更されます。</p>
 <ul>
-    <li>ファイル確認について「修正待ち」「拒否」で即決し、かつ、提出者宛てにその理由を通知する設定になっている場合に、提出者宛てに送信するメールに記載する理由の文を入力する機能（リーダーがいない場合、メンバーが記入した理由文が全てメールに記載されます。）</li>
+    <li>ファイル確認について「修正待ち」「承認見送り」で即決し、かつ、提出者宛てにその理由を通知する設定になっている場合に、提出者宛てに送信するメールに記載する理由の文を入力する機能（リーダーがいない場合、メンバーが記入した理由文が全てメールに記載されます。）</li>
     <li>ファイル確認について投票していないメンバーがおり、連絡が取れない場合に投票を強制的に締め切る機能（リーダーがいない場合、主催者がメンバーにいるなら主催者が、そうでないならメンバー全員に機能が解放されます。）</li>
-    <li>承認・拒否に関する議論の終了（最終対応入力）機能（リーダーがいない場合は直上に同じ。）</li>
+    <li>承認可否に関する議論の終了（最終対応入力）機能（リーダーがいない場合は直上に同じ。）</li>
 </ul>
 <div class="border border-primary system-border-spacer">
 <div class="form-group">
@@ -133,24 +133,24 @@ echo "</select>";
 </div>
 <h2>その他</h2>
 <div class="form-group">
-作品が修正待ち・拒否になった際の送信者への通知について【必須】
+作品が修正待ち・承認見送りになった際の送信者への通知について【必須】
 <div class="form-check">
 <input id="reason-notice" class="form-check-input" type="radio" name="reason" value="notice" <?php
 if (isset($examsetting["reason"]) and $examsetting["reason"] == "notice") echo 'checked="checked"';
 ?> onChange="check_individual(&quot;reason&quot;);">
-<label class="form-check-label" for="reason-notice">修正待ち・拒否になった理由を記載する</label>
+<label class="form-check-label" for="reason-notice">修正待ち・承認見送りになった理由を記載する</label>
 </div>
 <div class="form-check">
 <input id="reason-dont-a" class="form-check-input" type="radio" name="reason" value="dont-a" <?php
 if (isset($examsetting["reason"]) and $examsetting["reason"] == "dont-a") echo 'checked="checked"';
 ?> onChange="check_individual(&quot;reason&quot;);">
-<label class="form-check-label" for="reason-dont-a">修正待ち・拒否になった理由は記載しないが、「承認されなかった理由についてはお問い合わせ下さい」という旨の文を付け加える</label>
+<label class="form-check-label" for="reason-dont-a">修正待ち・承認見送りになった理由は記載しないが、「承認されなかった理由についてはお問い合わせ下さい」という旨の文を付け加える</label>
 </div>
 <div class="form-check">
 <input id="reason-dont-b" class="form-check-input" type="radio" name="reason" value="dont-b" <?php
 if (isset($examsetting["reason"]) and $examsetting["reason"] == "dont-b") echo 'checked="checked"';
 ?> onChange="check_individual(&quot;reason&quot;);">
-<label class="form-check-label" for="reason-dont-b">修正待ち・拒否になった理由は記載せず、「承認されなかった理由についてはお答えしかねます」という旨の文を付け加える</label>
+<label class="form-check-label" for="reason-dont-b">修正待ち・承認見送りになった理由は記載せず、「承認されなかった理由についてはお答えしかねます」という旨の文を付け加える</label>
 </div>
 <div id="reason-errortext" class="system-form-error"></div>
 </div>

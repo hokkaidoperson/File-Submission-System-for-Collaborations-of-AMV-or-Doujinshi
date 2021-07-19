@@ -8,11 +8,11 @@ require_once(PAGEROOT . 'help_header.php');
 <p>イベントに対し提出されたファイルや情報を、ZIPファイルにまとめてダウンロードする事が出来ます。<br>
 ダウンロードを行える範囲は、ユーザーによって異なります。</p>
 <ul>
-    <li><u>主催者の場合</u><br>
+    <li><span class="text-decoration-underline">主催者の場合</span><br>
     →全てのユーザーのファイル・情報をダウンロード出来ます。</li>
-    <li><u>共同運営者の場合</u><br>
+    <li><span class="text-decoration-underline">共同運営者の場合</span><br>
     →あなた自身のファイル・情報、及び主催者から閲覧権限を与えられている特定のファイル・情報をダウンロード出来ます。</li>
-    <li><u>一般参加者の場合</u><br>
+    <li><span class="text-decoration-underline">一般参加者の場合</span><br>
     →あなた自身のファイル・情報のみダウンロード出来ます。</li>
 </ul>
 <p>ここでは、一括ダウンロードの方法をご紹介します。</p>

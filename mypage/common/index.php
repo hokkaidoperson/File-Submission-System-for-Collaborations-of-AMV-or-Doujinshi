@@ -26,6 +26,7 @@ for ($i = 0; $i <= 9; $i++) {
 
 //Javascriptに持って行く用　不要な要素をunset
 $tojsp = $userformdata;
+$validation_params = generate_validation_params($tojsp);
 for ($i = 0; $i <= 9; $i++) {
   unset($tojsp[$i]["detail"]);
   unset($tojsp[$i]["width"]);
@@ -35,7 +36,7 @@ for ($i = 0; $i <= 9; $i++) {
   unset($tojsp[$i]["suffix_a"]);
   unset($tojsp[$i]["prefix_b"]);
   unset($tojsp[$i]["suffix_b"]);
-  unset($tojsp[$i]["arrangement"]);
+  unset($tojsp[$i]["arrangement"][0]);
   unset($tojsp[$i]["list"]);
 }
 
@@ -53,9 +54,6 @@ if ((isset($entereddata["common_acceptance"]) and $entereddata["common_acceptanc
     $waiting = TRUE;
     $disable = TRUE;
 } else $waiting = FALSE;
-
-//アップ済みのファイルのサイズ（jspでの引き算処理用）
-$uploadedfs = array();
 
 ?>
 
@@ -84,7 +82,7 @@ if ($waiting) {
 ?>
 <form name="form" action="handle.php" method="post" <?php
 if ($includeattach) echo 'enctype="multipart/form-data" ';
-?> onSubmit="return check();">
+?> onSubmit="return validation_call_custom();">
 <div class="border border-primary system-border-spacer">
 <?php 
 echo '<div class="border-bottom border-primary table-primary system-border-spacecancel">
@@ -107,212 +105,64 @@ echo '</div>';
 
 csrf_prevention_in_form();
 
-foreach ($userformdata as $number => $data) {
-    //detail中のURLにリンクを振る（正規表現参考　https://www.megasoft.co.jp/mifes/seiki/s310.html）　あとHTMLタグが無いようにする・改行反映
-    $data["detail"] = hsc($data["detail"]);
-    $data["detail"] = preg_replace('{https?://[\w/:;%#\$&\?\(\)~\.=\+\-]+}', '<a href="$0" target="_blank" class="text-break" rel="noopener">$0</a>', $data["detail"]);
-    $data["detail"] = str_replace(array("\r\n", "\r", "\n"), "\n", $data["detail"]);
-    $data["detail"] = str_replace("\n", "<br>", $data["detail"]);
-    if ($data["recheck"] != "auto") $data["detail"] .= '<div><strong>※この項目の変更には、運営メンバーによる承認が必要です。</strong></div>';
-    else $data["detail"] .= '<div>※この項目の変更は自動承認されます。</div>';
-
-    switch ($data["type"]) {
-        case "textbox":
-            $parttitle = hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
-            if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textbox($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], $disable);
-        break;
-        case "textbox2":
-            $parttitle = hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（1つ目の入力欄：' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（1つ目の入力欄：' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（1つ目の入力欄：' . $data["min"] . '文字以上）';
-            if ($data["max2"] != "" and $data["min2"] != "") $parttitle .= '（2つ目の入力欄：' . $data["min2"] . '文字以上' . $data["max2"] . '文字以内）';
-            else if ($data["max2"] != "" and $data["min2"] == "") $parttitle .= '（2つ目の入力欄：' . $data["max2"] . '文字以内）';
-            else if ($data["max2"] == "" and $data["min2"] != "") $parttitle .= '（2つ目の入力欄：' . $data["min2"] . '文字以上）';
-            if ($data["required"] == "1") $parttitle .= '【どちらも必須】';
-            else if ($data["required"] == "2") $parttitle .= '【いずれか必須】';
-            $horizontally = ($data["arrangement"] == "h");
-            echo_textbox2($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"] . "-1"]) ? $entereddata[$data["id"] . "-1"] : "", isset($entereddata[$data["id"] . "-2"]) ? $entereddata[$data["id"] . "-2"] : "", TRUE, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $data["width"], hsc($data["prefix_b"]), hsc($data["suffix_b"]), $data["width2"], $disable);
-        break;
-        case "textarea":
-            $parttitle = hsc($data["title"]);
-            if ($data["max"] != "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上' . $data["max"] . '文字以内）';
-            else if ($data["max"] != "" and $data["min"] == "") $parttitle .= '（' . $data["max"] . '文字以内）';
-            else if ($data["max"] == "" and $data["min"] != "") $parttitle .= '（' . $data["min"] . '文字以上）';
-            if ($data["required"] == "1") $parttitle .= '【必須】';
-            echo_textarea($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], isset($entereddata[$data["id"]]) ? $entereddata[$data["id"]] : "", TRUE, $data["detail"], 'onChange="check_individual(' . $number . ');"', $data["width"], $data["height"], $disable);
-        break;
-        case "radio":
-            $choices = choices_array($data["list"], TRUE);
-
-            $parttitle = hsc($data["title"]);
-            if ($data["required"] == "1") $parttitle .= '【必須】';
-            $horizontally = ($data["arrangement"] == "h");
-            if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] !== "") $prefill = (string) array_search($entereddata[$data["id"]], $choices);
-            else $prefill = "";
-            echo_radio($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', $disable);
-        break;
-        case "check":
-            $choices = choices_array($data["list"], TRUE);
-
-            $parttitle = hsc($data["title"]);
-            if ($data["required"] == "1") $parttitle .= '【必須】';
-            $horizontally = ($data["arrangement"] == "h");
-            $prefill = [];
-            if (isset($entereddata[$data["id"]])) foreach ((array)$entereddata[$data["id"]] as $selected) {
-                $search = array_search($selected, $choices);
-                if ($search !== FALSE) $prefill[] = $search;
-            }
-            echo_check($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $horizontally, $data["detail"], 'onChange="check_individual(' . $number . ');"', $disable);
-        break;
-        case "dropdown":
-            $choices = choices_array($data["list"]);
-
-            $parttitle = hsc($data["title"]);
-            if ($data["required"] == "1") $parttitle .= '【必須】';
-            $horizontally = ($data["arrangement"] == "h");
-            if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] !== "") $prefill = (string) array_search($entereddata[$data["id"]], $choices);
-            else $prefill = "";
-            echo_dropdown($parttitle, 'custom-' . $data["id"], 'custom-' . $data["id"], $choices, [], $prefill, $data["detail"], 'onChange="check_individual(' . $number . ');"', hsc($data["prefix_a"]), hsc($data["suffix_a"]), $disable);
-        break;
-        case "attach":
-            $uploadedfs[$data["id"]] = array();
-            $exts = str_replace(",", "・", $data["ext"]);
-            if ($data["size"] != '') $filesize = $data["size"];
-            else $filesize = FILE_MAX_SIZE;
-            $currentsize = 0;
-
-            if ($data["filenumber"] != "") {
-                if ($data["filenumber"] == "1") $filenumexp = '1個のみアップロード可能　' . $filesize . 'MBまで';
-                else $filenumexp = $data["filenumber"] . '個までアップロード可能　合計' . $filesize . 'MBまで';
-            }
-            else $filenumexp = '複数個アップロード可能　合計' . $filesize . 'MBまで';
-            echo '<div class="form-group">' . hsc($data["title"]) . '（' . $exts . 'ファイル　' . $filenumexp . '）';
-            if ($data["required"] == "1") echo '【必須】';
-            if (isset($entereddata[$data["id"]]) and $entereddata[$data["id"]] != array()) {
-                echo '<div class="small">現在アップロードされているファイルを以下に表示します。<br>ファイル名をクリックするとそのファイルをダウンロードします。<br>ファイルを削除する場合は、そのファイルの左側にあるチェックボックスにチェックを入れて下さい。</div>';
-                foreach ($entereddata[$data["id"]] as $key => $element){
-                    echo '<div class="form-check">';
-                    echo '<input id="custom-' . $data["id"] . '-delete-' . $key . '" class="form-check-input" type="checkbox" name="custom-' . $data["id"] . '-delete[]" value="' . $key . '"';
-                    if ($disable) echo ' disabled="disabled"';
-                    echo ' onChange="check_individual(' . $number . ');">';
-                    echo '<a href="../fnc/filedld.php?author=' . $userid . '&genre=userform&id=' . $data["id"] . '_' . $key . '" target="_blank">' . hsc($element) . '</a>';
-                    $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $data["id"] . '_' . $key);
-                    $uploadedfs[$data["id"]][$key] = filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $data["id"] . '_' . $key);
-                    echo '</div>';
-                }
-                echo '<input type="hidden" name="custom-' . $data["id"] . '-currentsize" value="' . $currentsize . '">';
-                echo '<input type="hidden" name="custom-' . $data["id"] . '-already" value="' . count($entereddata[$data["id"]]) . '">';
-            }
-            else {
-                echo '<div class="small">現在アップロードされているファイルはありません。</div>';
-                echo '<input type="hidden" name="custom-' . $data["id"] . '-delete[]" value="none">';
-                echo '<input type="hidden" name="custom-' . $data["id"] . '-already" value="0">';
-                echo '<input type="hidden" name="custom-' . $data["id"] . '-currentsize" value="0">';
-            }
-            echo '<label for="custom-' . $data["id"] . '" class="small">ファイルを新規に追加する場合はこちらにアップロードして下さい：</label>';
-            echo '<input type="file" class="form-control-file" id="custom-' . $data["id"] . '" name="custom-' . $data["id"] . '[]"';
-            if ($data["filenumber"] != "1") echo ' multiple="multiple"';
-            if ($disable) echo ' disabled="disabled"';
-            echo ' onChange="check_individual(' . $number . ');">';
-            echo '<div id="custom-' . $data["id"] . '-errortext" class="system-form-error"></div>';
-            if ($data["detail"] != "") echo '<small class="form-text">' . $data["detail"] . '</small>';
-            echo '</div>';
-        break;
-    }
+foreach ($userformdata as $data) {
+    echo_custom_item($data, TRUE, $disable, $entereddata[$data["id"]]);
 }
+
+echo_buttons(["primary"], ["submit"], ['<i class="bi bi-upload"></i> 送信する'], '※送信前に、入力内容の確認をお願い致します。', [], [$disable]);
 ?>
-<br>
-※送信前に、入力内容の確認をお願い致します。<br>
-<button type="submit" class="btn btn-primary"<?php
-if ($disable) echo ' disabled="disabled"';
-?>>送信する</button>
 </div>
 <?php
-echo_modal_alert();
 echo_modal_confirm(null, null, null, null, null, null, null, null, "closesubmit();");
 echo_modal_wait();
 ?>
 </form>
 <script type="text/javascript">
+let types = {
+    <?php echo $validation_params[0]; ?>
+};
+let rules = {
+    <?php echo $validation_params[1]; ?>
+};
 
 var changed = false;
-function check_individual(id) {
-  changed = true;
-  var setting = <?php echo json_encode($tojsp); ?>;
-  var uploadedfs = <?php echo json_encode($uploadedfs); ?>;
+var setting = <?php echo json_encode($tojsp); ?>;
 
-  var val = setting[id];
-  document.getElementById("custom-" + val.id + "-errortext").innerHTML = "";
-  if (val.type == "textbox2") {
-    check_textbox2(val);
-  } else if (val.type == "textbox" || val.type == "textarea") {
-    check_textbox(val);
-  } else if (val.type == "check") {
-    check_checkbox(val);
-  } else if (val.type == "radio") {
-    check_radio(val);
-  } else if (val.type == "dropdown") {
-    check_dropdown(val);
-  } else if (val.type == "attach") {
-    check_attach(val, uploadedfs[val.id]);
-  }
-}
-
-function check(){
-  changed = true;
-  var problem = 0;
-  var setting = <?php echo json_encode($tojsp); ?>;
-  var uploadedfs = <?php echo json_encode($uploadedfs); ?>;
-
-  //カスタム内容についてチェック
-  var val;
-  for( var i=0; i<setting.length; i++) {
-    val = setting[i];
-    document.getElementById("custom-" + val.id + "-errortext").innerHTML = "";
-    if (val.type == "textbox2") {
-      if (check_textbox2(val)) problem = 1;
-    } else if (val.type == "textbox" || val.type == "textarea") {
-      if (check_textbox(val)) problem = 1;
-    } else if (val.type == "check") {
-      if (check_checkbox(val)) problem = 1;
-    } else if (val.type == "radio") {
-      if (check_radio(val)) problem = 1;
-    } else if (val.type == "dropdown") {
-      if (check_dropdown(val)) problem = 1;
-    } else if (val.type == "attach") {
-      if (check_attach(val, uploadedfs[val.id])) problem = 1;
-    }
-  }
-
-  if ( problem == 1 ) {
-    $('#errormodal').modal();
-    $('#errormodal').on('shown.bs.modal', function () {
-        document.getElementById("dismissbtn").focus();
+function validation_call_custom(indv = null){
+    Validator.registerAsync('attachment_validation', function(userid, req, attribute, passes) {
+        check_attachments(setting[req], "custom-" + setting[req]["id"])
+        .then((result) => {
+            if (result == 0) passes();
+            else passes(false, result);
+        });
     });
-  } else {
-    $('#confirmmodal').modal();
-    $('#confirmmodal').on('shown.bs.modal', function () {
-        document.getElementById("submitbtn").focus();
+    changed = true;
+    var items = {};
+    Object.keys(types).forEach(function(id) {
+        items[id] = get_value(id);
     });
-  }
-  return false;
-
+    if (indv !== null) form_validation(items, types, rules, indv);
+    else form_validation(items, types, rules, null, function(result) {
+        if (result !== null) {
+            scroll_and_focus(result);
+            return false;
+        }
+        $('#confirmmodal').modal();
+        $('#confirmmodal').on('shown.bs.modal', function () {
+            document.getElementById("submitbtn").focus();
+        });
+    });
+    return false;
 }
 
 window.addEventListener('beforeunload', function (e) {
-  if (changed) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
+    if (changed) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
 });
 
 
 </script>
 <?php
-include(PAGEROOT . 'validate_script.php');
 require_once(PAGEROOT . 'mypage_footer.php');

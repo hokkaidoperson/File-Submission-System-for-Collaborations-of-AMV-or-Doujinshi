@@ -40,6 +40,11 @@ if (file_exists(DATAROOT . 'files/' . $author . '/' . $id . '/')) remove_directo
 if (file_exists(DATAROOT . "edit/" . $author . "/" . $id . ".txt")) unlink(DATAROOT . "edit/" . $author . "/" . $id . ".txt");
 if (file_exists(DATAROOT . 'edit_files/' . $author . '/' . $id . '/')) remove_directory(DATAROOT . 'edit_files/' . $author . '/' . $id . '/');
 
+//合計再生時間
+$userprofile = new JsonRW(user_file_path());
+$userprofile->array["length_sum"] -= $filedata["length_sum"];
+$userprofile->write();
+
 //検査関連で通知する人
 $noticeto = array();
 if (isset($filedata["related_exams"])) foreach ($filedata["related_exams"] as $examname) {

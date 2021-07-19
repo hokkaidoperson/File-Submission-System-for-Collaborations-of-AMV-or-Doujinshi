@@ -46,7 +46,7 @@ csrf_prevention_in_form();
 </div>
 <?php
 if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
-<button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right"></i> ログイン</button><div class="small text-muted mb-2 system-asterisk-indent">※ログインボタン押下直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</div>';
+<button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-right"></i> ログイン</button><div class="small text-muted mb-2 d-flex"><span class="pr-1">※</span>ログインボタン押下直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</div>';
 else echo '<button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-right"></i> ログイン</button>';
 ?>
 <div id="neterrortext" class="small text-danger" style="display: none;">ユーザーの認証中にエラーが発生しました。お手数ですが、インターネット接続環境をご確認頂き、再度「ログイン」を押して下さい。</div>
@@ -64,77 +64,46 @@ else echo '<button type="submit" class="btn btn-primary"><i class="bi bi-box-arr
 バージョン情報：<?php echo VERSION; ?>
 </div>
 <script type="text/javascript">
+let types = {
+    userid: 'textbox',
+    password: 'textbox'
+};
+let rules = {
+    userid: 'required',
+    password: 'required'
+};
+
+let promise_callback_login = function(result) {
+    if (result !== null) {
+        scroll_and_focus(result);
+        return false;
+    }
+
+    <?php if ($userec) echo "grecaptcha.execute();"; else echo "document.form.submit();"; ?>
+};
 
 function check_individual(id){
-  if (id === "userid") {
-      document.getElementById("userid-errortext").innerHTML = "";
-      if(document.form.userid.value === ""){
-        problem = 1;
-        document.getElementById("userid-errortext").innerHTML = "入力されていません。";
-        document.form.userid.classList.add("is-invalid");
-        document.form.userid.classList.remove("is-valid");
-      } else {
-        document.form.userid.classList.add("is-valid");
-        document.form.userid.classList.remove("is-invalid");
-      }
-      return;
-  }
-
-  if (id === "password") {
-      document.getElementById("password-errortext").innerHTML = "";
-      if(document.form.password.value === ""){
-        problem = 1;
-        document.getElementById("password-errortext").innerHTML = "入力されていません。";
-        document.form.password.classList.add("is-invalid");
-        document.form.password.classList.remove("is-valid");
-      } else {
-        document.form.password.classList.add("is-valid");
-        document.form.password.classList.remove("is-invalid");
-      }
-      return;
-  }
+    form_validation({
+        [id]: document.form[id].value
+    }, types, rules, id);
 }
 
 function check(){
+    document.getElementById("neterrortext").style.display = "none";
+    form_validation({
+        userid: document.form.userid.value,
+        password: document.form.password.value
+    }, types, rules, null, promise_callback_login);
 
-  var problem = 0;
-  document.getElementById("neterrortext").style.display = "none";
-  document.getElementById("userid-errortext").innerHTML = "";
-  if(document.form.userid.value === ""){
-    problem = 1;
-    document.getElementById("userid-errortext").innerHTML = "入力されていません。";
-    document.form.userid.classList.add("is-invalid");
-    document.form.userid.classList.remove("is-valid");
-  } else {
-    document.form.userid.classList.add("is-valid");
-    document.form.userid.classList.remove("is-invalid");
-  }
-
-  document.getElementById("password-errortext").innerHTML = "";
-  if(document.form.password.value === ""){
-    problem = 1;
-    document.getElementById("password-errortext").innerHTML = "入力されていません。";
-    document.form.password.classList.add("is-invalid");
-    document.form.password.classList.remove("is-valid");
-  } else {
-    document.form.password.classList.add("is-valid");
-    document.form.password.classList.remove("is-invalid");
-  }
-
-  if ( problem == 1 ) {
     return false;
-  }
-
-  <?php if ($userec) echo "grecaptcha.execute(); return false;"; else echo "return true;"; ?>
-
 }
 
 function recSubmit(token) {
-  document.form.submit();
+    document.form.submit();
 }
 
 function recError(token) {
-  document.getElementById("neterrortext").style.display = "block";
+    document.getElementById("neterrortext").style.display = "block";
 }
 
 </script>

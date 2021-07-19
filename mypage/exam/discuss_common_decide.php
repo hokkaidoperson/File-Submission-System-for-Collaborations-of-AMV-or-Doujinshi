@@ -30,10 +30,10 @@ if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
 $leader = id_leader("edit");
 if ($leader != NULL) {
-    if ($leader != $_SESSION["userid"]) redirect("./index.php");
-} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
+    if ($leader != $_SESSION["userid"]) redirect("../list/index.php");
+} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/userinfo/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/userinfo/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 csrf_prevention_validate();
@@ -117,9 +117,9 @@ switch ($_POST["ans"]){
         $authorsubject = '内容を承認しました（共通情報）';
         break;
     case 2:
-        $contentpart = '問題があるという結論になったため、この内容を拒否しました。
-情報の提出者に拒否の通知をしました。';
-        $subject = '議論の結果（拒否・共通情報）';
+        $contentpart = '問題があるという結論になったため、この内容の承認を見送りました。
+情報の提出者に承認見送りの通知をしました。';
+        $subject = '議論の結果（承認見送り・共通情報）';
         $authorsubject = '内容の承認が見送られました（共通情報）';
     break;
 }
@@ -186,8 +186,8 @@ switch ($_POST["ans"]){
         register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<strong>この内容を承認しました</strong>。<br>情報の提出者に承認の通知をしました。</p>", "success");
     break;
     case 2:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<strong>この内容を拒否しました</strong>。<br>情報の提出者に拒否の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<strong>この内容の承認を見送りました</strong>。<br>情報の提出者に承認見送りの通知をしました。</p>", "success");
     break;
 }
 
-redirect("./index.php");
+redirect("../list/index.php");

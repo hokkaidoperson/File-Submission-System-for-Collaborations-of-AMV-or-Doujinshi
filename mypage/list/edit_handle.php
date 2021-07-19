@@ -56,10 +56,13 @@ switch ($_POST["method"]) {
         if (isset($entereddata["submit"]) and $entereddata["submit"] != array()) {
             foreach ($entereddata["submit"] as $key => $element){
                 $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key);
-                $uploadedfs[$key] = filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key);
+                $uploadedfs[$key] = [
+                    "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key),
+                    "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key) : 0
+                ];
             }
         }
-        if (check_submitfile($submitformdata["general"], $uploadedfs, $currentsize)) $invalid = TRUE;
+        if (check_attachments($submitformdata["general"], "submitfile", $uploadedfs, $currentsize)) $invalid = TRUE;
     break;
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
@@ -81,24 +84,27 @@ else if(mb_strlen($_POST["title"]) > 50) $invalid = TRUE;
 
 //カスタム内容
 foreach ($submitformdata as $array) {
-    if ($array["type"] == "textbox2") {
-        if (check_textbox2($array)) $invalid = TRUE;
-    } else if ($array["type"] == "textbox" || $array["type"] == "textarea") {
+    if ($array["type"] == "textbox" || $array["type"] == "textarea") {
         if (check_textbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "check") {
         if (check_checkbox($array)) $invalid = TRUE;
-    } else if ($array["type"] == "radio" || $array["type"] == "dropdown") {
+    } else if ($array["type"] == "radio") {
         if (check_radio($array)) $invalid = TRUE;
+    } else if ($array["type"] == "dropdown") {
+        if (check_dropdown($array)) $invalid = TRUE;
     } else if ($array["type"] == "attach") {
         $uploadedfs = array();
         $currentsize = 0;
         if (isset($entereddata[$array["id"]]) and $entereddata[$array["id"]] != array()) {
             foreach ($entereddata[$array["id"]] as $key => $element){
                 $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
-                $uploadedfs[$key] = filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
+                $uploadedfs[$key] = [
+                    "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key),
+                    "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key) : 0
+                ];
             }
         }
-        if (check_attach($array, $uploadedfs, $currentsize)) $invalid = TRUE;
+        if (check_attachments($array, "custom-" . $array["id"], $uploadedfs, $currentsize)) $invalid = TRUE;
     }
 }
 
@@ -116,6 +122,8 @@ $uploadid = time();
 //承認について　0:自動　1:編集の承認メンツ　2:新規提出の承認メンツ
 $recheck = 0;
 
+$playtime_sum_old = $entereddata["length_sum"];
+
 if ($_POST["method"] == 'direct') {
     $fileto = DATAROOT . 'edit_files/' . $userid . '/' . $id . '/';
     if (!file_exists($fileto)) {
@@ -130,6 +138,9 @@ if ($_POST["method"] == 'direct') {
             chmod($fileto . $savename, 0644);
             if (!isset($changeditem["submit_add"])) $changeditem["submit_add"] = array();
             $changeditem["submit_add"][$uploadid . "_$j"] = $ext;
+            if (preg_match('/\.mp4$/i', $ext)) {
+                $entereddata["length_sum"] += get_playtime($fileto . $savename);
+            }
             $recheck = max($recheck, 2);
         }
     }
@@ -137,6 +148,9 @@ if ($_POST["method"] == 'direct') {
         if ($key === "none") break;
         if (!isset($changeditem["submit_delete"])) $changeditem["submit_delete"] = array();
         $changeditem["submit_delete"][] = basename($key);
+        if (preg_match('/\.mp4$/i', $entereddata["submit"][$key])) {
+            $entereddata["length_sum"] -= get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . "main_" . $key);
+        }
         $recheck = max($recheck, 2);
     }
 } else {
@@ -176,27 +190,41 @@ foreach ($submitformdata as $array) {
                 chmod($fileto . $savename, 0644);
                 if (!isset($changeditem[$array["id"] . "_add"])) $changeditem[$array["id"] . "_add"] = array();
                 $changeditem[$array["id"] . "_add"][$uploadid . "_$j"] = $ext;
-                if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+                if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
             }
         }
         foreach((array)$_POST["custom-" . $array["id"] . "-delete"] as $key){
             if ($key === "none") break;
             if (!isset($changeditem[$array["id"] . "_delete"])) $changeditem[$array["id"] . "_delete"] = array();
             $changeditem[$array["id"] . "_delete"][] = basename($key);
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+            if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
-    if ($array["type"] == "radio" or $array["type"] == "dropdown") {
+    else if ($array["type"] == "radio") {
         $choices = choices_array($array["list"]);
-        $selected = $choices[$_POST["custom-" . $array["id"]]];
-        if ($entereddata[$array["id"]] != $selected) {
-            $changeditem[$array["id"]] = $selected;
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+        $selected = $choices[$_POST["custom-" . $array["id"]][0]];
+        if ($entereddata[$array["id"]][0] != $selected) {
+            $changeditem[$array["id"]] = [$selected];
+            if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
-    if ($array["type"] == "check") {
+    else if ($array["type"] == "dropdown") {
+        $choices = choices_array($array["list"]);
+        $selected = [];
+        if (isset($_POST["custom-" . $array["id"]])) foreach ($_POST["custom-" . $array["id"]] as $key => $value) {
+            $selected[$key] = $choices[$value];
+        }
+        $oldcompare = implode("\n", (array)$entereddata[$array["id"]]);
+        $newcompare = implode("\n", $selected);
+        if ($oldcompare != $newcompare) {
+            $changeditem[$array["id"]] = $selected;
+            if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
+        }
+        continue;
+    }
+    else if ($array["type"] == "check") {
         $selected = [];
         if ($_POST["custom-" . $array["id"]] !== "") {
             $choices = choices_array($array["list"]);
@@ -208,24 +236,15 @@ foreach ($submitformdata as $array) {
         $newcompare = implode("\n", $selected);
         if ($oldcompare != $newcompare) {
             $changeditem[$array["id"]] = $selected;
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+            if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
         }
         continue;
     }
-    if ($array["type"] == "textbox2") {
-        if ($entereddata[$array["id"] . "-1"] != $_POST["custom-" . $array["id"] . "-1"]) {
-            $changeditem[$array["id"] . "-1"] = $_POST["custom-" . $array["id"] . "-1"];
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
-        }
-        if ($entereddata[$array["id"] . "-2"] != $_POST["custom-" . $array["id"] . "-2"]) {
-            $changeditem[$array["id"] . "-2"] = $_POST["custom-" . $array["id"] . "-2"];
-            if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
-        }
-        continue;
-    }
-    if ($entereddata[$array["id"]] != $_POST["custom-" . $array["id"]]) {
+    $oldcompare = implode("\n", (array)$entereddata[$array["id"]]);
+    $newcompare = implode("\n", (array)$_POST["custom-" . $array["id"]]);
+    if ($oldcompare != $newcompare) {
         $changeditem[$array["id"]] = $_POST["custom-" . $array["id"]];
-        if ($array["recheck"] != 'auto') $recheck = max($recheck, 1);
+        if ($array["recheck"][0] != 'auto') $recheck = max($recheck, 1);
     }
 }
 
@@ -274,6 +293,11 @@ if ($recheck == 0) {
     register_alert("ファイルの編集が完了しました。<br>自動承認される項目のみ変更されていたため、変更は自動的に承認されました。", "success");
     redirect("./index.php");
 }
+
+//合計再生時間
+$userprofile = new JsonRW(user_file_path());
+$userprofile->array["length_sum"] += $entereddata["length_sum"] - $playtime_sum_old;
+$userprofile->write();
 
 
 //以下、承認が必要なケース
@@ -434,7 +458,7 @@ switch ($entereddata["editing"]) {
 
 $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」の編集を行いました。
 変更後の内容の確認を行っています。
-確認結果（承認・拒否）は、改めてメールで通知致します。
+確認結果（承認するかどうか）は、改めてメールで通知致します。
 ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、
 制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい。
 

@@ -62,7 +62,7 @@ if (file_exists(DATAROOT . 'data-transfer.zip')) {
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<link rel="stylesheet" href="../css/bootstrap-filesys.css">
+<link rel="stylesheet" href="../plugins/bs/bootstrap-filesys.css">
 <link rel="stylesheet" href="../css/style.css">
 <title>初期設定</title>
 </head>
@@ -75,8 +75,8 @@ if (file_exists(DATAROOT . 'data-transfer.zip')) {
 <p><a href="' . $url . '">システムのトップページはこちら</a></p>
 </div>
 </div>
-<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="../plugins/jquery-3.4.1.js"></script>
+<script type="text/javascript" src="../plugins/bs/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 ');
@@ -92,8 +92,8 @@ if (file_exists(DATAROOT . 'data-transfer.zip')) {
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<link rel="stylesheet" href="../css/bootstrap-filesys.css">
-<link rel="stylesheet" href="../css/bootstrap-icons.css">
+<link rel="stylesheet" href="../plugins/bs/bootstrap-filesys.css">
+<link rel="stylesheet" href="../plugins/bs/bootstrap-icons.css">
 <link rel="stylesheet" href="../css/style.css">
 <title>初期設定</title>
 </head>
@@ -638,32 +638,6 @@ function check(){
 function ShowLength(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
-
-
-//Cookie判定（参考：https://qiita.com/tatsuyankmura/items/8e09cbd5ee418d35f169）
-var setCookie = function(cookieName, value){
-  var cookie = cookieName + "=" + value + ";";
-  document.cookie = cookie;
-}
-
-var getCookie = function(cookieName){
-  var l = cookieName.length + 1 ;
-  var cookieAry = document.cookie.split("; ") ;
-  var str = "" ;
-  for(i=0; i < cookieAry.length; i++){
-    if(cookieAry[i].substr(0, l) === cookieName + "="){
-      str = cookieAry[i].substr(l, cookieAry[i].length) ;
-      break ;
-    }
-  }
-  return str;
-}
-
-setCookie('check_cookie', true);
-var val = getCookie('check_cookie');
-
-
-
 </script>
 <body>
 <div id="noscript">
@@ -671,7 +645,7 @@ var val = getCookie('check_cookie');
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>
 <p>上記を有効にしてもこの画面が表示される場合、ご利用のブラウザは当サイトが使用するJavascriptの機能を提供していない、もしくは充分にサポートしていない可能性がありますので、ブラウザを変えて再度お試し下さい（推奨環境のブラウザでこの画面が表示される場合、システム管理者までご連絡下さい）。</p>
 </div>
-<script>if (val) document.getElementById("noscript").style.display = "none";</script>
+<script>if (navigator.cookieEnabled) document.getElementById("noscript").style.display = "none";</script>
 
 <div id="scriptok" style="display:none;">
 <div class="container">
@@ -679,7 +653,7 @@ var val = getCookie('check_cookie');
 <div class="border system-border-spacer">
 <p>管理者のアカウント、およびシステムの最低限必要な事項を設定します。「【必須】」と記載されている項目は必ず入力して下さい。</p>
 <p><strong>パスワードは絶対に外部に漏れないようにして下さい。</strong>第三者によって不正にアクセスされると、提出されたファイルの内容が見られたり、改ざんされたりする可能性があります。<strong>イベントの主催者や共同運営者が、あなたのパスワードを直接お聞きする事はありません。</strong></p>
-<p><u>ユーザーID以外の項目は、後から変更する事が出来ます</u>（ただし、あなたの立場の変更に際しては、他人による承認が必要になる場合があります）。<br>
+<p><span class="text-decoration-underline">ユーザーID以外の項目は、後から変更する事が出来ます</span>（ただし、あなたの立場の変更に際しては、他人による承認が必要になる場合があります）。<br>
 ニックネームなどについては、マイページトップ画面の「アカウント情報編集」、システムの設定事項については「システム設定」から編集出来ます。</p>
 <p>当サイトではJavascript（Ajax含む）及びCookieを使用します。現在はJavascriptとCookieが有効になっていますが、アクセス途中でこれらを無効化するとサイトの動作に支障をきたす可能性がありますのでお控え下さい。</p>
 <p><a href="https://www.hkdyukkuri.space/filesystem/doc/security" target="_blank" rel="noopener">ポータルサイト設置にあたって、セキュリティ上注意すべき点をこちらからご確認願います。</a></p>
@@ -768,8 +742,8 @@ var val = getCookie('check_cookie');
 　用途を考え、最大サイズをあまり大きくし過ぎないようにして下さい。<br>
 ※以下に、ファイルアップロードの制限に関する、サーバーの設定値を表示します。<br>
 　これらを上回る最大サイズを指定すると、送信中にエラーが返される事があります（単位は「バイト」、「M」は「メガ」の事です）。<br>
-　<u>ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></u><br>
-　<u>他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></u></small>
+　<span class="text-decoration-underline">ファイル1つ辺りの最大サイズ（upload_max_filesize）：<strong><?php echo ini_get('upload_max_filesize'); ?></strong></span><br>
+　<span class="text-decoration-underline">他の添付ファイルも含めた最大サイズ（post_max_size）：<strong><?php echo ini_get('post_max_size'); ?></strong></span></small>
 </div>
 <div class="form-group">
 <label for="accounts">メールアドレス1つ当たりの最大アカウント数（1～10の半角数字）【必須】</label>
@@ -892,8 +866,8 @@ else echo '<br>　<strong>現在、Client URL Libraryが無効になっている
 </form>
 </div>
 </div>
-<script>if (val) document.getElementById("scriptok").style.display = "block";</script>
-<script type="text/javascript" src="../js/jquery-3.4.1.js"></script>
-<script type="text/javascript" src="../js/bootstrap.bundle.min.js"></script>
+<script>if (navigator.cookieEnabled) document.getElementById("scriptok").style.display = "block";</script>
+<script type="text/javascript" src="../plugins/jquery-3.4.1.js"></script>
+<script type="text/javascript" src="../plugins/bs/bootstrap.bundle.min.js"></script>
 </body>
 </html>

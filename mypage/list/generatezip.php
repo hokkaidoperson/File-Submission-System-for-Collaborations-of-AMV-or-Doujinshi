@@ -81,7 +81,7 @@ if ($_SESSION["state"] == 'g') echo '<h1>提出情報の一括ダウンロード
 オプション（任意）
 <div class="form-check">
 <input id="options-1" class="form-check-input" type="checkbox" name="include_non_accepted" value="1">
-<label class="form-check-label" for="options-1">承認されていない（承認待ち・修正待ち・拒否）作品も併せてダウンロードする</label>
+<label class="form-check-label" for="options-1">承認されていない（承認待ち・修正待ち・承認見送り）作品も併せてダウンロードする</label>
 </div>
 <div class="form-check">
 <input id="options-2" class="form-check-input" type="checkbox" name="include_without_submission" value="1">

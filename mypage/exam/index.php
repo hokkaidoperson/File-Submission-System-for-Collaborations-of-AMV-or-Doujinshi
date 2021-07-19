@@ -1,7 +1,7 @@
 <?php
 require_once('../../set.php');
 setup_session();
-$titlepart = '提出物の確認・承認';
+$titlepart = '提出物確認の履歴';
 require_once(PAGEROOT . 'mypage_header.php');
 
 no_access_right(array("p", "c"), TRUE);
@@ -83,12 +83,8 @@ foreach(glob(DATAROOT . 'exam_edit/*.txt') as $filename) {
 }
 ?>
 
-<h1>提出物の確認・承認</h1>
-<p>本イベントに対し提出された作品・情報の確認をします。<br>
-内容の確認を行い、問題が無ければ「承認」に、軽微な修正（動画の音量バランス修正など）が必要な場合は「修正待ち」に、問題点が多い・重大な問題点がある場合は「拒否」となります。</p>
-<p>ファイル確認を行う者は、「ファイル確認に関する設定」で指定した担当者です。ただし、あなた自身の提出作品については、あなたの回答は自動的に「承認しても問題無い」になります。</p>
-<p>全員の回答が出揃う前であれば、回答は何度でも変更出来ます。ただし、全員の回答が出揃った瞬間にあなたの回答は確定し、変更不可になります。</p>
-<p>ファイル確認を行う者が2人以上いる場合、全員の意見が一致すればその意見が通ります。意見が分かれた場合は、簡易チャットでの議論を経て、最終判断を下します。</p>
+<h1>提出物確認の履歴</h1>
+<p>本イベントに当たって行われた、提出物確認の全履歴です。</p>
 <h2>未回答の作品・情報</h2>
 <div class="table-responsive-md">
 <table class="table table-hover table-bordered">
@@ -174,10 +170,7 @@ if ($examlist["r"] == array()) echo '<tr><td colspan="' . $colspan . '">現在�
 </table>
 </div>
 <h2>回答済み（他者の回答待ち）の作品・情報</h2>
-<p><a class="btn btn-primary" data-toggle="collapse" href="#toggle1" role="button" aria-expanded="false" aria-controls="toggle1">
-展開する
-</a></p>
-<div class="table-responsive-md collapse" id="toggle1">
+<div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
 <?php
@@ -203,10 +196,7 @@ if ($examlist["a"] == array()) echo '<tr><td colspan="' . $colspan . '">現在�
 </table>
 </div>
 <h2>回答および議論が終了した作品・情報</h2>
-<p><a class="btn btn-primary" data-toggle="collapse" href="#toggle2" role="button" aria-expanded="false" aria-controls="toggle2">
-展開する
-</a></p>
-<div class="table-responsive-md collapse" id="toggle2">
+<div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
 <?php
@@ -232,10 +222,7 @@ if ($examlist["c"] == array()) echo '<tr><td colspan="' . $colspan . '">現在�
 </table>
 </div>
 <h2>確認権限を持っていない作品・情報</h2>
-<p><a class="btn btn-primary" data-toggle="collapse" href="#toggle3" role="button" aria-expanded="false" aria-controls="toggle3">
-展開する
-</a></p>
-<div class="table-responsive-md collapse" id="toggle3">
+<div class="table-responsive-md">
 <table class="table table-hover table-bordered">
 <tr>
 <?php

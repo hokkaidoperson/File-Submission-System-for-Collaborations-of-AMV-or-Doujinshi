@@ -1,5 +1,5 @@
 <?php
-//ユーザーIDチェック・アカウント情報入力画面跡地　兼　ユーザーID・メルアド重複チェックAPI
+//ユーザーIDチェック・アカウント情報入力画面跡地　兼　ユーザーID重複チェックAPI
 require_once('../../set.php');
 
 $returnarray = array();

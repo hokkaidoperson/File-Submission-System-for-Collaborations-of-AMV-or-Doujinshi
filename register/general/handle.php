@@ -90,7 +90,7 @@ else if(mb_strlen($_POST["nickname"]) > 30) $invalid = TRUE;
 //メールアドレス形式確認　必須・一致確認
 if($_POST["email"] == "") $invalid = TRUE;
 else if(!preg_match('/.+@.+\..+/', $_POST["email"])) $invalid = TRUE;
-else if($_POST["email"] != $_POST["emailagn"]) $invalid = TRUE;
+else if($_POST["email"] != $_POST["email_confirmation"]) $invalid = TRUE;
 
 //重複確認
 $email = $_POST["email"];
@@ -109,7 +109,7 @@ if ($conflict >= ACCOUNTS_PER_ADDRESS) $invalid = TRUE;
 if($_POST["password"] == "") $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) > 72) $invalid = TRUE;
 else if(mb_strlen($_POST["password"]) < 8) $invalid = TRUE;
-else if($_POST["password"] != $_POST["passwordagn"]) $invalid = TRUE;
+else if($_POST["password"] != $_POST["password_confirmation"]) $invalid = TRUE;
 
 //必須の場合
 if($_POST["state"] != "g") $invalid = TRUE;
@@ -182,7 +182,7 @@ $content = "$nicknamep 様
 
 $eventname のポータルサイトに、一般参加者 $nickname 様がアカウントを登録しましたのでお知らせ致します。
 
-　登録日時　　　　　：$date
+　登録日時：$date
 
 ※アカウント作成時のIPアドレス・リモートホスト名は、参加者一覧から閲覧可能です。
 　万が一、不適切な作品投稿を繰り返す、イベント運営を妨害するなどの行為が同じIPアドレスや

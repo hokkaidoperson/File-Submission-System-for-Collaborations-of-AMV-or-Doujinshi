@@ -19,10 +19,10 @@ if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
 $leader = id_leader("submit");
 if ($leader != NULL) {
-    if ($leader != $_SESSION["userid"]) redirect("./index.php");
-} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
+    if ($leader != $_SESSION["userid"]) redirect("../list/index.php");
+} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 csrf_prevention_validate();
@@ -89,9 +89,9 @@ switch ($_POST["ans"]){
         $authorsubject = '作品を修正して下さい（' . $formdata["title"] . '）';
     break;
     case 3:
-        $contentpart = '内容上の問題が多い、もしくは重大な問題があるという結論になったため、この作品を拒否しました。
-作品の提出者に拒否の通知をしました。';
-        $subject = '議論の結果（拒否・' . $formdata["title"] . '）';
+        $contentpart = '内容上の問題が多い、もしくは重大な問題があるという結論になったため、この作品の承認を見送りました。
+作品の提出者に承認見送りの通知をしました。';
+        $subject = '議論の結果（承認見送り・' . $formdata["title"] . '）';
         $authorsubject = '作品の承認が見送られました（' . $formdata["title"] . '）';
     break;
 }
@@ -184,8 +184,8 @@ switch ($_POST["ans"]){
         register_alert("<p>結論を送信し、議論を終了しました。</p><p>軽微な修正が必要であるという結論になったため、<strong>この作品を修正待ち状態にしました</strong>。<br>作品の提出者に、修正依頼の通知をしました。</p>", "success");
     break;
     case 3:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>このイベントに相応しくないという結論になったため、<strong>この作品を拒否しました</strong>。<br>作品の提出者に拒否の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>このイベントに相応しくないという結論になったため、<strong>この作品の承認を見送りました</strong>。<br>作品の提出者に承認見送りの通知をしました。</p>", "success");
     break;
 }
 
-redirect("./index.php");
+redirect("../list/index.php");

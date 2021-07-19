@@ -3,13 +3,10 @@ require_once('../../../set.php');
 setup_session();
 session_validation();
 
+csrf_prevention_validate();
+
 if (no_access_right(array("p"))) redirect("./index.php");
 
-
-if (!file_exists(DATAROOT . 'form/submit/draft/')) redirect("../../index.php");
-
-//一時ファイルを消す
-remove_directory(DATAROOT . 'form/submit/draft');
 
 unset($_SESSION["submitformdata"]);
 

@@ -42,7 +42,7 @@ $invalid = FALSE;
 
 switch ($_POST["method"]) {
     case 'direct':
-        if (check_submitfile($submitformdata["general"], array(), 0)) $invalid = TRUE;
+        if (check_attachments($submitformdata["general"], "submitfile", array(), 0)) $invalid = TRUE;
     break;
     case 'url':
         if($_POST["url"] == "") $invalid = TRUE;
@@ -64,16 +64,16 @@ else if(mb_strlen($_POST["title"]) > 50) $invalid = TRUE;
 
 //カスタム内容
 foreach ($submitformdata as $array) {
-    if ($array["type"] == "textbox2") {
-        if (check_textbox2($array)) $invalid = TRUE;
-    } else if ($array["type"] == "textbox" || $array["type"] == "textarea") {
+    if ($array["type"] == "textbox" || $array["type"] == "textarea") {
         if (check_textbox($array)) $invalid = TRUE;
     } else if ($array["type"] == "check") {
         if (check_checkbox($array)) $invalid = TRUE;
-    } else if ($array["type"] == "radio" || $array["type"] == "dropdown") {
+    } else if ($array["type"] == "radio") {
         if (check_radio($array)) $invalid = TRUE;
+    } else if ($array["type"] == "dropdown") {
+        if (check_dropdown($array)) $invalid = TRUE;
     } else if ($array["type"] == "attach") {
-        if (check_attach($array, array(), 0)) $invalid = TRUE;
+        if (check_attachments($array, "custom-" . $array["id"], array(), 0)) $invalid = TRUE;
     }
 }
 
@@ -102,6 +102,8 @@ $userdata = array(
     "related_exams" => []
 );
 
+$playtime_sum = 0;
+
 //メインのファイルを保存
 if ($_POST["method"] == 'direct') {
     $fileto = DATAROOT . 'files/' . $userid . '/' . $id . '/';
@@ -117,6 +119,9 @@ if ($_POST["method"] == 'direct') {
             if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
             chmod($fileto . $savename, 0644);
             $userdata["submit"][$id . "_$j"] = $ext;
+            if (preg_match('/\.mp4$/i', $ext)) {
+                $playtime_sum += get_playtime($fileto . $savename);
+            }
         }
     }
 } else {
@@ -148,12 +153,20 @@ foreach ($submitformdata as $array) {
         }
         continue;
     }
-    if ($array["type"] == "radio" or $array["type"] == "dropdown") {
+    else if ($array["type"] == "radio") {
         $choices = choices_array($array["list"]);
-        $userdata[$array["id"]] = $choices[$_POST["custom-" . $array["id"]]];
+        if (isset($_POST["custom-" . $array["id"]][0])) $userdata[$array["id"]] = [$choices[$_POST["custom-" . $array["id"]][0]]];
         continue;
     }
-    if ($array["type"] == "check") {
+    else if ($array["type"] == "dropdown") {
+        $choices = choices_array($array["list"]);
+        $userdata[$array["id"]] = [];
+        if (isset($_POST["custom-" . $array["id"]])) foreach ($_POST["custom-" . $array["id"]] as $key => $value) {
+            $userdata[$array["id"]][$key] = $choices[$value];
+        }
+        continue;
+    }
+    else if ($array["type"] == "check") {
         if ($_POST["custom-" . $array["id"]] == "") {
             $userdata[$array["id"]] = array();
             continue;
@@ -164,13 +177,10 @@ foreach ($submitformdata as $array) {
         }
         continue;
     }
-    if ($array["type"] == "textbox2") {
-        $userdata[$array["id"] . "-1"] = $_POST["custom-" . $array["id"] . "-1"];
-        $userdata[$array["id"] . "-2"] = $_POST["custom-" . $array["id"] . "-2"];
-        continue;
-    }
     $userdata[$array["id"]] = $_POST["custom-" . $array["id"]];
 }
+
+$userdata["length_sum"] = $playtime_sum;
 
 //ファイル確認のメンバー（送信者自身の場合は承認に自動投票）
 //※_state：0…全員の確認が終わってない、1…議論中、2…議論終了、3…即決された
@@ -228,6 +238,11 @@ if (!file_exists(DATAROOT . 'submit/' . $userid . '/')) {
 }
 if (file_put_contents_repeat(DATAROOT . 'submit/' . $userid . '/' . $userfile, $userdatajson) === FALSE) die('提出データの書き込みに失敗しました。');
 
+//合計再生時間
+$userprofile = new JsonRW(user_file_path());
+$userprofile->array["length_sum"] += $playtime_sum;
+$userprofile->write();
+
 $email = $_SESSION["email"];
 
 switch ($userdata["exam"]) {
@@ -237,7 +252,7 @@ switch ($userdata["exam"]) {
 
 $eventname のポータルサイトにて、作品「" . $_POST["title"] . "」を提出しました。
 提出されたファイルは、運営チーム（主催者・共同運営者）によって確認されます。
-確認結果（承認・拒否）は、改めてメールで通知致します。
+確認結果（承認するかどうか）は、改めてメールで通知致します。
 ファイル確認の結果、ファイルの再提出が必要になる可能性がありますので、
 制作に使用した素材などは、しばらくの間消去せずに残しておいて下さい。
 

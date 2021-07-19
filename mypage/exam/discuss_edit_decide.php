@@ -30,10 +30,10 @@ if ($_SESSION["state"] == 'g' or $_SESSION["state"] == 'o') die();
 
 $leader = id_leader($answerdata["_membermode"]);
 if ($leader != NULL) {
-    if ($leader != $_SESSION["userid"]) redirect("./index.php");
-} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("./index.php");
+    if ($leader != $_SESSION["userid"]) redirect("../list/index.php");
+} else if ($_SESSION["state"] != 'p' and $noprom == FALSE) redirect("../list/index.php");
 
-if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("./index.php");
+if (!file_exists(DATAROOT . 'form/submit/done.txt') or !file_exists(DATAROOT . 'examsetting.txt')) redirect("../list/index.php");
 
 
 csrf_prevention_validate();
@@ -105,6 +105,36 @@ if ($_POST["ans"] == 1) {
         }
         $formdata[$key] = $data;
     }
+} else {
+    //総再生時間の処理
+    $changeddata = json_decode(file_get_contents_repeat(DATAROOT . "edit/" . $author . "/" . $id . ".txt"), true);
+    foreach($changeddata as $key => $data) {
+        if (strpos($key, "_add") !== FALSE or strpos($key, "_delete") !== FALSE) {
+            $tmp = explode("_", $key);
+            $partid = $tmp[0];
+            if ($partid === "submit") $saveid = "main";
+            else continue;
+            $old_length = $formdata["length_sum"];
+            if ($tmp[1] === "add") {
+                foreach ($data as $fileplace => $name) {
+                    if (preg_match('/\.mp4$/i', $name)) {
+                        $formdata["length_sum"] -= get_playtime(DATAROOT . 'edit_files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace");
+                    }
+                }
+            }
+            if ($tmp[1] === "delete") {
+                foreach ($data as $name) {
+                    if (preg_match('/\.mp4$/i', $formdata["submit"][$name])) {
+                        $formdata["length_sum"] += get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$name");
+                    }
+                }
+            }
+            //合計再生時間
+            $userprofile = new JsonRW(user_file_path());
+            $userprofile->array["length_sum"] += $formdata["length_sum"] - $old_length;
+            $userprofile->write();
+        }
+    }
 }
 $filedatajson =  json_encode($formdata);
 if (file_put_contents_repeat(DATAROOT . "submit/" . $author . "/" . $id . ".txt", $filedatajson) === FALSE) die('作品データの書き込みに失敗しました。');
@@ -119,9 +149,9 @@ switch ($_POST["ans"]){
         $authorsubject = '内容変更を承認しました（' . $formdata["title"] . '）';
         break;
     case 2:
-        $contentpart = '問題があるという結論になったため、この変更を拒否しました。
-作品の提出者に拒否の通知をしました。';
-        $subject = '議論の結果（拒否・内容変更・' . $formdata["title"] . '）';
+        $contentpart = '問題があるという結論になったため、この変更の承認を見送りました。
+作品の提出者に承認見送りの通知をしました。';
+        $subject = '議論の結果（承認見送り・内容変更・' . $formdata["title"] . '）';
         $authorsubject = '内容変更の承認が見送られました（' . $formdata["title"] . '）';
     break;
 }
@@ -190,8 +220,8 @@ switch ($_POST["ans"]){
         register_alert("<p>結論を送信し、議論を終了しました。</p><p>承認しても問題無いという結論になったため、<strong>この変更を承認しました</strong>。<br>作品の提出者に承認の通知をしました。</p>", "success");
     break;
     case 2:
-        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<strong>この変更を拒否しました</strong>。<br>作品の提出者に拒否の通知をしました。</p>", "success");
+        register_alert("<p>結論を送信し、議論を終了しました。</p><p>問題があるという結論になったため、<strong>この変更の承認を見送りました</strong>。<br>作品の提出者に承認見送りの通知をしました。</p>", "success");
     break;
 }
 
-redirect("./index.php");
+redirect("../list/index.php");
