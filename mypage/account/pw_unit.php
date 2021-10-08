@@ -17,7 +17,7 @@ require_once(PAGEROOT . 'mypage_header.php');
 </div>
 <div class="form-group">
 <label for="password">新しいパスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onkeyup="show_length(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
 <div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="password-errortext" class="system-form-error"></div>
 <small class="form-text">※パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>

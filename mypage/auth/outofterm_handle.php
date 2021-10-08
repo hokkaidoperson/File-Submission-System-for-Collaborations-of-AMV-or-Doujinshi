@@ -10,11 +10,17 @@ csrf_prevention_validate();
 
 $invalid = FALSE;
 if (!user_exists($_POST["userid"])) $invalid = TRUE;
-if($_POST["time"] == "") $invalid = TRUE;
-else if(!preg_match('/^[0-9]*$/', $_POST["time"])) $invalid = TRUE;
-else if((int)$_POST["time"] < 1 or (int)$_POST["time"] > 100) $invalid = TRUE;
 if ($_POST["fncs"] != "" and !is_array($_POST["fncs"])) $invalid = TRUE;
 if ($_POST["files"] != "" and !is_array($_POST["files"])) $invalid = TRUE;
+
+list($Yf, $mf, $df) = explode('-', $_POST["time_date"]);
+list($hrf, $mnf) = explode(':', $_POST["time_time"]);
+$dueunix = mktime($hrf, $mnf, 0, $mf, $df, $Yf);
+
+if (checkdate($mf, $df, $Yf) !== true) $invalid = TRUE;
+
+if ($hrf < 0 and $hrf > 23) $invalid = TRUE;
+if ($mnf < 0 and $mnf > 59) $invalid = TRUE;
 
 if ($invalid) die('リクエスト内容に不備がありました。入力フォームを介さずにアクセスしようとした可能性があります。もし入力フォームから入力したにも関わらずこのメッセージが表示された場合は、システム制作者にお問い合わせ下さい。');
 
@@ -27,7 +33,7 @@ if (!file_exists(DATAROOT . 'outofterm/')) {
 
 $acldata = array_merge((array)$_POST["fncs"], (array)$_POST["files"]);
 
-$acldata["expire"] = time() + (int)$_POST["time"] * 60 * 60;
+$acldata["expire"] = $dueunix;
 
 $acldatajson =  json_encode($acldata);
 if (file_put_contents_repeat(DATAROOT . 'outofterm/' . $userid . '.txt', $acldatajson) === FALSE) die('ACLデータの書き込みに失敗しました。');
@@ -48,7 +54,7 @@ foreach ($acldata as $key => $value) {
     $whatok[] = '作品「' . $workdata["title"] . '」の編集';
 }
 
-if ($whatok != []){
+if ($whatok != [] and $dueunix > time()){
     $whatokj = implode("\n", $whatok);
 
     //対象者にメール

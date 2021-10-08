@@ -60,7 +60,7 @@ foreach ($submitformdata as $array) {
                 $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $array["id"] . '_' . $key);
                 $uploadedfs[$key] = [
                     "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $array["id"] . '_' . $key),
-                    "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $array["id"] . '_' . $key) : 0
+                    "playtime" => get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $array["id"] . '_' . $key)
                 ];
             }
         }

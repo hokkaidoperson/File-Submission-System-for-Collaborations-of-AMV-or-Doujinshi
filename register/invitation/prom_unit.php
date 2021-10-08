@@ -34,7 +34,7 @@ require_once(PAGEROOT . 'guest_header.php');
 <input type="hidden" name="sectok" value="<?php echo $_GET["sectok"]; ?>">
 <div class="form-group">
 <label for="userid">ユーザーID（半角英数字のみ　20文字以内　<strong>後から変更出来ません</strong>）【必須】</label>
-<input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onChange="check_individual(&quot;userid&quot;);">
+<input type="text" name="userid" class="form-control" id="userid" onkeyup="show_length(value, &quot;userid-counter&quot;);" onChange="check_individual(&quot;userid&quot;);">
 <div id="userid-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="userid-duptext" class="system-form-success"></div>
 <div id="userid-errortext" class="system-form-error"></div>
@@ -42,7 +42,7 @@ require_once(PAGEROOT . 'guest_header.php');
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
-<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
+<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="show_length(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
 <div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="nickname-errortext" class="system-form-error"></div>
 <small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
@@ -61,7 +61,7 @@ require_once(PAGEROOT . 'guest_header.php');
 </div>
 <div class="form-group">
 <label for="password">パスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onkeyup="show_length(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
 <div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="password-errortext" class="system-form-error"></div>
 <small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>

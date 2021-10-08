@@ -635,7 +635,7 @@ function check(){
 }
 
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
+function show_length(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 </script>
@@ -663,14 +663,14 @@ function ShowLength(str, resultid) {
 <h2>管理者アカウントの情報</h2>
 <div class="form-group">
 <label for="userid">ユーザーID（半角英数字のみ　20文字以内　<strong>後から変更出来ません</strong>）【必須】</label>
-<input type="text" name="userid" class="form-control" id="userid" onkeyup="ShowLength(value, &quot;userid-counter&quot;);" onChange="check_individual(&quot;userid&quot;);">
+<input type="text" name="userid" class="form-control" id="userid" onkeyup="show_length(value, &quot;userid-counter&quot;);" onChange="check_individual(&quot;userid&quot;);">
 <div id="userid-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="userid-errortext" class="system-form-error"></div>
 <small class="form-text">※ログインの際にこのユーザーIDを使用します。</small>
 </div>
 <div class="form-group">
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
-<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
+<input type="text" name="nickname" class="form-control" id="nickname" onkeyup="show_length(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
 <div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="nickname-errortext" class="system-form-error"></div>
 <small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
@@ -688,7 +688,7 @@ function ShowLength(str, resultid) {
 </div>
 <div class="form-group">
 <label for="password">パスワード（8文字以上72文字以内）【必須】</label>
-<input type="password" name="password" class="form-control" id="password" onkeyup="ShowLength(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
+<input type="password" name="password" class="form-control" id="password" onkeyup="show_length(value, &quot;password-counter&quot;);" onChange="check_individual(&quot;password&quot;);">
 <div id="password-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="password-errortext" class="system-form-error"></div>
 <small class="form-text">※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。</small>
@@ -722,7 +722,7 @@ function ShowLength(str, resultid) {
 <h2>システムの設定事項</h2>
 <div class="form-group">
 <label for="eventname">イベント名（50文字以内）【必須】</label><br/>
-<input type="text" name="eventname" id="eventname" class="form-control" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
+<input type="text" name="eventname" id="eventname" class="form-control" onkeyup="show_length(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
 <div id="eventname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="eventname-errortext" class="system-form-error"></div>
 <small class="form-text">※イベント名は、サイトのトップページなど、随所に表示されます。</small>
@@ -770,7 +770,7 @@ function ShowLength(str, resultid) {
 </div>
 <div class="form-group">
 <label for="systemfrom">システムが送信するメールの差出人名（30文字以内）</label>
-<input type="text" name="systemfrom" class="form-control" id="systemfrom" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
+<input type="text" name="systemfrom" class="form-control" id="systemfrom" onkeyup="show_length(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
 <div id="systemfrom-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systemfrom-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの送信元（From）の差出人名を指定する場合はここで指定して下さい。<br>
@@ -779,7 +779,7 @@ function ShowLength(str, resultid) {
 </div>
 <div class="form-group">
 <label for="systempre">システムが送信するメールの接頭辞（15文字以内）</label>
-<input type="text" name="systempre" class="form-control" id="systempre" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
+<input type="text" name="systempre" class="form-control" id="systempre" onkeyup="show_length(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
 <div id="systempre-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systempre-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの件名の頭に、ここで指定した接頭辞が付きます。接頭辞は括弧【】で囲われます。<br>

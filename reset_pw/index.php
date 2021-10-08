@@ -14,7 +14,6 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 
 if ($userec) {
     $includepart = "<script src='https://www.google.com/recaptcha/api.js' async defer></script>";
-    $bodyincludepart = ' style="margin-bottom: 90px;"';
 }
 $titlepart = "パスワード再発行";
 require_once(PAGEROOT . 'guest_header.php');
@@ -46,7 +45,7 @@ require_once(PAGEROOT . 'guest_header.php');
 <div id="email-errortext" class="system-form-error"></div>
 </div>
 <?php
-if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>
+if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible" data-badge="bottomleft"></div>
 <button class="btn btn-primary" type="submit">URLを送信</button><div class="small text-muted d-flex"><span class="pr-1">※</span>「URLを送信」を押下した直後、あなたがスパムやボットでない事を確かめるために画像認証画面が表示される場合があります。</div>';
 else echo '<button type="submit" class="btn btn-primary" id="submitbtn">URLを送信</button>';
 ?>

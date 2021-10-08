@@ -87,7 +87,7 @@ $uploadedfs = array();
 $mylength = get_length_sum();
 $lengthleft = (int)$submitformdata["general"]["worklength"] - $mylength;
 echo '<div class="border border-primary system-border-spacer">
-残り合計 <strong>' . (int)($lengthleft / 60) . '分' . $lengthleft % 60 . '秒</strong> の動画ファイルを「提出ファイル」に追加出来ます（合計' . (int)((int)$submitformdata["general"]["worklength"] / 60) . '分' . (int)$submitformdata["general"]["worklength"] % 60 . '秒まで提出可能／mp4のみ集計対象）。
+残り合計 <strong>' . (int)($lengthleft / 60) . '分' . $lengthleft % 60 . '秒</strong> の動画ファイルを「提出ファイル」に追加出来ます（合計' . (int)((int)$submitformdata["general"]["worklength"] / 60) . '分' . (int)$submitformdata["general"]["worklength"] % 60 . '秒まで提出可能／動画・音声ファイルのみ集計対象）。
 </div>';
 ?>
 <form name="form" action="edit_handle.php" method="post" <?php
@@ -115,6 +115,7 @@ if ($method == 'direct') {
         "title" => "提出ファイルのダウンロードURL【必須】",
         "name" => "url",
         "id" => "url",
+        "prefill" => $entereddata["url"],
         "detail" => $submitformdata["general"]["detail"],
         "jspart" => 'onChange="validation_call_custom(&quot;url&quot;);"'
     ]);
@@ -122,6 +123,7 @@ if ($method == 'direct') {
         "title" => "ファイルのダウンロードに必要なパスワード（あれば）",
         "name" => "dldpw",
         "id" => "dldpw",
+        "prefill" => $entereddata["dldpw"],
         "detail" => "※サービスによってパスワードの名称が異なります（「復号キー」など）。",
         "jspart" => 'onChange="validation_call_custom(&quot;dldpw&quot;);"'
     ]);
@@ -129,6 +131,10 @@ if ($method == 'direct') {
         "title" => "ファイルのダウンロード期限（あれば）",
         "name" => "due",
         "id" => "due",
+        "prefill" => [
+            isset($entereddata["due"]) ? date('Y-m-d', $entereddata["due"]) : '',
+            isset($entereddata["due"]) ? date('H:i', $entereddata["due"]) : ''
+        ],
         "detail" => "※ダウンロードURLに有効期限がある場合は必ず入力して下さい。入力が無い場合は、URLに有効期限が無いものとして扱います。<br>※日付の欄をクリックするとカレンダーから日付を選べます。<br>※時刻の欄についてはブラウザにより表示が異なります（ポップアップ画面が表示される、入力欄の横に上下のボタンが出る　など）。<br>　時刻の欄をクリックしても何も出ない（通常のテキストボックスのようになっている）場合は、「時:分」の形で、半角で入力して下さい。",
         "jspart" => [
             'onChange="validation_call_custom(&quot;due_date&quot;);"',

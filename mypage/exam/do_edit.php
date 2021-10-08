@@ -333,7 +333,7 @@ if (isset($filedata[$_SESSION["userid"]]["opinion"]) and $filedata[$_SESSION["us
 </div>
 <div class="form-group">
 <label for="reason">「問題がある」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onChange="check_individual(&quot;reason&quot;);"><?php
+<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="show_length(value, &quot;reason-counter&quot;);" onChange="check_individual(&quot;reason&quot;);"><?php
 if (isset($filedata[$_SESSION["userid"]]["reason"])) echo hsc($filedata[$_SESSION["userid"]]["reason"]);
 ?></textarea>
 <div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>

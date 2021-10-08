@@ -4,6 +4,21 @@
 //スクリプト内からの呼び出しでなければ終了
 if (!defined('DATAROOT')) die();
 
+switch ($_SESSION["state"]) {
+    case "p":
+        $feedback_attr = "主催者";
+        break;
+    case "c":
+        $feedback_attr = "共同運営者";
+        break;
+    case "g":
+        $feedback_attr = "一般参加者";
+        break;
+    default:
+        $feedback_attr = "非参加者";
+        break;
+}
+
 ?>
 </div>
 </div>
@@ -12,6 +27,7 @@ if (!defined('DATAROOT')) die();
 <?php echo $eventname; ?> Powered by <a href='https://www.hkdyukkuri.space/filesystem/' target="_blank" rel="noopener">MAD合作・合同誌向けファイル提出システム</a> (Ver. <?php echo VERSION; ?>) and supported by <a href="https://getbootstrap.jp/" target="_blank" rel="noopener">Bootstrap4<br></a>
 </span>
 </nav>
+<a href="<?php echo feedback_url($feedback_attr); ?>" target="_blank" rel="noopener" role="button" class="btn btn-outline-info px-2 px-md-3 py-md-2 rounded-pill d-inline-flex align-items-center system-btn-feedback"><i class="bi bi-chat-left-dots system-btn-feedback-icon"></i><span class="pl-1"> フィードバック</span></a>
 </div>
 <div class="modal fade" id="form_confirmation_modal" tabindex="-1" role="dialog" aria-labelledby="form_confirmation_modal_title" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">

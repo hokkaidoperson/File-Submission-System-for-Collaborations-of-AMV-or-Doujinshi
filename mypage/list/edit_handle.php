@@ -58,7 +58,7 @@ switch ($_POST["method"]) {
                 $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key);
                 $uploadedfs[$key] = [
                     "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key),
-                    "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key) : 0
+                    "playtime" => get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/main_' . $key)
                 ];
             }
         }
@@ -95,16 +95,18 @@ foreach ($submitformdata as $array) {
     } else if ($array["type"] == "attach") {
         $uploadedfs = array();
         $currentsize = 0;
+        $currentlength = 0;
         if (isset($entereddata[$array["id"]]) and $entereddata[$array["id"]] != array()) {
             foreach ($entereddata[$array["id"]] as $key => $element){
                 $currentsize += filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
+                $currentlength += get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key);
                 $uploadedfs[$key] = [
                     "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key),
-                    "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key) : 0
+                    "playtime" => get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $id . '/' . $array["id"] . '_' . $key)
                 ];
             }
         }
-        if (check_attachments($array, "custom-" . $array["id"], $uploadedfs, $currentsize)) $invalid = TRUE;
+        if (check_attachments($array, "custom-" . $array["id"], $uploadedfs, $currentsize, $currentlength)) $invalid = TRUE;
     }
 }
 
@@ -138,9 +140,7 @@ if ($_POST["method"] == 'direct') {
             chmod($fileto . $savename, 0644);
             if (!isset($changeditem["submit_add"])) $changeditem["submit_add"] = array();
             $changeditem["submit_add"][$uploadid . "_$j"] = $ext;
-            if (preg_match('/\.mp4$/i', $ext)) {
-                $entereddata["length_sum"] += get_playtime($fileto . $savename);
-            }
+            $entereddata["length_sum"] += get_playtime($fileto . $savename);
             $recheck = max($recheck, 2);
         }
     }
@@ -148,9 +148,7 @@ if ($_POST["method"] == 'direct') {
         if ($key === "none") break;
         if (!isset($changeditem["submit_delete"])) $changeditem["submit_delete"] = array();
         $changeditem["submit_delete"][] = basename($key);
-        if (preg_match('/\.mp4$/i', $entereddata["submit"][$key])) {
-            $entereddata["length_sum"] -= get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . "main_" . $key);
-        }
+        $entereddata["length_sum"] -= get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . "main_" . $key);
         $recheck = max($recheck, 2);
     }
 } else {

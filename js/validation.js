@@ -12,106 +12,42 @@ const get_video_metadata = async function(filedata) {
     return new Promise(resolve => {
         const video = document.createElement('video');
         video.preload = 'metadata';
-        video.addEventListener('loadedmetadata', event => {
-            resolve({width: video.videoWidth, height: video.videoHeight, playtime: parseInt(video.duration)});
+        video.addEventListener('loadedmetadata', () => {
+            const returnArray = {width: video.videoWidth, height: video.videoHeight, playtime: parseInt(video.duration)};
+            URL.revokeObjectURL(video.src);
+            resolve(returnArray);
         });
         video.src = URL.createObjectURL(filedata);
     });
 };
 
-//日付チェック（参考：https://web-designer.cman.jp/html_ref/abc_list/input_sample2/）
-function date_check(str){
-    var ok = true;
-    var wdate = str.value;
-    var wresult = "";
-    var wlength = "";
-    var wyear = "";
-    var wmonth = "";
-    var wday = "";
+const get_image_metadata = async function(filedata) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+            const returnArray = {
+                width: img.naturalWidth,
+                height: img.naturalHeight
+            };
+            URL.revokeObjectURL(img.src);
+            resolve(returnArray);
+        };
+        img.src = URL.createObjectURL(filedata);
+    });
+};
 
-    wresult = /[^\d-]/.test(wdate);
-    if (wresult){
-        ok=false;
-        return(ok);
-    }
-
-    wlength = wdate.length;
-    if (wlength!=10){
-        ok=false;
-        return(ok);
-    }
-
-    wresult = wdate.split("-");
-    if (wresult.length!=1 & wresult.length!=3){
-        ok=false;
-        return(ok);
-    }
-
-    if ((wresult[0].length!=4) | (wresult[1].length!=2) | (wresult[2].length!=2)){
-        ok=false;
-        return(ok);
-    }
-    wyear=Number(wresult[0]);
-    wmonth=Number(wresult[1]);
-    wday=Number(wresult[2]);
-
-    if (wmonth<1 | wmonth>12){
-        ok=false;
-        return(ok);
-    }
-    if (wday<1 | wday>31){
-        ok=false;
-        return(ok);
-    }
-    return(ok);
-}
-
-//時刻チェック（参考：https://web-designer.cman.jp/html_ref/abc_list/input_sample2/）
-function time_check(time){
-    var ok = true;
-    var wtime = time.value;
-    var wresult = "";
-    var wlength = "";
-    var whour = "";
-    var wminute = "";
-
-    wresult = /[^\d\:]/.test(wtime);
-    if (wresult){
-        ok=false;
-        return(ok);
-    }
-
-    wlength = wtime.length;
-    if (wlength!=5){
-        ok=false;
-        return(ok);
-    }
-
-    wresult = wtime.split(":");
-    if (wresult.length!=2){
-        ok=false;
-        return(ok);
-    }
-
-    if (wresult[0].length!=2 | wresult[1].length!=2){
-        ok=false;
-        return(ok);
-    }
-
-    whour=Number(wresult[0]);
-    wminute=Number(wresult[1]);
-
-    if (whour<0 | whour>23){
-        ok=false;
-        return(ok);
-    }
-    if (wminute<0 | wminute>59){
-        ok=false;
-        return(ok);
-    }
-
-    return(ok);
-}
+const get_audio_metadata = async function(filedata) {
+    return new Promise(resolve => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.addEventListener('loadedmetadata', () => {
+            const returnArray = {playtime: parseInt(video.duration)};
+            URL.revokeObjectURL(video.src);
+            resolve(returnArray);
+        });
+        video.src = URL.createObjectURL(filedata);
+    });
+};
 
 //バリデーション用の総合関数
 //ジャンプ先のエラー項目IDと共にpromise_callbackを呼び出し（無ければnull）
@@ -238,7 +174,7 @@ function validation_call(indv = null){
 }
 
 //文字数カウント　参考　https://www.nishishi.com/javascript-tips/input-counter.html
-function ShowLength(str, resultid) {
+function show_length(str, resultid) {
    document.getElementById(resultid).innerHTML = "現在 " + str.length + " 文字";
 }
 
@@ -292,7 +228,7 @@ async function check_attachments(val, elementid) {
         if (result != 0) {
             output += "【" + file.name + "】指定した拡張子でないため、このファイルはアップロード出来ません。<br>";
         } else {
-            if (file.name.toUpperCase().match(/\.MP4$/i)) {
+            if (file.type.startsWith('video/')) {
                 var filedetails = await get_video_metadata(file);
                 if (filedetails.width > widthmax || filedetails.height > heightmax){
                     output += "【" + file.name + "】ファイルの解像度が指定より上回っているため、このファイルはアップロード出来ません。<br>";
@@ -300,11 +236,23 @@ async function check_attachments(val, elementid) {
                     sizesum += parseInt(file.size);
                     lengthsum += filedetails.playtime;
                 }
+            } else if (file.type.startsWith('image/')) {
+                var filedetails = await get_image_metadata(file);
+                if (filedetails.width > widthmax || filedetails.height > heightmax){
+                    output += "【" + file.name + "】ファイルの解像度が指定より上回っているため、このファイルはアップロード出来ません。<br>";
+                } else {
+                    sizesum += parseInt(file.size);
+                }
+            } else if (file.type.startsWith('audio/')) {
+                var filedetails = await get_audio_metadata(file);
+                sizesum += parseInt(file.size);
+                lengthsum += filedetails.playtime;
             } else {
                 sizesum += parseInt(file.size);
             }
         }
     }
+    var lengthsumdiff = lengthsum;
     var uploadedfs = JSON.parse(document.form[elementid].dataset.current);
     Object.keys(uploadedfs).forEach(function(key) {
        sizesum += parseInt(uploadedfs[key].size);
@@ -317,6 +265,7 @@ async function check_attachments(val, elementid) {
             var deletekey = document.getElementsByName(elementid + "-delete[]")[j].value;
             sizesum -= uploadedfs[deletekey]["size"];
             lengthsum -= uploadedfs[deletekey]["playtime"];
+            lengthsumdiff -= uploadedfs[deletekey]["playtime"];
             deletenum++;
         }
     }
@@ -332,7 +281,7 @@ async function check_attachments(val, elementid) {
     if (lengthsum > lengthmax) {
         output += "ファイルの合計再生時間が大きすぎます（現在" + parseInt(lengthsum / 60) + "分" + (lengthsum % 60) + "秒）。ファイルを削除するか、新規アップロードを取りやめて下さい。<br>";
     }
-    var worklengthsum = lengthsum + parseInt(document.form[elementid].dataset.currentLengthSum);
+    var worklengthsum = lengthsumdiff + parseInt(document.form[elementid].dataset.currentLengthSum);
     if (elementid === "submitfile" && worklengthsum > worklengthmax) {
         output += "全作品の総再生時間が許容範囲を超えてしまいます（現在" + parseInt(worklengthsum / 60) + "分" + (worklengthsum % 60) + "秒）。提出済みの別の作品を削除するか、この作品のファイルを削減して下さい。<br>";
     }
@@ -393,4 +342,22 @@ function set_link_confirmation_modal(href_name, message = '<p>現在の設定内
     document.getElementById('link_confirmation_modal_btn').classList.add('btn-' + button_class);
     $('#link_confirmation_modal').modal();
     return false;
+}
+
+function tick_all_toggler(name) {
+    const is_checked = document.getElementById('tickall_' + name).checked;
+    for (var i = 0; i<document.getElementsByName(name).length; i++){
+        document.getElementsByName(name)[i].checked = is_checked;
+    }
+}
+
+function tick_all_child_toggler(name) {
+    var children = document.getElementsByName(name);
+    for (var i = 0; i<children.length; i++){
+        if(!children[i].checked){
+            document.getElementById('tickall_' + name).checked = false;
+            return;
+        }
+    }
+    document.getElementById('tickall_' + name).checked = true;
 }

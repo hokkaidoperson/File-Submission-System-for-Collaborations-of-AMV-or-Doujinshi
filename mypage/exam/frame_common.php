@@ -208,7 +208,7 @@ if (!$permitted) die_mypage('<div class="border border-danger system-border-spac
 <input type="hidden" name="subject" value="<?php echo $examfilename; ?>">
 <div class="form-group">
 <label for="reason">各メンバーが入力した理由を取りまとめ、提出者宛てのメールに記載する理由文を作成して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onChange="check_individual(&quot;reason&quot;);"></textarea>
+<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="show_length(value, &quot;reason-counter&quot;);" onChange="check_individual(&quot;reason&quot;);"></textarea>
 <div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="reason-errortext" class="system-form-error"></div>
 </div>

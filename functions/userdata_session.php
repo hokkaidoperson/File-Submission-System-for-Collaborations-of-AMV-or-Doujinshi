@@ -243,3 +243,12 @@ function user_file_path($userid = null) {
     if ($userid == null) $userid = $_SESSION["userid"];
     return DATAROOT . 'users/' . $userid . '.txt';
 }
+
+//フィードバックフォーム
+function feedback_url($status = "非ログイン") {
+    global $siteurl;
+    $url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+    $url = str_replace($siteurl, "/", $url);
+    $url = preg_replace('/\?.*$/', '', $url);
+    return 'https://docs.google.com/forms/d/e/1FAIpQLSebbc42bP2FKZ6pRK_8jTfR-yplbajuSLPvt_HjzuP7g94lTg/viewform?usp=pp_url&entry.536748003=' . urlencode(VERSION) . '&entry.1679411446=' . urlencode($url) . '&entry.651099088=' . urlencode($status);
+}

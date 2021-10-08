@@ -460,16 +460,12 @@ function exam_totalization_edit($subject, $forceclose) {
                         $old_length = $formdata["length_sum"];
                         if ($tmp[1] === "add") {
                             foreach ($data as $fileplace => $name) {
-                                if (preg_match('/\.mp4$/i', $name)) {
-                                    $formdata["length_sum"] -= get_playtime(DATAROOT . 'edit_files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace");
-                                }
+                                $formdata["length_sum"] -= get_playtime(DATAROOT . 'edit_files/' . $author . '/' . $id . '/' . $saveid . "_$fileplace");
                             }
                         }
                         if ($tmp[1] === "delete") {
                             foreach ($data as $name) {
-                                if (preg_match('/\.mp4$/i', $formdata["submit"][$name])) {
-                                    $formdata["length_sum"] += get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$name");
-                                }
+                                $formdata["length_sum"] += get_playtime(DATAROOT . 'files/' . $author . '/' . $id . '/' . $saveid . "_$name");
                             }
                         }
                         //合計再生時間

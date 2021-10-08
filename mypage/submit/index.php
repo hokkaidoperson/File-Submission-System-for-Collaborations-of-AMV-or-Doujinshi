@@ -90,7 +90,7 @@ if (isset($submitformdata["general"]["worknumber"]) and $submitformdata["general
 残り <strong>' . $submitleft . '作品</strong> 提出出来ます（' . $submitformdata["general"]["worknumber"] . '作品まで提出可能）。
 </div>';
     echo '<div class="border border-primary system-border-spacer">
-残り合計 <strong>' . (int)($lengthleft / 60) . '分' . $lengthleft % 60 . '秒</strong> の動画ファイルを「提出ファイル」に追加出来ます（合計' . (int)((int)$submitformdata["general"]["worklength"] / 60) . '分' . (int)$submitformdata["general"]["worklength"] % 60 . '秒まで提出可能／mp4のみ集計対象）。
+残り合計 <strong>' . (int)($lengthleft / 60) . '分' . $lengthleft % 60 . '秒</strong> の動画ファイルを「提出ファイル」に追加出来ます（合計' . (int)((int)$submitformdata["general"]["worklength"] / 60) . '分' . (int)$submitformdata["general"]["worklength"] % 60 . '秒まで提出可能／動画・音声ファイルのみ集計対象）。
 </div>';
 }
 ?>
@@ -222,6 +222,7 @@ function validation_call_custom(indv = null){
     Object.keys(types).forEach(function(id) {
         items[id] = get_value(id);
     });
+    if (items.method !== "direct") items.submitfile = '';
     if (indv !== null) form_validation(items, types, rules, indv);
     else form_validation(items, types, rules, null, function(result) {
         if (result !== null) {

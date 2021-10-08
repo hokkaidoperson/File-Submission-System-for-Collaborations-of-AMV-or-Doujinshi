@@ -37,7 +37,7 @@ $entereddata["recaptcha"] = json_decode(file_get_contents_repeat(DATAROOT . 'rec
 <label for="eventname">イベント名（50文字以内）【必須】</label><br/>
 <input type="text" name="eventname" id="eventname" class="form-control" value="<?php
 if (isset($entereddata["eventname"])) echo hsc($entereddata["eventname"]);
-?>" onkeyup="ShowLength(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
+?>" onkeyup="show_length(value, &quot;eventname-counter&quot;);" onChange="check_individual(&quot;eventname&quot;);">
 <div id="eventname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="eventname-errortext" class="system-form-error"></div>
 <small class="form-text">※イベント名は、サイトのトップページなど、随所に表示されます。</small>
@@ -95,7 +95,7 @@ if (isset($entereddata["mail"]["sendonly"]) and $entereddata["mail"]["sendonly"]
 <label for="systemfrom">システムが送信するメールの差出人名（30文字以内）</label>
 <input type="text" name="systemfrom" class="form-control" id="systemfrom" value="<?php
 if (isset($entereddata["mail"]["fromname"])) echo hsc($entereddata["mail"]["fromname"]);
-?>" onkeyup="ShowLength(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
+?>" onkeyup="show_length(value, &quot;systemfrom-counter&quot;);" onChange="check_individual(&quot;systemfrom&quot;);">
 <div id="systemfrom-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systemfrom-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの送信元（From）の差出人名を指定する場合はここで指定して下さい。<br>
@@ -106,7 +106,7 @@ if (isset($entereddata["mail"]["fromname"])) echo hsc($entereddata["mail"]["from
 <label for="systempre">システムが送信するメールの接頭辞（15文字以内）</label>
 <input type="text" name="systempre" class="form-control" id="systempre" value="<?php
 if (isset($entereddata["mail"]["pre"])) echo hsc($entereddata["mail"]["pre"]);
-?>" onkeyup="ShowLength(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
+?>" onkeyup="show_length(value, &quot;systempre-counter&quot;);" onChange="check_individual(&quot;systempre&quot;);">
 <div id="systempre-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="systempre-errortext" class="system-form-error"></div>
 <small class="form-text">※システムが自動で送信するメールの件名の頭に、ここで指定した接頭辞が付きます。接頭辞は括弧【】で囲われます。<br>

@@ -104,7 +104,7 @@ function check_dropdown($array) {
     return FALSE;
 }
 
-function check_attachments($array, $elementid, $uploadedfs, $currentsize) {
+function check_attachments($array, $elementid, $uploadedfs, $currentsize, $currentlength = 0) {
     $sizesum = 0;
     if ($array["filenumber"] == "") $filemax = 100;
     else $filemax = (int) $array["filenumber"];
@@ -139,13 +139,13 @@ php.ini の設定を見直して下さい。</strong></p>');
             if (!preg_match($reg, $_FILES[$elementid]['name'][$j])) return TRUE;
             $sizesum += $_FILES[$elementid]['size'][$j];
             $upped++;
-            if (preg_match('/\.MP4$/i', $_FILES[$elementid]['name'][$j])) {
-                $reso = get_resolution($_FILES[$elementid]["tmp_name"][$j]);
-                if ($reso[0] > $widthmax || $reso[1] > $heightmax) return TRUE;
-                $lengthsum += get_playtime($_FILES[$elementid]["tmp_name"][$j]);
-            }
+            $reso = get_resolution($_FILES[$elementid]["tmp_name"][$j]);
+            if ($reso[0] > $widthmax || $reso[1] > $heightmax) return TRUE;
+            $lengthsum += get_playtime($_FILES[$elementid]["tmp_name"][$j]);
         }
     }
+    $lengthsumdiff = $lengthsum;
+    $lengthsum += $currentlength;
     $sizesum += $currentsize;
     $deletenum = 0;
     foreach((array)$_POST[$elementid . "-delete"] as $key){
@@ -153,6 +153,7 @@ php.ini の設定を見直して下さい。</strong></p>');
         if (!isset($uploadedfs[basename($key)])) return TRUE;
         $sizesum -= $uploadedfs[basename($key)]["size"];
         $lengthsum -= $uploadedfs[basename($key)]["playtime"];
+        $lengthsumdiff -= $uploadedfs[basename($key)]["playtime"];
         $deletenum++;
     }
     $filenumber = $upped + count($uploadedfs) - $deletenum;
@@ -160,6 +161,6 @@ php.ini の設定を見直して下さい。</strong></p>');
     if($filenumber > $filemax) return TRUE;
     if ($sizesum > $oksize) return TRUE;
     if ($lengthsum > $lengthmax) return TRUE;
-    if ($elementid == "submitfile" and $lengthsum + get_length_sum() > $worklengthmax) return TRUE;
+    if ($elementid == "submitfile" and $lengthsumdiff + get_length_sum() > $worklengthmax) return TRUE;
     return FALSE;
 }

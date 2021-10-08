@@ -8,6 +8,7 @@
 
 .system-guestpage {
     background: #cff;
+    margin-bottom: 65px;
 }
 
 .system-mypage {
@@ -31,6 +32,18 @@
 
 .system-nav-mypage {
     background-image: linear-gradient(#8ee, #cff);
+}
+
+@media (max-width: 991.98px) {
+    .system-nav-mypage {
+        padding-right: 200px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .system-nav-mypage {
+        padding-right: 170px;
+    }
 }
 
 .system-nav-help {
@@ -181,4 +194,20 @@ h1 {
 
 .system-foldable-content-link:not(.collapsed)>.bi-chevron-double-down::before {
     transform: rotate(-180deg);
+}
+
+.system-btn-feedback {
+    position: fixed;
+    bottom: 15px;
+    right: 10px;
+    background: white;
+    z-index: 500;
+}
+
+.system-btn-feedback-icon {
+    font-size: 1.25rem;
+}
+
+.system-cell-checkbox {
+    width: 120px;
 }

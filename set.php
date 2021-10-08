@@ -25,7 +25,7 @@ if (!file_exists(DATAROOT . 'init.txt')) die('初期設定が済んでいませ�
 define('PAGEROOT', dirname(__FILE__).'/');
 
 //バージョン情報
-define('VERSION', 'Gamma-4E-0');
+define('VERSION', 'Gamma-4E-1');
 
 $initdata = json_decode(file_get_contents_repeat(DATAROOT . 'init.txt'), true);
 define('FILE_MAX_SIZE', (int)$initdata["maxsize"]);

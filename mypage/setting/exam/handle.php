@@ -74,6 +74,28 @@ $fileplace = DATAROOT . 'examsetting.txt';
 if (file_put_contents_repeat($fileplace, $savedata) === FALSE) die('設定内容の書き込みに失敗しました。');
 
 
+//メンバー本人のファイルに自動投票する処理
+foreach(glob(DATAROOT . 'exam/*.txt') as $filename) {
+    $filedata = json_unpack($filename);
+    if ($filedata["_state"] != 0) continue;
+    list($author, $id) = explode("/", $filedata["_realid"]);
+    if (array_search($author, (array)$_POST["submitmem"]) === FALSE) continue;
+    $filedata[$author] = array("opinion" => 1, "reason" => "");
+    json_pack($filename, $filedata);
+}
+foreach(glob(DATAROOT . 'exam_edit/*.txt') as $filename) {
+    $filedata = json_unpack($filename);
+    if ($filedata["_state"] != 0) continue;
+    if (!isset($filedata["_membermode"])) $filedata["_membermode"] = "edit";
+    if ($filedata["_membermode"] == "edit") $thismem = (array)$_POST["edit"];
+    else $thismem = (array)$_POST["submitmem"];
+    list($author, $id, $editid) = explode("/", $filedata["_realid"]);
+    if (array_search($author, $thismem) === FALSE) continue;
+    $filedata[$author] = array("opinion" => 1, "reason" => "");
+    json_pack($filename, $filedata);
+}
+
+
 //ファイル確認関連ファイルも書き換え
 exam_totalization_new("_all", FALSE);
 exam_totalization_edit("_all", FALSE);

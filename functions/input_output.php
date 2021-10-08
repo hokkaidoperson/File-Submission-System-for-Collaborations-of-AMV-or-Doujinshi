@@ -129,7 +129,7 @@ function register_alert($body, $class = "primary") {
 
 //register_alertで登録したアラートを表示
 function output_alert() {
-    if (!is_array($_SESSION["alerts_holder"])) return;
+    if (!isset($_SESSION["alerts_holder"]) or !is_array($_SESSION["alerts_holder"])) return;
     foreach ($_SESSION["alerts_holder"] as $contents) {
         echo <<<EOT
 <div class="alert alert-{$contents["class"]} alert-dismissible fade show system-alert-closable-spacer" role="alert">
@@ -188,7 +188,7 @@ function echo_textbox($array) {
     if (isset($array["prefix"]) and $array["prefix"] != "") echo '<div class="input-group-prepend"><span class="input-group-text">' . $array["prefix"] . '</span></div>';
     echo '<input type="' . hsc($array["type"]) . '" name="' . hsc($array["name"]) . '" class="form-control system-variable-input-toggle" id="' . hsc($array["id"]) . '" value="' . hsc($array["prefill"]) . '"';
     if (isset($array["width"]) and $array["width"] != "") echo ' style="width:' . hsc($array["width"]) . 'em;"';
-    if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="ShowLength(value, &quot;' . hsc($array["id"]) . '-counter&quot;);"';
+    if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="show_length(value, &quot;' . hsc($array["id"]) . '-counter&quot;);"';
     if (isset($array["disabled"]) and $array["disabled"]) echo ' disabled="disabled"';
     if (isset($array["jspart"]) and $array["jspart"] != "") echo ' ' . $array["jspart"];
     echo ">";
@@ -229,7 +229,7 @@ function echo_textbox_mlt($settings, $title, $id, $name, $detail = "", $type = "
         echo '<input type="' . hsc($type) . '" name="' . hsc($name) . '[' . $num . ']" class="form-control system-variable-input-toggle" id="' . hsc($id) . '[' . $num . ']" value="' . hsc($array["prefill"]) . '"';
         if (isset($array["placeholder"]) and $array["placeholder"] != "") echo ' placeholder="' . hsc($array["placeholder"]) . '"';
         if (isset($array["width"]) and $array["width"] != "") echo ' style="width:' . hsc($array["width"]) . 'em;"';
-        if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-' . $num . '-counter&quot;);"';
+        if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="show_length(value, &quot;' . hsc($id) . '-' . $num . '-counter&quot;);"';
         if (isset($array["disabled"]) and $array["disabled"]) echo ' disabled="disabled"';
         if (isset($array["jspart"]) and $array["jspart"] != "") echo ' ' . $array["jspart"];
         echo ">";
@@ -254,7 +254,7 @@ function echo_textarea($array) {
     else echo '<div class="input-group">';
     if ($array["height"] == "") $array["height"] = "5";
     echo '<textarea id="' . hsc($array["id"]) . '" name="' . hsc($array["name"]) . '" rows="' . hsc($array["height"]) . '" class="form-control"';
-    if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="ShowLength(value, &quot;' . hsc($array["id"]) . '-counter&quot;);"';
+    if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="show_length(value, &quot;' . hsc($array["id"]) . '-counter&quot;);"';
     if (isset($array["disabled"]) and $array["disabled"]) echo ' disabled="disabled"';
     if (isset($array["jspart"]) and $array["jspart"] != "") echo ' ' . $array["jspart"];
     echo ">";
@@ -277,7 +277,7 @@ function echo_textarea_mlt($settings, $title, $id, $name, $detail = "") {
         if ($array["height"] == "") $array["height"] = "5";
         echo '<textarea id="' . hsc($id) . '[' . $num . ']" name="' . hsc($name) . '[' . $num . ']" rows="' . hsc($array["height"]) . '" class="form-control"';
         if (isset($array["placeholder"]) and $array["placeholder"] != "") echo ' placeholder="' . hsc($array["placeholder"]) . '"';
-        if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="ShowLength(value, &quot;' . hsc($id) . '-' . $num . '-counter&quot;);"';
+        if (isset($array["showcounter"]) and $array["showcounter"]) echo ' onkeyup="show_length(value, &quot;' . hsc($id) . '-' . $num . '-counter&quot;);"';
         if (isset($array["disabled"]) and $array["disabled"]) echo ' disabled="disabled"';
         if (isset($array["jspart"]) and $array["jspart"] != "") echo ' ' . $array["jspart"];
         echo ">";
@@ -632,8 +632,8 @@ function echo_custom_item($data, $editing = FALSE, $disable = FALSE, $prefilledd
             if ($data["required"] == "1") echo '【必須】';
             if (!$editing) echo '</label>';
             echo '<dl class="small row"><dt class="col-sm-3">最大ファイルサイズ</dt><dd class="col-sm-9">合計' . $filesize . 'MBまで</dd>';
-            if ($data["reso"][0] != "" and $data["reso"][1] != "") echo '<dt class="col-sm-3">最大解像度（mp4のみ）</dt><dd class="col-sm-9">横' . $data["reso"][0] . 'px　縦' . $data["reso"][1] . 'pxまで</dd>';
-            if ($data["length"] != "") echo '<dt class="col-sm-3">最大再生時間（mp4のみ）</dt><dd class="col-sm-9">合計 ' . (int)((int)$data["length"] / 60) . '分 ' . ((int)$data["length"] % 60) . '秒まで</dd>';
+            if ($data["reso"][0] != "" and $data["reso"][1] != "") echo '<dt class="col-sm-3">最大解像度（動画・画像）</dt><dd class="col-sm-9">横' . $data["reso"][0] . 'px　縦' . $data["reso"][1] . 'pxまで</dd>';
+            if ($data["length"] != "") echo '<dt class="col-sm-3">最大再生時間（動画・音声）</dt><dd class="col-sm-9">合計 ' . (int)((int)$data["length"] / 60) . '分 ' . ((int)$data["length"] % 60) . '秒まで</dd>';
             echo '</dl>';
 
             if ($editing) {
@@ -648,13 +648,13 @@ function echo_custom_item($data, $editing = FALSE, $disable = FALSE, $prefilledd
                             echo '<a href="../fnc/filedld.php?author=' . $_SESSION["userid"] . '&genre=userform&id=' . $data["id"] . '_' . $key . '" target="_blank">' . hsc($element) . '</a>';
                             $uploadedfs[$key] = [
                                 "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $data["id"] . '_' . $key),
-                                "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $data["id"] . '_' . $key) : 0
+                                "playtime" => get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/common/' . $data["id"] . '_' . $key)
                             ];
                         } else {
                             echo '<a href="../fnc/filedld.php?author=' . $_SESSION["userid"] . '&genre=submitform&id=' . $workid . '&partid=' . $data["id"] . '_' . $key . '" target="_blank">' . hsc($element) . '</a>';
                             $uploadedfs[$key] = [
                                 "size" => filesize(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $workid . '/' . $data["id"] . '_' . $key),
-                                "playtime" => preg_match('/\.mp4$/i', $element) ? get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $workid . '/' . $data["id"] . '_' . $key) : 0
+                                "playtime" => get_playtime(DATAROOT . 'files/' . $_SESSION["userid"] . '/' . $workid . '/' . $data["id"] . '_' . $key)
                             ];
                         }
                         echo '</div>';
@@ -703,8 +703,8 @@ function echo_submitfile_section($data, $editing = FALSE, $disable = FALSE, $pre
     if ($editing) echo '提出ファイル（' . $exts . 'ファイル　' . $filenumexp . '）【必須】';
     else echo '<label for="submitfile">提出ファイル（' . $exts . 'ファイル　' . $filenumexp . '）【必須】</label>';
     echo '<dl class="small row"><dt class="col-sm-3">最大ファイルサイズ</dt><dd class="col-sm-9">合計' . $filesize . 'MBまで</dd>';
-    if ($data["reso"][0] != "" and $data["reso"][1] != "") echo '<dt class="col-sm-3">最大解像度（mp4のみ）</dt><dd class="col-sm-9">横' . $data["reso"][0] . 'px　縦' . $data["reso"][1] . 'pxまで</dd>';
-    if ($data["length"] != "") echo '<dt class="col-sm-3">最大再生時間（mp4のみ）</dt><dd class="col-sm-9">合計 ' . (int)((int)$data["length"] / 60) . '分 ' . ((int)$data["length"] % 60) . '秒まで</dd>';
+    if ($data["reso"][0] != "" and $data["reso"][1] != "") echo '<dt class="col-sm-3">最大解像度（動画・画像）</dt><dd class="col-sm-9">横' . $data["reso"][0] . 'px　縦' . $data["reso"][1] . 'pxまで</dd>';
+    if ($data["length"] != "") echo '<dt class="col-sm-3">最大再生時間（動画・音声）</dt><dd class="col-sm-9">合計 ' . (int)((int)$data["length"] / 60) . '分 ' . ((int)$data["length"] % 60) . '秒まで</dd>';
     echo '</dl>';
 
     if ($editing) {

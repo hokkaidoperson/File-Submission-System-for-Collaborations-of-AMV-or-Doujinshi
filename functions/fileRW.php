@@ -125,15 +125,15 @@ function get_file_info($filepath) {
 function get_playtime($filepath) {
     $file_info = get_file_info($filepath);
     if (isset($file_info['playtime_seconds'])) return (int)$file_info['playtime_seconds'];
-    return FALSE;
+    return 0;
 }
 
 function get_resolution($filepath) {
     $file_info = get_file_info($filepath);
     $array = [];
     if (isset($file_info['video']['resolution_x'])) $array[] = $file_info['video']['resolution_x'];
-    else $array[] = FALSE;
+    else $array[] = 0;
     if (isset($file_info['video']['resolution_y'])) $array[] = $file_info['video']['resolution_y'];
-    else $array[] = FALSE;
+    else $array[] = 0;
     return $array;
 }

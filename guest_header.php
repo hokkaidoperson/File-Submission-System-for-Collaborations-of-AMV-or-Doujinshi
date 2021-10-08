@@ -25,7 +25,7 @@ echo $eventname;
 if (isset($includepart)) echo $includepart;
 ?>
 </head>
-<body class="system-guestpage"<?php if (isset($bodyincludepart)) echo $bodyincludepart; ?>>
+<body class="system-guestpage">
 <div id="noscript">
 <p>当サイトではJavascript及びCookieを使用しますが、JavascriptかCookie、またはその両方が無効になっているようです。<br>
 ブラウザの設定を確認の上、JavascriptとCookieを有効にして再読み込みして下さい。</p>

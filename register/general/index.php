@@ -23,7 +23,6 @@ if ($recdata["site"] != "" and $recdata["sec"] != "" and extension_loaded('curl'
 
 if ($userec) {
     $includepart = "<script src='https://www.google.com/recaptcha/api.js' async defer></script>";
-    $bodyincludepart = ' style="margin-bottom: 90px;"';
 }
 $titlepart = "アカウント登録";
 require_once(PAGEROOT . 'guest_header.php');
@@ -90,7 +89,7 @@ echo_radio([
     "detail" => "※ログインの際にこのパスワードを使用します。パスワードはハッシュ化された状態（復号出来ないように変換された状態）で保存されます。"
 ]);
 
-if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible"></div>';
+if ($userec) echo '<div id=\'recaptcha\' class="g-recaptcha" data-sitekey="' . $recdata["site"] . '" data-callback="recSubmit" data-error-callback="recError" data-size="invisible" data-badge="bottomleft"></div>';
 
 echo_buttons(["primary"], ["submit"], ['<i class="bi bi-person-plus-fill"></i> 登録する'], '※送信前に、入力内容の確認をお願い致します。');
 ?>

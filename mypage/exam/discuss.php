@@ -247,7 +247,7 @@ else {
 <input type="hidden" name="subject" value="<?php echo $examfilename; ?>">
 <div class="form-group">
 <label for="add">新規コメント追加（500文字以内）</label>
-<textarea id="add" name="add" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;add-counter&quot;);" onChange="check_individual();"></textarea>
+<textarea id="add" name="add" rows="5" class="form-control" onkeyup="show_length(value, &quot;add-counter&quot;);" onChange="check_individual();"></textarea>
 <div id="add-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="add-errortext" class="system-form-error"></div>
 <small class="form-text">※改行は反映されます（この入力欄で改行すると実際のコメントでも改行されます）が、HTMLタグはお使いになれません。<br>
@@ -339,7 +339,7 @@ if ($leader != NULL) {
 </div>
 <div class="form-group">
 <label for="reason">「軽微な修正を求める」もしくは「承認を見送る」と答えた場合は、その理由を入力して下さい。（500文字以内）</label>
-<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="ShowLength(value, &quot;reason-counter&quot;);" onChange="check_decide_individual(&quot;reason&quot;);"></textarea>
+<textarea id="reason" name="reason" rows="5" class="form-control" onkeyup="show_length(value, &quot;reason-counter&quot;);" onChange="check_decide_individual(&quot;reason&quot;);"></textarea>
 <div id="reason-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="reason-errortext" class="system-form-error"></div>
 <small class="form-text"><?php

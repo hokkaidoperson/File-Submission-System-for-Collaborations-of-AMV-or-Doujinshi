@@ -119,9 +119,7 @@ if ($_POST["method"] == 'direct') {
             if (!move_uploaded_file($tmp_name, $fileto . $savename)) die('ファイルのアップロードに失敗しました。アップロードのリクエストが不正だったか、サーバーサイドで何かしらの問題が生じた可能性があります。');
             chmod($fileto . $savename, 0644);
             $userdata["submit"][$id . "_$j"] = $ext;
-            if (preg_match('/\.mp4$/i', $ext)) {
-                $playtime_sum += get_playtime($fileto . $savename);
-            }
+            $playtime_sum += get_playtime($fileto . $savename);
         }
     }
 } else {

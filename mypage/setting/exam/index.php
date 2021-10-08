@@ -162,7 +162,7 @@ if (isset($examsetting["anonymous"]) and $examsetting["anonymous"] == "1") echo 
 ?>>
 <label class="form-check-label" for="anonymous">ファイル・情報の提出者が誰か分からない（匿名化された）状態で確認を行う場合は、左のチェックボックスにチェックして下さい。</label>
 </div>
-<small class="form-text">※このオプションをオンにすると、ファイル確認の際に提出者が誰か表示されなくなります。</small>
+<small class="form-text">※このオプションをオンにすると、ファイル確認の際、次のような状態になります。<br>1. 提出者が誰か表示されなくなります。<br>2. ファイル名から提出者が特定される事を防ぐため、ファイル名が伏せられます。</small>
 </div>
 <br>
 <button type="submit" class="btn btn-primary">設定変更</button>

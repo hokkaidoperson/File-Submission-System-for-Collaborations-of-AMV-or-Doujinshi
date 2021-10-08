@@ -48,7 +48,7 @@ else {
 <label for="nickname">ニックネーム（30文字以内）【必須】</label>
 <input type="text" name="nickname" class="form-control" id="nickname" value="<?php
 if (isset($entereddata["nickname"])) echo hsc($entereddata["nickname"]);
-?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="ShowLength(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
+?>"<?php if ($disable) echo ' disabled="disabled"'; ?> onkeyup="show_length(value, &quot;nickname-counter&quot;);" onChange="check_individual(&quot;nickname&quot;);">
 <div id="nickname-counter" class="small text-right text-md-left text-muted">現在 - 文字</div>
 <div id="nickname-errortext" class="system-form-error"></div>
 <small class="form-text">※クレジット表記などの際にはこちらのニックネームが用いられます。普段ニコニコ動画やPixivなどでお使いのニックネーム（ペンネーム）で構いません。</small>
